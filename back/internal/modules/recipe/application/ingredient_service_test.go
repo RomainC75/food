@@ -17,7 +17,7 @@ var (
 	expectedSavedIngredient = recipe_dom.NewIngredient(saltUuid, saltName, recipe_dom.BaseUnit(saltBaseUnit))
 )
 
-func TestIngredientSrv(t *testing.T) {
+func TestCreateIngredient(t *testing.T) {
 	ingredient := dto_recipe_req.CreateIngredient{
 		Name:     saltName,
 		BaseUnit: saltBaseUnit,
@@ -33,4 +33,16 @@ func TestIngredientSrv(t *testing.T) {
 	savedIngredients := td.GetSavedIngredients()
 	assert.Len(t, savedIngredients, 1)
 	assert.Equal(t, expectedSavedIngredient, savedIngredients[0])
+}
+
+func TestDeleteIngredient(t *testing.T) {
+	td := NewTestDriver()
+	td.SetIngredientInMemory(expectedSavedIngredient)
+	err := td.DeleteIngredient(saltUuid)
+
+	assert.Nil(t, err)
+	deletedIngredient := td.GetDeletedLastIngredient()
+
+	assert.Equal(t, expectedSavedIngredient, deletedIngredient)
+
 }

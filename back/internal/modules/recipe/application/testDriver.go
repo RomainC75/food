@@ -40,3 +40,15 @@ func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngred
 func (td *TestDriver) GetSavedIngredients() []recipe_dom.Ingredient {
 	return td.inMemIngredients.GetSaved()
 }
+
+func (td *TestDriver) DeleteIngredient(id uuid.UUID) error {
+	return td.ingredientSrv.DeleteById(td.ctx, id)
+}
+
+func (td *TestDriver) SetIngredientInMemory(ingredient recipe_dom.Ingredient) {
+	td.inMemIngredients.Save(td.ctx, ingredient)
+}
+
+func (td *TestDriver) GetDeletedLastIngredient() recipe_dom.Ingredient {
+	return td.inMemIngredients.GetLastDeleted()
+}

@@ -5,6 +5,8 @@ import (
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	shared_domain "food/internal/shared/domain"
+
+	"github.com/google/uuid"
 )
 
 type IngredientSrv struct {
@@ -23,6 +25,16 @@ func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_re
 
 	ingredient := recipe_dom.NewIngredient(is.uuidGen.Generate(), ingredientReq.Name, ingredientReq.BaseUnit)
 
-	err := is.ingredients.Save(ingredient)
+	err := is.ingredients.Save(ctx, ingredient)
 	return ingredient, err
+}
+
+func (is *IngredientSrv) DeleteById(ctx context.Context, id uuid.UUID) error {
+	_, err := is.ingredients.GetById(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	return is.ingredients.DeleteById(ctx, id)
+
 }
