@@ -34,4 +34,8 @@ func TestIngredientSrv(t *testing.T) {
 
 	expectedIngredient := recipe_dom.NewIngredient(saltUuid, saltName, recipe_dom.BaseUnit(saltBaseUnit))
 	assert.Equal(t, expectedIngredient, createdIngredient)
+
+	savedIngredients := inMemIngredients.GetSaved()
+	assert.Len(t, savedIngredients, 1)
+	assert.Equal(t, expectedIngredient, savedIngredients[0])
 }
