@@ -65,16 +65,28 @@ func TestRecipeSrv(t *testing.T) {
 	assert.Equal(t, *expectedRecipe, *createdRecipe)
 
 	// update
-	updated, err := td.UpdateRecipe(updateRecipeReq)
+	updatedRecipe, err := td.UpdateRecipe(updateRecipeReq)
 	// expected
 	expectedRecipe.SetName(updateRecipeReq.Name)
 	expectedRecipe.DeleteIngredient(saltId)
 	expectedRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
 
-	assert.Equal(t, expectedRecipe, updated)
-	savedRecipe := td.GetSavedRecipes()
-	assert.Len(t, savedRecipe, 1)
-	assert.Equal(t, savedRecipe[0], expectedRecipe)
-	// delete
+	assert.Equal(t, expectedRecipe, updatedRecipe)
+	savedRecipes := td.GetSavedRecipes()
+	assert.Len(t, savedRecipes, 1)
+	assert.Equal(t, savedRecipes[0], expectedRecipe)
 
+	// delete
+	err = td.DeleteRecipe(updatedRecipe.Id())
+	assert.Nil(t, err)
+	savedRecipes = td.GetSavedRecipes()
+	assert.Len(t, savedRecipes, 0)
+}
+
+func TestDeleteRecipe(t *testing.T) {
+	td := NewTestDriver()
+	td.CreateRecipe(recipeReq)
+
+	err := td.DeleteRecipe(uuid.New())
+	assert.EqualError(t, err, ErrRecipeNotFound)
 }

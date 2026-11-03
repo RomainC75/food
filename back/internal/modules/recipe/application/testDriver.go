@@ -79,3 +79,7 @@ func (td *TestDriver) UpdateRecipe(r dto_recipe_req.UpdateRecipeDto) (*recipe_do
 func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
 	return td.inMemRecipes.GetSavedRecipes()
 }
+
+func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
+	return td.inMemRecipes.DeleteById(id)
+}
