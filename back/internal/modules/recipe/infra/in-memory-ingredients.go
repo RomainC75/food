@@ -8,6 +8,10 @@ import (
 	"github.com/google/uuid"
 )
 
+var (
+	ErrIngredientNotFound = "ingredient not found"
+)
+
 type InMemoryIngredients struct {
 	savedIngredients   []recipe_dom.Ingredient
 	expectedIngredient recipe_dom.Ingredient
@@ -15,7 +19,9 @@ type InMemoryIngredients struct {
 }
 
 func NewInMemoryIngredients() *InMemoryIngredients {
-	return &InMemoryIngredients{}
+	return &InMemoryIngredients{
+		savedIngredients: make([]recipe_dom.Ingredient, 0, 10),
+	}
 }
 
 func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient recipe_dom.Ingredient) error {
@@ -24,7 +30,12 @@ func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient recipe_dom.
 }
 
 func (imi *InMemoryIngredients) GetById(ctx context.Context, id uuid.UUID) (recipe_dom.Ingredient, error) {
-	return imi.expectedIngredient, nil
+	for _, i := range imi.savedIngredients {
+		if i.Id() == id {
+			return i, nil
+		}
+	}
+	return recipe_dom.Ingredient{}, errors.New(ErrIngredientNotFound)
 }
 
 func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {

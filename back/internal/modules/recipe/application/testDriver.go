@@ -12,20 +12,29 @@ import (
 
 type TestDriver struct {
 	ctx              context.Context
-	inMemIngredients *recipe_infra.InMemoryIngredients
 	inMemUuidGen     *shared_infra.InMemUuidGen
+	inMemIngredients *recipe_infra.InMemoryIngredients
+	inMemReceipes    *recipe_infra.InMemReceipes
 	ingredientSrv    *IngredientSrv
+	receipeSrv       *RecipeSrv
 }
 
 func NewTestDriver() *TestDriver {
 	inMemUuidGen := shared_infra.NewInMemUuidGen()
 	inMemIngredients := recipe_infra.NewInMemoryIngredients()
+	inMemReceipes := recipe_infra.NewInMemReceipes()
+
 	ingredientSrv := NewIngredientSrv(inMemUuidGen, inMemIngredients)
+	receipeSrv := NewRecipeSrv(inMemUuidGen, inMemIngredients, inMemReceipes)
+
 	return &TestDriver{
 		ctx:              context.Background(),
-		inMemIngredients: inMemIngredients,
 		inMemUuidGen:     inMemUuidGen,
-		ingredientSrv:    ingredientSrv,
+		inMemIngredients: inMemIngredients,
+		inMemReceipes:    inMemReceipes,
+
+		ingredientSrv: ingredientSrv,
+		receipeSrv:    receipeSrv,
 	}
 }
 
@@ -55,4 +64,10 @@ func (td *TestDriver) GetDeletedLastIngredient() recipe_dom.Ingredient {
 
 func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Search(td.ctx, i)
+}
+
+// -- RECEIPE --
+
+func (td *TestDriver) CreateReceipe(r dto_recipe_req.CreateReceipeDto) (*recipe_dom.Receipe, error) {
+	return td.receipeSrv.Create(td.ctx, r)
 }
