@@ -21,14 +21,14 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 	}
 }
 
-func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredient) (recipe_dom.Ingredient, error) {
+func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredient) (*recipe_dom.Ingredient, error) {
 	ingredient := recipe_dom.NewIngredient(is.uuidGen.Generate(), ingredientReq.Name, ingredientReq.BaseUnit)
 
 	err := is.ingredients.Save(ctx, ingredient)
 	return ingredient, err
 }
 
-func (is *IngredientSrv) Search(ctx context.Context, f recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {
+func (is *IngredientSrv) Search(ctx context.Context, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	return is.ingredients.Search(ctx, f)
 }
 

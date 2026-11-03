@@ -42,11 +42,11 @@ func (td *TestDriver) SetNextUuid(id uuid.UUID) {
 	td.inMemUuidGen.AddExpected(id)
 }
 
-func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredient) (recipe_dom.Ingredient, error) {
+func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredient) (*recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
 
-func (td *TestDriver) GetSavedIngredients() []recipe_dom.Ingredient {
+func (td *TestDriver) GetSavedIngredients() []*recipe_dom.Ingredient {
 	return td.inMemIngredients.GetSaved()
 }
 
@@ -54,15 +54,15 @@ func (td *TestDriver) DeleteIngredient(id uuid.UUID) error {
 	return td.ingredientSrv.DeleteById(td.ctx, id)
 }
 
-func (td *TestDriver) SetIngredientInMemory(ingredient recipe_dom.Ingredient) {
+func (td *TestDriver) SetIngredientInMemory(ingredient *recipe_dom.Ingredient) {
 	td.inMemIngredients.Save(td.ctx, ingredient)
 }
 
-func (td *TestDriver) GetDeletedLastIngredient() recipe_dom.Ingredient {
+func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
 	return td.inMemIngredients.GetLastDeleted()
 }
 
-func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {
+func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Search(td.ctx, i)
 }
 

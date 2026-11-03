@@ -16,8 +16,8 @@ type IngredientFilter struct {
 }
 
 type Ingredients interface {
-	Save(ctx context.Context, ingredient Ingredient) error
-	GetById(ctx context.Context, id uuid.UUID) (Ingredient, error)
+	Save(ctx context.Context, ingredient *Ingredient) error
+	GetById(ctx context.Context, id uuid.UUID) (*Ingredient, error)
 	DeleteById(ctx context.Context, id uuid.UUID) error
-	Search(ctx context.Context, f IngredientFilter) (Ingredient, error)
+	Search(ctx context.Context, f IngredientFilter) (*Ingredient, error)
 }
