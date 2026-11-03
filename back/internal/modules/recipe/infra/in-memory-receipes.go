@@ -27,7 +27,7 @@ func (imr *InMemRecipes) CreateRecipe(ctx context.Context, r *recipe_dom.Recipe)
 	return nil
 }
 
-func (imr *InMemRecipes) GetByIt(id uuid.UUID) (*recipe_dom.Recipe, error) {
+func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom.Recipe, error) {
 	for _, r := range imr.savedRecipes {
 		if r.Id() == id {
 			return r, nil
@@ -47,6 +47,6 @@ func (imr *InMemRecipes) UpdateRecipe(ctx context.Context, r *recipe_dom.Recipe)
 
 // == TEST ==
 
-func (imr *InMemRecipes) SavedRecipes(ctx context.Context, r *recipe_dom.Recipe) []*recipe_dom.Recipe {
+func (imr *InMemRecipes) GetSavedRecipes() []*recipe_dom.Recipe {
 	return imr.savedRecipes
 }

@@ -16,3 +16,8 @@ type CreateRecipeDto struct {
 	Name        string
 	Ingredients []IngredientBasicInfo
 }
+
+type UpdateRecipeDto struct {
+	Id uuid.UUID
+	CreateRecipeDto
+}

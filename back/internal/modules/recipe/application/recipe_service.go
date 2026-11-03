@@ -2,11 +2,16 @@ package recipe_app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	shared_domain "food/internal/shared/domain"
 	"strings"
+)
+
+var (
+	ErrRecipeNotFound = "recipe not found"
 )
 
 type ErrIngredientNotFound struct {
@@ -82,4 +87,40 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateRecipe
 
 	err := rSrv.recipes.CreateRecipe(ctx, recipe)
 	return recipe, err
+}
+
+func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
+	errINF := ErrIngredientNotFound{
+		IngredientNotFound: make([]dto_recipe_req.IngredientBasicInfo, 0, len(r.Ingredients)),
+		WrongUnit:          make([]dto_recipe_req.IngredientBasicInfo, 0, len(r.Ingredients)),
+	}
+	// get
+	foundRecipe, err := rSrv.recipes.GetById(ctx, r.Id)
+	if err != nil {
+		return nil, errors.New(ErrRecipeNotFound)
+	}
+
+	foundRecipe.SetName(r.Name)
+
+	recipeIngredients := make([]recipe_dom.RecipeIngredient, 0, len(r.Ingredients))
+
+	for _, bi := range r.Ingredients {
+		_, err := rSrv.ingredients.GetById(ctx, bi.Id)
+		if err != nil {
+			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
+		}
+		qty, err := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
+		if err != nil {
+			errINF.WrongUnit = append(errINF.WrongUnit, bi)
+		}
+		recipeIngredients = append(recipeIngredients, recipe_dom.RecipeIngredient{
+			IngredientID: bi.Id,
+			Quantity:     qty,
+		})
+	}
+
+	foundRecipe.UpdateIngredients(recipeIngredients)
+
+	err = rSrv.recipes.UpdateRecipe(ctx, foundRecipe)
+	return foundRecipe, err
 }

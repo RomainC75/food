@@ -71,3 +71,11 @@ func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (*recipe_dom.Ingredi
 func (td *TestDriver) CreateRecipe(r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
 	return td.recipeSrv.Create(td.ctx, r)
 }
+
+func (td *TestDriver) UpdateRecipe(r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
+	return td.recipeSrv.Update(td.ctx, r)
+}
+
+func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
+	return td.inMemRecipes.GetSavedRecipes()
+}
