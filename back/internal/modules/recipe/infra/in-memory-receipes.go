@@ -2,7 +2,14 @@ package recipe_infra
 
 import (
 	"context"
+	"errors"
 	recipe_dom "food/internal/modules/recipe/domain"
+
+	"github.com/google/uuid"
+)
+
+var (
+	ErrRecipeNotFound = "recipe not found"
 )
 
 type InMemRecipes struct {
@@ -15,10 +22,30 @@ func NewInMemRecipes() *InMemRecipes {
 	}
 }
 
-func (imr *InMemRecipes) Save(ctx context.Context, r *recipe_dom.Recipe) error {
+func (imr *InMemRecipes) CreateRecipe(ctx context.Context, r *recipe_dom.Recipe) error {
 	imr.savedRecipes = append(imr.savedRecipes, r)
 	return nil
 }
+
+func (imr *InMemRecipes) GetByIt(id uuid.UUID) (*recipe_dom.Recipe, error) {
+	for _, r := range imr.savedRecipes {
+		if r.Id() == id {
+			return r, nil
+		}
+	}
+	return nil, errors.New(ErrRecipeNotFound)
+}
+
+func (imr *InMemRecipes) UpdateRecipe(ctx context.Context, r *recipe_dom.Recipe) error {
+	// auto - save : pointer
+
+	// 	Updates the recipe.
+	// Deletes its existing ingredient relationships.
+	// Inserts the current ingredient collection.
+	return nil
+}
+
+// == TEST ==
 
 func (imr *InMemRecipes) SavedRecipes(ctx context.Context, r *recipe_dom.Recipe) []*recipe_dom.Recipe {
 	return imr.savedRecipes

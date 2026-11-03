@@ -11,10 +11,12 @@ import (
 )
 
 var (
-	saltId  = uuid.MustParse("55d03b43-82cb-46bd-8645-fa66e88bb996")
-	saltI   = recipe_dom.NewIngredient(saltId, "salt", recipe_dom.Gram)
-	pastaid = uuid.MustParse("90cc7659-912a-460a-bf9e-fb04c1f9c08c")
-	pastaI  = recipe_dom.NewIngredient(pastaid, "pasta", recipe_dom.Kilo)
+	saltId   = uuid.MustParse("55d03b43-82cb-46bd-8645-fa66e88bb996")
+	saltI    = recipe_dom.NewIngredient(saltId, "salt", recipe_dom.Gram)
+	saltQty  = recipe_dom.MustNewQuantity(5, recipe_dom.Gram)
+	pastaid  = uuid.MustParse("90cc7659-912a-460a-bf9e-fb04c1f9c08c")
+	pastaI   = recipe_dom.NewIngredient(pastaid, "pasta", recipe_dom.Kilo)
+	pastaQty = recipe_dom.MustNewQuantity(500, recipe_dom.Gram)
 
 	recipeId   = uuid.MustParse("d9578476-6f71-498b-9e49-c90bab2f6004")
 	recipeName = "salt pasta"
@@ -23,7 +25,7 @@ var (
 		Name: recipeName,
 		Ingredients: []dto_recipe_req.IngredientBasicInfo{
 			{saltId, 5, recipe_dom.Gram},
-			{pastaid, 0.5, recipe_dom.Kilo},
+			{pastaid, 500, recipe_dom.Gram},
 		},
 	}
 )
@@ -33,8 +35,8 @@ func TestRecipeSrv(t *testing.T) {
 
 	salt := recipe_dom.NewIngredient(saltId, "salt", recipe_dom.Gram)
 	pasta := recipe_dom.NewIngredient(pastaid, "pasta", recipe_dom.Kilo)
-	recipe.AddIngredient(pasta)
-	recipe.AddIngredient(salt)
+	recipe.AddIngredient(pasta, pastaQty)
+	recipe.AddIngredient(salt, saltQty)
 
 	td := NewTestDriver()
 	td.SetIngredientInMemory(saltI)
@@ -44,13 +46,18 @@ func TestRecipeSrv(t *testing.T) {
 
 	createdRecipe, err := td.CreateRecipe(recipeReq)
 
+	// -- create expected model to compare --
 	expectedRecipe := recipe_dom.NewRecipe(recipeId, recipeName)
-	expectedRecipe.AddIngredient(saltI)
-	expectedRecipe.AddIngredient(pastaI)
+	expectedRecipe.AddIngredient(saltI, saltQty)
+	expectedRecipe.AddIngredient(pastaI, pastaQty)
 
 	if err != nil {
 		log.Println("erro : ", err.Error())
 	}
 	assert.Nil(t, err)
 	assert.Equal(t, *expectedRecipe, *createdRecipe)
+
+	// update
+
+	// delete
 }

@@ -27,3 +27,22 @@ func (ing *Ingredient) Name() string {
 func (ing *Ingredient) BaseUnit() BaseUnit {
 	return ing.baseUnit
 }
+
+func (ing *Ingredient) IsQtyValid(q Quantity) bool {
+	if ing.baseUnit == Piece {
+		if q.unit != Piece {
+			return false
+		}
+	}
+	if ing.baseUnit == Liter || ing.baseUnit == MilliLiter {
+		if q.unit != Liter && q.unit != MilliLiter {
+			return false
+		}
+	}
+	if ing.baseUnit == Kilo || ing.baseUnit == Gram {
+		if q.unit != Kilo && q.unit != Gram {
+			return false
+		}
+	}
+	return true
+}

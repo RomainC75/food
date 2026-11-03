@@ -5,5 +5,6 @@ import (
 )
 
 type Recipes interface {
-	Save(ctx context.Context, r *Recipe) error
+	CreateRecipe(ctx context.Context, r *Recipe) error
+	UpdateRecipe(ctx context.Context, r *Recipe) error
 }
