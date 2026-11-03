@@ -24,36 +24,36 @@ func (einf *ErrIngredientNotFound) Error() string {
 type RecipeSrv struct {
 	uuidGen     shared_domain.Uuids
 	ingredients recipe_dom.Ingredients
-	receipes    recipe_dom.Receipes
+	recipes     recipe_dom.Recipes
 }
 
-func NewRecipeSrv(uuidGen shared_domain.Uuids, i recipe_dom.Ingredients, r recipe_dom.Receipes) *RecipeSrv {
+func NewRecipeSrv(uuidGen shared_domain.Uuids, i recipe_dom.Ingredients, r recipe_dom.Recipes) *RecipeSrv {
 	return &RecipeSrv{
 		uuidGen:     uuidGen,
 		ingredients: i,
-		receipes:    r,
+		recipes:     r,
 	}
 }
 
-func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateReceipeDto) (*recipe_dom.Receipe, error) {
+func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
 	errINF := ErrIngredientNotFound{
 		IngredientBasicInfo: make([]dto_recipe_req.IngredientBasicInfo, 0, len(r.Ingredients)),
 	}
 
-	receipe := recipe_dom.NewReceipe(rSrv.uuidGen.Generate(), r.Name)
+	recipe := recipe_dom.NewRecipe(rSrv.uuidGen.Generate(), r.Name)
 
 	for _, bi := range r.Ingredients {
 		i, err := rSrv.ingredients.GetById(ctx, bi.Id)
 		if err != nil {
 			errINF.IngredientBasicInfo = append(errINF.IngredientBasicInfo, bi)
 		}
-		receipe.AddIngredient(i)
+		recipe.AddIngredient(i)
 	}
 
 	if len(errINF.IngredientBasicInfo) != 0 {
 		return nil, &errINF
 	}
 
-	err := rSrv.receipes.Save(ctx, receipe)
-	return receipe, err
+	err := rSrv.recipes.Save(ctx, recipe)
+	return recipe, err
 }

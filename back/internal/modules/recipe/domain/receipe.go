@@ -2,20 +2,20 @@ package recipe_dom
 
 import "github.com/google/uuid"
 
-type Receipe struct {
+type Recipe struct {
 	id          uuid.UUID
 	name        string
 	ingredients []Ingredient
 }
 
-func NewReceipe(id uuid.UUID, name string) *Receipe {
-	return &Receipe{
+func NewRecipe(id uuid.UUID, name string) *Recipe {
+	return &Recipe{
 		id:          id,
 		name:        name,
 		ingredients: make([]Ingredient, 0, 10),
 	}
 }
 
-func (r *Receipe) AddIngredient(ingredient Ingredient) {
+func (r *Recipe) AddIngredient(ingredient Ingredient) {
 	r.ingredients = append(r.ingredients, ingredient)
 }

@@ -14,27 +14,27 @@ type TestDriver struct {
 	ctx              context.Context
 	inMemUuidGen     *shared_infra.InMemUuidGen
 	inMemIngredients *recipe_infra.InMemoryIngredients
-	inMemReceipes    *recipe_infra.InMemReceipes
+	inMemRecipes     *recipe_infra.InMemRecipes
 	ingredientSrv    *IngredientSrv
-	receipeSrv       *RecipeSrv
+	recipeSrv        *RecipeSrv
 }
 
 func NewTestDriver() *TestDriver {
 	inMemUuidGen := shared_infra.NewInMemUuidGen()
 	inMemIngredients := recipe_infra.NewInMemoryIngredients()
-	inMemReceipes := recipe_infra.NewInMemReceipes()
+	inMemRecipes := recipe_infra.NewInMemRecipes()
 
 	ingredientSrv := NewIngredientSrv(inMemUuidGen, inMemIngredients)
-	receipeSrv := NewRecipeSrv(inMemUuidGen, inMemIngredients, inMemReceipes)
+	recipeSrv := NewRecipeSrv(inMemUuidGen, inMemIngredients, inMemRecipes)
 
 	return &TestDriver{
 		ctx:              context.Background(),
 		inMemUuidGen:     inMemUuidGen,
 		inMemIngredients: inMemIngredients,
-		inMemReceipes:    inMemReceipes,
+		inMemRecipes:     inMemRecipes,
 
 		ingredientSrv: ingredientSrv,
-		receipeSrv:    receipeSrv,
+		recipeSrv:     recipeSrv,
 	}
 }
 
@@ -68,6 +68,6 @@ func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (recipe_dom.Ingredie
 
 // -- RECEIPE --
 
-func (td *TestDriver) CreateReceipe(r dto_recipe_req.CreateReceipeDto) (*recipe_dom.Receipe, error) {
-	return td.receipeSrv.Create(td.ctx, r)
+func (td *TestDriver) CreateRecipe(r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+	return td.recipeSrv.Create(td.ctx, r)
 }

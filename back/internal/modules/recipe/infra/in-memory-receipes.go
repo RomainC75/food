@@ -5,21 +5,21 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 )
 
-type InMemReceipes struct {
-	savedReceipes []*recipe_dom.Receipe
+type InMemRecipes struct {
+	savedRecipes []*recipe_dom.Recipe
 }
 
-func NewInMemReceipes() *InMemReceipes {
-	return &InMemReceipes{
-		savedReceipes: make([]*recipe_dom.Receipe, 0, 10),
+func NewInMemRecipes() *InMemRecipes {
+	return &InMemRecipes{
+		savedRecipes: make([]*recipe_dom.Recipe, 0, 10),
 	}
 }
 
-func (imr *InMemReceipes) Save(ctx context.Context, r *recipe_dom.Receipe) error {
-	imr.savedReceipes = append(imr.savedReceipes, r)
+func (imr *InMemRecipes) Save(ctx context.Context, r *recipe_dom.Recipe) error {
+	imr.savedRecipes = append(imr.savedRecipes, r)
 	return nil
 }
 
-func (imr *InMemReceipes) SavedReceipes(ctx context.Context, r *recipe_dom.Receipe) []*recipe_dom.Receipe {
-	return imr.savedReceipes
+func (imr *InMemRecipes) SavedRecipes(ctx context.Context, r *recipe_dom.Recipe) []*recipe_dom.Recipe {
+	return imr.savedRecipes
 }

@@ -4,6 +4,6 @@ import (
 	"context"
 )
 
-type Receipes interface {
-	Save(ctx context.Context, r *Receipe) error
+type Recipes interface {
+	Save(ctx context.Context, r *Recipe) error
 }

@@ -12,7 +12,7 @@ type IngredientBasicInfo struct {
 	Unit recipe_dom.BaseUnit
 }
 
-type CreateReceipeDto struct {
+type CreateRecipeDto struct {
 	Name        string
 	Ingredients []IngredientBasicInfo
 }
