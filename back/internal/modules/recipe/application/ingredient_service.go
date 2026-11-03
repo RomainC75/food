@@ -29,6 +29,10 @@ func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_re
 	return ingredient, err
 }
 
+func (is *IngredientSrv) Search(ctx context.Context, f recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {
+	return is.ingredients.Search(ctx, f)
+}
+
 func (is *IngredientSrv) DeleteById(ctx context.Context, id uuid.UUID) error {
 	_, err := is.ingredients.GetById(ctx, id)
 	if err != nil {

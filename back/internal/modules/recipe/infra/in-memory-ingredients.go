@@ -27,6 +27,19 @@ func (imi *InMemoryIngredients) GetById(ctx context.Context, id uuid.UUID) (reci
 	return imi.expectedIngredient, nil
 }
 
+func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {
+	for _, i := range imi.savedIngredients {
+		if f.Name != "" && i.Name() != f.Name {
+			continue
+		}
+		if f.BaseUnit != "" && i.BaseUnit() != f.BaseUnit {
+			continue
+		}
+		return i, nil
+	}
+	return recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrNotFound)
+}
+
 func (imi *InMemoryIngredients) DeleteById(ctx context.Context, id uuid.UUID) error {
 	for i, ing := range imi.savedIngredients {
 		if id == ing.Id() {

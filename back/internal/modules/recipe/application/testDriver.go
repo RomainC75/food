@@ -52,3 +52,7 @@ func (td *TestDriver) SetIngredientInMemory(ingredient recipe_dom.Ingredient) {
 func (td *TestDriver) GetDeletedLastIngredient() recipe_dom.Ingredient {
 	return td.inMemIngredients.GetLastDeleted()
 }
+
+func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (recipe_dom.Ingredient, error) {
+	return td.ingredientSrv.Search(td.ctx, i)
+}

@@ -19,3 +19,11 @@ func NewIngredient(id uuid.UUID, name string, baseUnit BaseUnit) Ingredient {
 func (ing Ingredient) Id() uuid.UUID {
 	return ing.id
 }
+
+func (ing Ingredient) Name() string {
+	return ing.name
+}
+
+func (ing Ingredient) BaseUnit() BaseUnit {
+	return ing.baseUnit
+}
