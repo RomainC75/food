@@ -22,7 +22,7 @@ func NewInMemRecipes() *InMemRecipes {
 	}
 }
 
-func (imr *InMemRecipes) CreateRecipe(ctx context.Context, r *recipe_dom.Recipe) error {
+func (imr *InMemRecipes) Create(ctx context.Context, r *recipe_dom.Recipe) error {
 	imr.savedRecipes = append(imr.savedRecipes, r)
 	return nil
 }
@@ -36,7 +36,7 @@ func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom
 	return nil, errors.New(ErrRecipeNotFound)
 }
 
-func (imr *InMemRecipes) UpdateRecipe(ctx context.Context, r *recipe_dom.Recipe) error {
+func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error {
 	// ** auto - save : pointer
 
 	// !! for the real one
@@ -44,6 +44,16 @@ func (imr *InMemRecipes) UpdateRecipe(ctx context.Context, r *recipe_dom.Recipe)
 	// Deletes its existing ingredient relationships.
 	// Inserts the current ingredient collection.
 	return nil
+}
+
+func (imr *InMemRecipes) Delete(ctx context.Context, id uuid.UUID) error {
+	for i, r := range imr.savedRecipes {
+		if r.Id() == id {
+			imr.savedRecipes = append(imr.savedRecipes[:i], imr.savedRecipes[i+1:]...)
+			return nil
+		}
+	}
+	return errors.New(ErrRecipeNotFound)
 }
 
 // == TEST ==

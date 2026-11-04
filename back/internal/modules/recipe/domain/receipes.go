@@ -8,6 +8,7 @@ import (
 
 type Recipes interface {
 	GetById(ctx context.Context, id uuid.UUID) (*Recipe, error)
-	CreateRecipe(ctx context.Context, r *Recipe) error
-	UpdateRecipe(ctx context.Context, r *Recipe) error
+	Create(ctx context.Context, r *Recipe) error
+	Update(ctx context.Context, r *Recipe) error
+	Delete(ctx context.Context, id uuid.UUID) error
 }

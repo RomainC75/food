@@ -85,8 +85,15 @@ func TestRecipeSrv(t *testing.T) {
 
 func TestDeleteRecipe(t *testing.T) {
 	td := NewTestDriver()
-	td.CreateRecipe(recipeReq)
+	createdRecipe, err := td.SetupRecipe(recipeReq, []*recipe_dom.Ingredient{saltI, pastaI})
+	assert.Nil(t, err)
 
-	err := td.DeleteRecipe(uuid.New())
+	err = td.DeleteRecipe(uuid.New())
 	assert.EqualError(t, err, ErrRecipeNotFound)
+	assert.Len(t, td.GetSavedRecipes(), 1)
+
+	err = td.DeleteRecipe(createdRecipe.Id())
+	assert.Nil(t, err)
+	assert.Len(t, td.GetSavedRecipes(), 0)
+
 }

@@ -8,6 +8,8 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	shared_domain "food/internal/shared/domain"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -85,7 +87,7 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateRecipe
 		return nil, &errINF
 	}
 
-	err := rSrv.recipes.CreateRecipe(ctx, recipe)
+	err := rSrv.recipes.Create(ctx, recipe)
 	return recipe, err
 }
 
@@ -121,6 +123,10 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 
 	foundRecipe.UpdateIngredients(recipeIngredients)
 
-	err = rSrv.recipes.UpdateRecipe(ctx, foundRecipe)
+	err = rSrv.recipes.Update(ctx, foundRecipe)
 	return foundRecipe, err
+}
+
+func (rSrv *RecipeSrv) Delete(ctx context.Context, id uuid.UUID) error {
+	return rSrv.recipes.Delete(ctx, id)
 }

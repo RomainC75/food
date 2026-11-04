@@ -54,8 +54,8 @@ func (td *TestDriver) DeleteIngredient(id uuid.UUID) error {
 	return td.ingredientSrv.DeleteById(td.ctx, id)
 }
 
-func (td *TestDriver) SetIngredientInMemory(ingredient *recipe_dom.Ingredient) {
-	td.inMemIngredients.Save(td.ctx, ingredient)
+func (td *TestDriver) SetIngredientInMemory(ingredient *recipe_dom.Ingredient) error {
+	return td.inMemIngredients.Save(td.ctx, ingredient)
 }
 
 func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
@@ -67,6 +67,14 @@ func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (*recipe_dom.Ingredi
 }
 
 // -- RECEIPE --
+func (td *TestDriver) SetupRecipe(r dto_recipe_req.CreateRecipeDto, ingredients []*recipe_dom.Ingredient) (*recipe_dom.Recipe, error) {
+	for _, ing := range ingredients {
+		if err := td.SetIngredientInMemory(ing); err != nil {
+			return nil, err
+		}
+	}
+	return td.CreateRecipe(r)
+}
 
 func (td *TestDriver) CreateRecipe(r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
 	return td.recipeSrv.Create(td.ctx, r)
@@ -81,5 +89,5 @@ func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
 }
 
 func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
-	return td.inMemRecipes.DeleteById(id)
+	return td.recipeSrv.Delete(td.ctx, id)
 }
