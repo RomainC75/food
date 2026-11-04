@@ -3,6 +3,7 @@ package recipe_infra
 import (
 	"context"
 	"errors"
+	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 
 	"github.com/google/uuid"
@@ -28,22 +29,29 @@ func (imr *InMemRecipes) Create(ctx context.Context, r *recipe_dom.Recipe) error
 }
 
 func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom.Recipe, error) {
+	fmt.Println("-- get by id : ", imr.savedRecipes, id)
+
 	for _, r := range imr.savedRecipes {
 		if r.Id() == id {
-			return r, nil
+			return r.Clone(), nil
 		}
 	}
 	return nil, errors.New(ErrRecipeNotFound)
 }
 
 func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error {
-	// ** auto - save : pointer
-
+	// ! pointer -> test probles
+	for i, sr := range imr.savedRecipes {
+		if sr.Id() == r.Id() {
+			imr.savedRecipes[i] = r.Clone()
+			return nil
+		}
+	}
+	return errors.New(ErrRecipeNotFound)
 	// !! for the real one
 	// 	Updates the recipe.
 	// Deletes its existing ingredient relationships.
 	// Inserts the current ingredient collection.
-	return nil
 }
 
 func (imr *InMemRecipes) Delete(ctx context.Context, id uuid.UUID) error {

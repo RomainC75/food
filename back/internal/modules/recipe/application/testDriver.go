@@ -67,16 +67,17 @@ func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (*recipe_dom.Ingredi
 }
 
 // -- RECEIPE --
-func (td *TestDriver) SetupRecipe(r dto_recipe_req.CreateRecipeDto, ingredients []*recipe_dom.Ingredient) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) SetupFullRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto, ingredients []*recipe_dom.Ingredient) (*recipe_dom.Recipe, error) {
 	for _, ing := range ingredients {
 		if err := td.SetIngredientInMemory(ing); err != nil {
 			return nil, err
 		}
 	}
-	return td.CreateRecipe(r)
+	return td.CreateRecipe(expectedId, r)
 }
 
-func (td *TestDriver) CreateRecipe(r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+	td.SetNextUuid(expectedId)
 	return td.recipeSrv.Create(td.ctx, r)
 }
 

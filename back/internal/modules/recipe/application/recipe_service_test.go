@@ -3,6 +3,7 @@ package recipe_app
 import (
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
+	"food/utils/displayer"
 	"log"
 	"testing"
 
@@ -17,12 +18,13 @@ var (
 	pastaid        = uuid.MustParse("90cc7659-912a-460a-bf9e-fb04c1f9c08c")
 	pastaI         = recipe_dom.NewIngredient(pastaid, "pasta", recipe_dom.Kilo)
 	pastaQty       = recipe_dom.MustNewQuantity(500, recipe_dom.Gram)
-	sauceTomateid  = uuid.MustParse("90cc7659-912a-460a-bf9e-fb04c1f9c08c")
+	sauceTomateid  = uuid.MustParse("ab618a4c-e2c7-4e34-ad1f-4fe88d2e98f9")
 	sauceTomateI   = recipe_dom.NewIngredient(sauceTomateid, "sauce omate", recipe_dom.Kilo)
 	sauceTomateQty = recipe_dom.MustNewQuantity(100, recipe_dom.Gram)
 
-	recipeId   = uuid.MustParse("d9578476-6f71-498b-9e49-c90bab2f6004")
-	recipeName = "salt pasta"
+	recipeId      = uuid.MustParse("d9578476-6f71-498b-9e49-c90bab2f6004")
+	recipeName    = "salt pasta"
+	recipeNewName = "tomato pasta"
 
 	recipeReq = dto_recipe_req.CreateRecipeDto{
 		Name: recipeName,
@@ -35,7 +37,7 @@ var (
 	updateRecipeReq = dto_recipe_req.UpdateRecipeDto{
 		Id: recipeId,
 		CreateRecipeDto: dto_recipe_req.CreateRecipeDto{
-			Name: recipeName,
+			Name: recipeNewName,
 			Ingredients: []dto_recipe_req.IngredientBasicInfo{
 				{pastaid, 500, recipe_dom.Gram},
 				{sauceTomateid, 100, recipe_dom.Gram},
@@ -44,14 +46,12 @@ var (
 	}
 )
 
-func TestRecipeSrv(t *testing.T) {
+func TestCreateRecipe(t *testing.T) {
 	td := NewTestDriver()
 	td.SetIngredientInMemory(saltI)
 	td.SetIngredientInMemory(pastaI)
-	td.SetIngredientInMemory((sauceTomateI))
-	td.SetNextUuid(recipeId)
 
-	createdRecipe, err := td.CreateRecipe(recipeReq)
+	createdRecipe, err := td.CreateRecipe(recipeId, recipeReq)
 
 	// -- create expected model to compare --
 	expectedRecipe := recipe_dom.NewRecipe(recipeId, recipeName)
@@ -64,28 +64,48 @@ func TestRecipeSrv(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, *expectedRecipe, *createdRecipe)
 
-	// update
-	updatedRecipe, err := td.UpdateRecipe(updateRecipeReq)
-	// expected
-	expectedRecipe.SetName(updateRecipeReq.Name)
-	expectedRecipe.DeleteIngredient(saltId)
-	expectedRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
+}
 
-	assert.Equal(t, expectedRecipe, updatedRecipe)
+func TestUpdateRecipe(t *testing.T) {
+	td := NewTestDriver()
+	createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, []*recipe_dom.Ingredient{saltI, pastaI, sauceTomateI})
+	displayer.PrettyDisplay("created", createdRecipe)
+	assert.Nil(t, err)
+	assert.Len(t, td.GetSavedRecipes(), 1)
+
+	// wrong Id
+	updateWrongIdRecipeReq := updateRecipeReq
+	updateWrongIdRecipeReq.Id = uuid.New()
+	updatedRecipe, err := td.UpdateRecipe(updateWrongIdRecipeReq)
+	assert.EqualError(t, err, ErrRecipeNotFound)
+
+	// good Id
+	updatedRecipe, err = td.UpdateRecipe(updateRecipeReq)
+	assert.Nil(t, err)
+	assert.Len(t, td.GetSavedRecipes(), 1)
+
+	displayer.PrettyDisplay("createdRecipe before adding ingredient", createdRecipe)
+	displayer.PrettyDisplay("updatedRecipe before adding ingredient", updatedRecipe)
+
+	// update the createdRecipe manually
+	createdRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
+	createdRecipe.DeleteIngredient(saltId)
+	createdRecipe.SetName(updateRecipeReq.Name)
+
+	displayer.PrettyDisplay("created", createdRecipe)
+	displayer.PrettyDisplay("updated", updatedRecipe)
+	// createdRecipe.DeleteIngredient(saltId)
+
+	assert.Equal(t, createdRecipe, updatedRecipe)
 	savedRecipes := td.GetSavedRecipes()
 	assert.Len(t, savedRecipes, 1)
-	assert.Equal(t, savedRecipes[0], expectedRecipe)
+	assert.Equal(t, savedRecipes[0], createdRecipe)
 
-	// delete
-	err = td.DeleteRecipe(updatedRecipe.Id())
-	assert.Nil(t, err)
-	savedRecipes = td.GetSavedRecipes()
-	assert.Len(t, savedRecipes, 0)
 }
 
 func TestDeleteRecipe(t *testing.T) {
 	td := NewTestDriver()
-	createdRecipe, err := td.SetupRecipe(recipeReq, []*recipe_dom.Ingredient{saltI, pastaI})
+	createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, []*recipe_dom.Ingredient{saltI, pastaI})
 	assert.Nil(t, err)
 
 	err = td.DeleteRecipe(uuid.New())

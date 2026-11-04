@@ -101,11 +101,9 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 	if err != nil {
 		return nil, errors.New(ErrRecipeNotFound)
 	}
-
 	foundRecipe.SetName(r.Name)
 
-	recipeIngredients := make([]recipe_dom.RecipeIngredient, 0, len(r.Ingredients))
-
+	newRecipeIngredients := make([]recipe_dom.RecipeIngredient, 0, len(r.Ingredients))
 	for _, bi := range r.Ingredients {
 		_, err := rSrv.ingredients.GetById(ctx, bi.Id)
 		if err != nil {
@@ -115,14 +113,13 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 		if err != nil {
 			errINF.WrongUnit = append(errINF.WrongUnit, bi)
 		}
-		recipeIngredients = append(recipeIngredients, recipe_dom.RecipeIngredient{
+		newRecipeIngredients = append(newRecipeIngredients, recipe_dom.RecipeIngredient{
 			IngredientID: bi.Id,
 			Quantity:     qty,
 		})
 	}
 
-	foundRecipe.UpdateIngredients(recipeIngredients)
-
+	foundRecipe.ReplaceIngredients(newRecipeIngredients)
 	err = rSrv.recipes.Update(ctx, foundRecipe)
 	return foundRecipe, err
 }

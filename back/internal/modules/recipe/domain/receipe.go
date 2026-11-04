@@ -1,6 +1,7 @@
 package recipe_dom
 
 import (
+	"encoding/json"
 	"errors"
 
 	"github.com/google/uuid"
@@ -50,17 +51,8 @@ func (r *Recipe) AddIngredient(i *Ingredient, q Quantity) error {
 	return nil
 }
 
-func (r *Recipe) UpdateIngredients(ris []RecipeIngredient) {
-	newList := make([]RecipeIngredient, 0, len(r.ingredients))
-	for _, i := range r.ingredients {
-		for _, nri := range ris {
-			if i.IngredientID == nri.IngredientID {
-				i.Quantity = nri.Quantity
-				newList = append(newList, i)
-			}
-		}
-	}
-	r.ingredients = newList
+func (r *Recipe) ReplaceIngredients(ris []RecipeIngredient) {
+	r.ingredients = ris
 }
 
 func (r *Recipe) DeleteIngredient(id uuid.UUID) {
@@ -70,4 +62,32 @@ func (r *Recipe) DeleteIngredient(id uuid.UUID) {
 			return
 		}
 	}
+}
+
+// -- EXPORT --
+
+func (r *Recipe) Clone() *Recipe {
+	if r == nil {
+		return nil
+	}
+	ingredients := make([]RecipeIngredient, len(r.ingredients))
+	copy(ingredients, r.ingredients)
+
+	return &Recipe{
+		id:          r.id,
+		name:        r.name,
+		ingredients: ingredients,
+	}
+}
+
+func (r *Recipe) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		ID          uuid.UUID          `json:"id"`
+		Name        string             `json:"name"`
+		Ingredients []RecipeIngredient `json:"ingredients"`
+	}{
+		ID:          r.id,
+		Name:        r.name,
+		Ingredients: r.ingredients,
+	})
 }
