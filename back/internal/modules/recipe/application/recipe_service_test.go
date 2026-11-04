@@ -3,7 +3,6 @@ package recipe_app
 import (
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
-	"food/utils/displayer"
 	"log"
 	"testing"
 
@@ -69,7 +68,6 @@ func TestCreateRecipe(t *testing.T) {
 func TestUpdateRecipe(t *testing.T) {
 	td := NewTestDriver()
 	createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, []*recipe_dom.Ingredient{saltI, pastaI, sauceTomateI})
-	displayer.PrettyDisplay("created", createdRecipe)
 	assert.Nil(t, err)
 	assert.Len(t, td.GetSavedRecipes(), 1)
 
@@ -84,17 +82,10 @@ func TestUpdateRecipe(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Len(t, td.GetSavedRecipes(), 1)
 
-	displayer.PrettyDisplay("createdRecipe before adding ingredient", createdRecipe)
-	displayer.PrettyDisplay("updatedRecipe before adding ingredient", updatedRecipe)
-
 	// update the createdRecipe manually
 	createdRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
 	createdRecipe.DeleteIngredient(saltId)
 	createdRecipe.SetName(updateRecipeReq.Name)
-
-	displayer.PrettyDisplay("created", createdRecipe)
-	displayer.PrettyDisplay("updated", updatedRecipe)
-	// createdRecipe.DeleteIngredient(saltId)
 
 	assert.Equal(t, createdRecipe, updatedRecipe)
 	savedRecipes := td.GetSavedRecipes()
