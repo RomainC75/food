@@ -220,6 +220,7 @@ func TestUpdateRecipe(t *testing.T) {
 			assert.Len(t, td.GetSavedRecipes(), 1)
 
 			// update the createdRecipe manually
+			// !! Make it programmatik !!
 			createdRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
 			createdRecipe.DeleteIngredient(saltId)
 			createdRecipe.SetName(updateRecipeReq.Name)

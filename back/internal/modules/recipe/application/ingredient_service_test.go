@@ -18,12 +18,12 @@ var (
 	tomatoName     = "tomato"
 	tomatoBaseUnit = recipe_dom.Piece
 
-	ingredient1 = dto_recipe_req.CreateIngredient{
+	ingredient1 = dto_recipe_req.CreateIngredientDto{
 		Name:     saltName,
 		BaseUnit: saltBaseUnit,
 	}
 
-	ingredient2 = dto_recipe_req.CreateIngredient{
+	ingredient2 = dto_recipe_req.CreateIngredientDto{
 		Name:     tomatoName,
 		BaseUnit: tomatoBaseUnit,
 	}
@@ -44,7 +44,7 @@ func TestCreateIngredient(t *testing.T) {
 	assert.Equal(t, expectedSavedIngredient, savedIngredients[0])
 }
 
-func TestSearch(t *testing.T) {
+func TestSearchIngredient(t *testing.T) {
 	td := NewTestDriver()
 	td.SetNextUuid(saltUuid)
 	td.CreateIngredient(ingredient1)
@@ -56,6 +56,28 @@ func TestSearch(t *testing.T) {
 	found, err := td.Search(searchFilter)
 	assert.Nil(t, err)
 	assert.Equal(t, td.GetSavedIngredients()[1], found)
+}
+
+func TestUpdateIngredient(t *testing.T) {
+
+	td := NewTestDriver()
+	saltIng := recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit)
+	td.SetIngredientInMemory(saltIng)
+
+	// ingNot found
+	falseIdingredient := dto_recipe_req.UpdateIngredientDto{
+		Id: tomatoUuid,
+		CreateIngredientDto: dto_recipe_req.CreateIngredientDto{
+			Name:     tomatoName,
+			BaseUnit: tomatoBaseUnit,
+		},
+	}
+	_, err := td.UpdateIngredient(falseIdingredient)
+	assert.EqualError(t, err, recipe_dom.ErrIngredientNotFound)
+
+	// ? ing ok, but cannot update
+
+	// ? everything ok
 }
 
 func TestDeleteIngredient(t *testing.T) {

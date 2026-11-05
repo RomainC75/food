@@ -32,23 +32,36 @@ func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient *recipe_dom
 func (imi *InMemoryIngredients) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom.Ingredient, error) {
 	for _, i := range imi.savedIngredients {
 		if i.Id() == id {
-			return i, nil
+			return i.Clone(), nil
 		}
 	}
 	return &recipe_dom.Ingredient{}, errors.New(ErrIngredientNotFound)
 }
 
 func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
-	for _, i := range imi.savedIngredients {
-		if f.Name != "" && i.Name() != f.Name {
+	for _, ing := range imi.savedIngredients {
+		if f.Id != nil && ing.Id() != *f.Id {
 			continue
 		}
-		if f.BaseUnit != "" && i.BaseUnit() != f.BaseUnit {
+		if f.Name != "" && ing.Name() != f.Name {
 			continue
 		}
-		return i, nil
+		if f.BaseUnit != "" && ing.BaseUnit() != f.BaseUnit {
+			continue
+		}
+		return ing, nil
 	}
-	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrNotFound)
+	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
+}
+
+func (imi *InMemoryIngredients) Update(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
+	for i, ing := range imi.savedIngredients {
+		if ing.Id() == ingredient.Id() {
+			imi.savedIngredients[i] = ingredient
+			return nil
+		}
+	}
+	return errors.New(ErrIngredientNotFound)
 }
 
 func (imi *InMemoryIngredients) DeleteById(ctx context.Context, id uuid.UUID) error {
@@ -59,7 +72,7 @@ func (imi *InMemoryIngredients) DeleteById(ctx context.Context, id uuid.UUID) er
 		}
 		return nil
 	}
-	return errors.New(recipe_dom.ErrNotFound)
+	return errors.New(recipe_dom.ErrIngredientNotFound)
 }
 
 // ---------- Added for tests ------

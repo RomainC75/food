@@ -44,7 +44,7 @@ func (td *TestDriver) SetNextUuid(id uuid.UUID) {
 	td.inMemUuidGen.AddExpected(id)
 }
 
-func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredient) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
 
@@ -66,6 +66,10 @@ func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
 
 func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Search(td.ctx, i)
+}
+
+func (td *TestDriver) UpdateIngredient(updateIngDto dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
+	return td.ingredientSrv.Update(td.ctx, updateIngDto)
 }
 
 // -- RECEIPE --

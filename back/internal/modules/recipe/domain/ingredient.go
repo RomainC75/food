@@ -32,6 +32,14 @@ func (ing *Ingredient) BaseUnit() BaseUnit {
 	return ing.baseUnit
 }
 
+func (ing *Ingredient) SetName(new string) {
+	ing.name = new
+}
+
+func (ing *Ingredient) SetBaseUnit(new BaseUnit) {
+	ing.baseUnit = new
+}
+
 func (ing *Ingredient) IsQtyValid(q Quantity) bool {
 	if ing.baseUnit == Piece {
 		if q.unit != Piece {
@@ -49,6 +57,14 @@ func (ing *Ingredient) IsQtyValid(q Quantity) bool {
 		}
 	}
 	return true
+}
+
+func (i *Ingredient) Clone() *Ingredient {
+	return &Ingredient{
+		id:       i.id,
+		name:     i.name,
+		baseUnit: i.baseUnit,
+	}
 }
 
 func (i *Ingredient) MarshalJSON() ([]byte, error) {
