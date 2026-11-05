@@ -14,47 +14,47 @@ import (
 )
 
 var (
-	ErrRecipeNotFound      = "recipe not found"
-	ErrAddingIngredients   = "error adding ingredients"
+	ErrRecipeNotFound    = "recipe not found"
+	ErrAddingIngredients = "error adding ingredients"
+
 	ErrIngredientsNotFound = "ingredients not found"
+	ErrWrongUnit           = "wrong unit"
 	ErrWrongQuantity       = "wrong quantity"
 )
 
 type ErrIngredientNotFound struct {
 	IngredientNotFound []dto_recipe_req.IngredientBasicInfo
 	WrongUnit          []dto_recipe_req.IngredientBasicInfo
+	WrongQuantity      []dto_recipe_req.IngredientBasicInfo
 }
 
 func (einf *ErrIngredientNotFound) Error() string {
-	wIds := make([]string, 0, len(einf.IngredientNotFound))
-	var nfStrList string
 	fullStr := &strings.Builder{}
-
+	displayer.PrettyDisplay("ERR FULL : ", einf)
 	if len(einf.IngredientNotFound) > 0 {
-
-		for _, bI := range einf.IngredientNotFound {
-			wIds = append(wIds, bI.Id.String())
-		}
-		nfStrList = fmt.Sprintf("%s : %s", ErrIngredientsNotFound, strings.Join(wIds, " , "))
-		fullStr.Write([]byte(nfStrList + " | "))
+		compileErrorMessage(einf.IngredientNotFound, fullStr, ErrIngredientsNotFound)
 	}
 
-	wuIds := make([]string, 0, len(einf.WrongUnit))
-	var wuStrList string
 	if len(einf.WrongUnit) > 0 {
-
-		for _, bI := range einf.WrongUnit {
-			wuIds = append(wuIds, bI.Id.String())
-		}
-		wuStrList = fmt.Sprintf("%s : %s", ErrWrongQuantity, strings.Join(wuIds, " , "))
-		fullStr.Write([]byte(wuStrList))
+		compileErrorMessage(einf.WrongUnit, fullStr, ErrWrongUnit)
 	}
-
+	if len(einf.WrongQuantity) > 0 {
+		compileErrorMessage(einf.WrongQuantity, fullStr, ErrWrongQuantity)
+	}
 	return fmt.Sprintf("%s : %s", ErrAddingIngredients, fullStr.String())
 }
 
+func compileErrorMessage(slc []dto_recipe_req.IngredientBasicInfo, b *strings.Builder, errMessage string) {
+	ids := make([]string, 0, len(slc))
+	for _, bI := range slc {
+		ids = append(ids, bI.Id.String())
+	}
+	nfStrList := fmt.Sprintf("%s : %s", errMessage, strings.Join(ids, " , "))
+	b.Write([]byte(nfStrList + " | "))
+}
+
 func (einf *ErrIngredientNotFound) IsError() bool {
-	return len(einf.IngredientNotFound) > 0 || len(einf.WrongUnit) > 0
+	return len(einf.IngredientNotFound) > 0 || len(einf.WrongUnit) > 0 || len(einf.WrongQuantity) > 0
 }
 
 type RecipeSrv struct {
@@ -121,9 +121,10 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
 			continue
 		}
-		qty, _ := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
+		qty, err := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
+		fmt.Println("-----QTY : ", bi)
 		if err != nil {
-			errINF.WrongUnit = append(errINF.WrongUnit, bi)
+			errINF.WrongQuantity = append(errINF.WrongQuantity, bi)
 			continue
 		}
 		err = foundRecipe.AddIngredient(foundIngredient, qty)

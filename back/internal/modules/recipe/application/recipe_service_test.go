@@ -56,6 +56,17 @@ var (
 			},
 		},
 	}
+
+	updateRecipeReqNegariveQuantity = dto_recipe_req.UpdateRecipeDto{
+		Id: recipeId,
+		CreateRecipeDto: dto_recipe_req.CreateRecipeDto{
+			Name: recipeNewName,
+			Ingredients: []dto_recipe_req.IngredientBasicInfo{
+				{pastaid, 500, recipe_dom.Gram},
+				{sauceTomateid, -10, recipe_dom.Gram},
+			},
+		},
+	}
 )
 
 func TestCreateRecipe(t *testing.T) {
@@ -120,8 +131,22 @@ var updateCases = []UpdateRecipeCase{
 		errors.New(ErrRecipeNotFound),
 		[]string{
 			ErrAddingIngredients,
-			ErrWrongQuantity,
+			ErrWrongUnit,
 			pastaid.String(),
+		},
+	},
+	{
+		"should return an error if the quantity to save is negative",
+		[]*recipe_dom.Ingredient{
+			saltI, pastaI, sauceTomateI,
+		},
+		recipeReq,
+		updateRecipeReqNegariveQuantity,
+		errors.New(ErrRecipeNotFound),
+		[]string{
+			ErrAddingIngredients,
+			ErrWrongQuantity,
+			sauceTomateid.String(),
 		},
 	},
 }
@@ -146,6 +171,10 @@ func TestUpdateRecipe(t *testing.T) {
 			updatedRecipe, err := td.UpdateRecipe(cs.UpdateReq)
 			displayer.PrettyDisplay("err : ", err)
 			if cs.ExpectedError != nil {
+				if err == nil {
+					t.Fail()
+					return
+				}
 				td.TestUpdateErrors(t, err, cs.ExpectedUpdateErrors)
 				return
 			}
