@@ -7,13 +7,17 @@ import (
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	shared_domain "food/internal/shared/domain"
+	"food/utils/displayer"
 	"strings"
 
 	"github.com/google/uuid"
 )
 
 var (
-	ErrRecipeNotFound = "recipe not found"
+	ErrRecipeNotFound      = "recipe not found"
+	ErrAddingIngredients   = "error adding ingredients"
+	ErrIngredientsNotFound = "ingredients not found"
+	ErrWrongQuantity       = "wrong quantity"
 )
 
 type ErrIngredientNotFound struct {
@@ -31,22 +35,26 @@ func (einf *ErrIngredientNotFound) Error() string {
 		for _, bI := range einf.IngredientNotFound {
 			wIds = append(wIds, bI.Id.String())
 		}
-		nfStrList = fmt.Sprintf("ingredients not found : %s", strings.Join(wIds, " , "))
+		nfStrList = fmt.Sprintf("%s : %s", ErrIngredientsNotFound, strings.Join(wIds, " , "))
 		fullStr.Write([]byte(nfStrList + " | "))
 	}
 
 	wuIds := make([]string, 0, len(einf.WrongUnit))
 	var wuStrList string
-	if len(einf.IngredientNotFound) > 0 {
+	if len(einf.WrongUnit) > 0 {
 
-		for _, bI := range einf.IngredientNotFound {
+		for _, bI := range einf.WrongUnit {
 			wuIds = append(wuIds, bI.Id.String())
 		}
-		wuStrList = fmt.Sprintf("wrongQty for : %s", strings.Join(wuIds, " , "))
+		wuStrList = fmt.Sprintf("%s : %s", ErrWrongQuantity, strings.Join(wuIds, " , "))
 		fullStr.Write([]byte(wuStrList))
 	}
 
-	return fmt.Sprintf("error adding ingredients : %s ", fullStr.String())
+	return fmt.Sprintf("%s : %s", ErrAddingIngredients, fullStr.String())
+}
+
+func (einf *ErrIngredientNotFound) IsError() bool {
+	return len(einf.IngredientNotFound) > 0 || len(einf.WrongUnit) > 0
 }
 
 type RecipeSrv struct {
@@ -75,10 +83,12 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateRecipe
 		i, err := rSrv.ingredients.GetById(ctx, bi.Id)
 		if err != nil {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
+			continue
 		}
 		qty, err := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
 		if err != nil {
 			errINF.WrongUnit = append(errINF.WrongUnit, bi)
+			continue
 		}
 		recipe.AddIngredient(i, qty)
 	}
@@ -92,7 +102,7 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateRecipe
 }
 
 func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
-	errINF := ErrIngredientNotFound{
+	errINF := &ErrIngredientNotFound{
 		IngredientNotFound: make([]dto_recipe_req.IngredientBasicInfo, 0, len(r.Ingredients)),
 		WrongUnit:          make([]dto_recipe_req.IngredientBasicInfo, 0, len(r.Ingredients)),
 	}
@@ -102,24 +112,28 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 		return nil, errors.New(ErrRecipeNotFound)
 	}
 	foundRecipe.SetName(r.Name)
+	foundRecipe.DeleteAllIngredients()
 
-	newRecipeIngredients := make([]recipe_dom.RecipeIngredient, 0, len(r.Ingredients))
 	for _, bi := range r.Ingredients {
-		_, err := rSrv.ingredients.GetById(ctx, bi.Id)
+		foundIngredient, err := rSrv.ingredients.GetById(ctx, bi.Id)
+		displayer.PrettyDisplay("get this ingredient by id: ", bi)
 		if err != nil {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
+			continue
 		}
-		qty, err := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
+		qty, _ := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
+		if err != nil {
+			errINF.WrongUnit = append(errINF.WrongUnit, bi)
+			continue
+		}
+		err = foundRecipe.AddIngredient(foundIngredient, qty)
 		if err != nil {
 			errINF.WrongUnit = append(errINF.WrongUnit, bi)
 		}
-		newRecipeIngredients = append(newRecipeIngredients, recipe_dom.RecipeIngredient{
-			IngredientID: bi.Id,
-			Quantity:     qty,
-		})
 	}
-
-	foundRecipe.ReplaceIngredients(newRecipeIngredients)
+	if errINF.IsError() {
+		return nil, errINF
+	}
 	err = rSrv.recipes.Update(ctx, foundRecipe)
 	return foundRecipe, err
 }

@@ -1,6 +1,10 @@
 package recipe_dom
 
-import "github.com/google/uuid"
+import (
+	"encoding/json"
+
+	"github.com/google/uuid"
+)
 
 type Ingredient struct {
 	id       uuid.UUID
@@ -45,4 +49,16 @@ func (ing *Ingredient) IsQtyValid(q Quantity) bool {
 		}
 	}
 	return true
+}
+
+func (i *Ingredient) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		ID       uuid.UUID `json:"id"`
+		Name     string    `json:"name"`
+		BaseUnit BaseUnit  `json:"base_unit"`
+	}{
+		ID:       i.id,
+		Name:     i.name,
+		BaseUnit: i.baseUnit,
+	})
 }

@@ -3,6 +3,7 @@ package recipe_dom
 import (
 	"encoding/json"
 	"errors"
+	"slices"
 
 	"github.com/google/uuid"
 )
@@ -64,14 +65,18 @@ func (r *Recipe) DeleteIngredient(id uuid.UUID) {
 	}
 }
 
+func (r *Recipe) DeleteAllIngredients() {
+	r.ingredients = make([]RecipeIngredient, 0, 10)
+}
+
 // -- EXPORT --
 
 func (r *Recipe) Clone() *Recipe {
 	if r == nil {
 		return nil
 	}
-	ingredients := make([]RecipeIngredient, len(r.ingredients))
-	copy(ingredients, r.ingredients)
+
+	ingredients := slices.Clone(r.ingredients)
 
 	return &Recipe{
 		id:          r.id,

@@ -1,8 +1,10 @@
 package recipe_app
 
 import (
+	"errors"
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
+	"food/utils/displayer"
 	"log"
 	"testing"
 
@@ -43,6 +45,17 @@ var (
 			},
 		},
 	}
+
+	updateRecipeReqWrongUnit = dto_recipe_req.UpdateRecipeDto{
+		Id: recipeId,
+		CreateRecipeDto: dto_recipe_req.CreateRecipeDto{
+			Name: recipeNewName,
+			Ingredients: []dto_recipe_req.IngredientBasicInfo{
+				{pastaid, 500, recipe_dom.Liter},
+				{sauceTomateid, 100, recipe_dom.Gram},
+			},
+		},
+	}
 )
 
 func TestCreateRecipe(t *testing.T) {
@@ -65,32 +78,92 @@ func TestCreateRecipe(t *testing.T) {
 
 }
 
+type UpdateRecipeCase struct {
+	TestName             string
+	AvailableIngredients []*recipe_dom.Ingredient
+	AvailableRecipe      dto_recipe_req.CreateRecipeDto
+	UpdateReq            dto_recipe_req.UpdateRecipeDto
+	ExpectedError        error
+	ExpectedUpdateErrors []string
+}
+
+var updateCases = []UpdateRecipeCase{
+	{
+		"should not find the recipe to update",
+		[]*recipe_dom.Ingredient{},
+		dto_recipe_req.CreateRecipeDto{},
+		updateRecipeReq,
+		errors.New(ErrRecipeNotFound),
+		[]string{},
+	},
+	{
+		"should not find the ingredients for the recipe",
+		[]*recipe_dom.Ingredient{
+			saltI, pastaI,
+		},
+		recipeReq,
+		updateRecipeReq,
+		errors.New(ErrRecipeNotFound),
+		[]string{
+			ErrAddingIngredients,
+			ErrIngredientsNotFound,
+			sauceTomateid.String(),
+		},
+	},
+	{
+		"should have a wrong unit in one ingredient",
+		[]*recipe_dom.Ingredient{
+			saltI, pastaI, sauceTomateI,
+		},
+		recipeReq,
+		updateRecipeReqWrongUnit,
+		errors.New(ErrRecipeNotFound),
+		[]string{
+			ErrAddingIngredients,
+			ErrWrongQuantity,
+			pastaid.String(),
+		},
+	},
+}
+
 func TestUpdateRecipe(t *testing.T) {
-	td := NewTestDriver()
-	createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, []*recipe_dom.Ingredient{saltI, pastaI, sauceTomateI})
-	assert.Nil(t, err)
-	assert.Len(t, td.GetSavedRecipes(), 1)
+	for _, cs := range updateCases {
+		t.Run(cs.TestName, func(t *testing.T) {
+			td := NewTestDriver()
+			if cs.AvailableRecipe.Name == "" {
+				_, err := td.UpdateRecipe(updateRecipeReq)
+				assert.EqualError(t, err, ErrRecipeNotFound)
+				return
+			}
 
-	// wrong Id
-	updateWrongIdRecipeReq := updateRecipeReq
-	updateWrongIdRecipeReq.Id = uuid.New()
-	updatedRecipe, err := td.UpdateRecipe(updateWrongIdRecipeReq)
-	assert.EqualError(t, err, ErrRecipeNotFound)
+			var createdRecipe *recipe_dom.Recipe
+			createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, cs.AvailableIngredients)
+			displayer.PrettyDisplay("available ingredients : ", td.GetSavedIngredients())
+			assert.Nil(t, err)
+			assert.Len(t, td.GetSavedRecipes(), 1)
 
-	// good Id
-	updatedRecipe, err = td.UpdateRecipe(updateRecipeReq)
-	assert.Nil(t, err)
-	assert.Len(t, td.GetSavedRecipes(), 1)
+			// good Id
+			updatedRecipe, err := td.UpdateRecipe(cs.UpdateReq)
+			displayer.PrettyDisplay("err : ", err)
+			if cs.ExpectedError != nil {
+				td.TestUpdateErrors(t, err, cs.ExpectedUpdateErrors)
+				return
+			}
+			assert.Nil(t, err)
+			assert.Len(t, td.GetSavedRecipes(), 1)
 
-	// update the createdRecipe manually
-	createdRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
-	createdRecipe.DeleteIngredient(saltId)
-	createdRecipe.SetName(updateRecipeReq.Name)
+			// update the createdRecipe manually
+			createdRecipe.AddIngredient(sauceTomateI, sauceTomateQty)
+			createdRecipe.DeleteIngredient(saltId)
+			createdRecipe.SetName(updateRecipeReq.Name)
 
-	assert.Equal(t, createdRecipe, updatedRecipe)
-	savedRecipes := td.GetSavedRecipes()
-	assert.Len(t, savedRecipes, 1)
-	assert.Equal(t, savedRecipes[0], createdRecipe)
+			assert.Equal(t, createdRecipe, updatedRecipe)
+			savedRecipes := td.GetSavedRecipes()
+			assert.Len(t, savedRecipes, 1)
+			assert.Equal(t, savedRecipes[0], createdRecipe)
+		})
+
+	}
 
 }
 

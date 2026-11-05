@@ -6,8 +6,10 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	recipe_infra "food/internal/modules/recipe/infra"
 	shared_infra "food/internal/shared/infra"
+	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 type TestDriver struct {
@@ -91,4 +93,10 @@ func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
 
 func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
 	return td.recipeSrv.Delete(td.ctx, id)
+}
+
+func (td *TestDriver) TestUpdateErrors(t *testing.T, err error, errorStrs []string) {
+	for _, errorsStr := range errorStrs {
+		assert.Contains(t, err.Error(), errorsStr)
+	}
 }
