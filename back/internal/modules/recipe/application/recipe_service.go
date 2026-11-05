@@ -122,7 +122,6 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 			continue
 		}
 		qty, err := recipe_dom.NewQuantity(bi.Qty, bi.Unit)
-		fmt.Println("-----QTY : ", bi)
 		if err != nil {
 			errINF.WrongQuantity = append(errINF.WrongQuantity, bi)
 			continue

@@ -100,3 +100,7 @@ func (td *TestDriver) TestUpdateErrors(t *testing.T, err error, errorStrs []stri
 		assert.Contains(t, err.Error(), errorsStr)
 	}
 }
+
+func (td *TestDriver) SetRecipeRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {
+	td.inMemRecipes.SetExpectedErrors(ets)
+}

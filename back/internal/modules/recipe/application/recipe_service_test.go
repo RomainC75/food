@@ -4,6 +4,7 @@ import (
 	"errors"
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
+	recipe_infra "food/internal/modules/recipe/infra"
 	"food/utils/displayer"
 	"log"
 	"testing"
@@ -90,17 +91,31 @@ func TestCreateRecipe(t *testing.T) {
 }
 
 type UpdateRecipeCase struct {
-	TestName             string
-	AvailableIngredients []*recipe_dom.Ingredient
-	AvailableRecipe      dto_recipe_req.CreateRecipeDto
-	UpdateReq            dto_recipe_req.UpdateRecipeDto
-	ExpectedError        error
-	ExpectedUpdateErrors []string
+	TestName              string
+	RecipeRepoErrorsToSet recipe_infra.RecipeRepoErrorsToSet
+	AvailableIngredients  []*recipe_dom.Ingredient
+	AvailableRecipe       dto_recipe_req.CreateRecipeDto
+	UpdateReq             dto_recipe_req.UpdateRecipeDto
+	ExpectedError         error
+	ExpectedUpdateErrors  []string
 }
 
 var updateCases = []UpdateRecipeCase{
 	{
+		"should update",
+		recipe_infra.RecipeRepoErrorsToSet{},
+		[]*recipe_dom.Ingredient{
+			saltI, pastaI, sauceTomateI,
+		},
+		recipeReq,
+		updateRecipeReq,
+		// VERIFY correctly !!!!! ????
+		nil,
+		[]string{},
+	},
+	{
 		"should not find the recipe to update",
+		recipe_infra.RecipeRepoErrorsToSet{},
 		[]*recipe_dom.Ingredient{},
 		dto_recipe_req.CreateRecipeDto{},
 		updateRecipeReq,
@@ -109,6 +124,7 @@ var updateCases = []UpdateRecipeCase{
 	},
 	{
 		"should not find the ingredients for the recipe",
+		recipe_infra.RecipeRepoErrorsToSet{},
 		[]*recipe_dom.Ingredient{
 			saltI, pastaI,
 		},
@@ -123,6 +139,7 @@ var updateCases = []UpdateRecipeCase{
 	},
 	{
 		"should have a wrong unit in one ingredient",
+		recipe_infra.RecipeRepoErrorsToSet{},
 		[]*recipe_dom.Ingredient{
 			saltI, pastaI, sauceTomateI,
 		},
@@ -137,6 +154,7 @@ var updateCases = []UpdateRecipeCase{
 	},
 	{
 		"should return an error if the quantity to save is negative",
+		recipe_infra.RecipeRepoErrorsToSet{},
 		[]*recipe_dom.Ingredient{
 			saltI, pastaI, sauceTomateI,
 		},
@@ -149,12 +167,26 @@ var updateCases = []UpdateRecipeCase{
 			sauceTomateid.String(),
 		},
 	},
+	{
+		"should return an error because the recipe could not be saved",
+		recipe_infra.RecipeRepoErrorsToSet{
+			UpdateError: true,
+		},
+		[]*recipe_dom.Ingredient{
+			saltI, pastaI, sauceTomateI,
+		},
+		recipeReq,
+		updateRecipeReq,
+		nil,
+		[]string{},
+	},
 }
 
 func TestUpdateRecipe(t *testing.T) {
 	for _, cs := range updateCases {
 		t.Run(cs.TestName, func(t *testing.T) {
 			td := NewTestDriver()
+			td.SetRecipeRepoErrors(cs.RecipeRepoErrorsToSet)
 			if cs.AvailableRecipe.Name == "" {
 				_, err := td.UpdateRecipe(updateRecipeReq)
 				assert.EqualError(t, err, ErrRecipeNotFound)
@@ -170,12 +202,18 @@ func TestUpdateRecipe(t *testing.T) {
 			// good Id
 			updatedRecipe, err := td.UpdateRecipe(cs.UpdateReq)
 			displayer.PrettyDisplay("err : ", err)
+			// errors trying to add ingredients
 			if cs.ExpectedError != nil {
 				if err == nil {
 					t.Fail()
 					return
 				}
 				td.TestUpdateErrors(t, err, cs.ExpectedUpdateErrors)
+				return
+			}
+			// repo error
+			if cs.RecipeRepoErrorsToSet.UpdateError {
+				assert.EqualError(t, err, recipe_dom.ErrCouldNotUpdateRecipe)
 				return
 			}
 			assert.Nil(t, err)

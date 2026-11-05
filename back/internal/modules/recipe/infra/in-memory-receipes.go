@@ -3,7 +3,6 @@ package recipe_infra
 import (
 	"context"
 	"errors"
-	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 
 	"github.com/google/uuid"
@@ -13,8 +12,13 @@ var (
 	ErrRecipeNotFound = "recipe not found"
 )
 
+type RecipeRepoErrorsToSet struct {
+	UpdateError bool
+}
+
 type InMemRecipes struct {
-	savedRecipes []*recipe_dom.Recipe
+	savedRecipes   []*recipe_dom.Recipe
+	expectedErrors RecipeRepoErrorsToSet
 }
 
 func NewInMemRecipes() *InMemRecipes {
@@ -29,8 +33,6 @@ func (imr *InMemRecipes) Create(ctx context.Context, r *recipe_dom.Recipe) error
 }
 
 func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom.Recipe, error) {
-	fmt.Println("-- get by id : ", imr.savedRecipes, id)
-
 	for _, r := range imr.savedRecipes {
 		if r.Id() == id {
 			return r.Clone(), nil
@@ -40,7 +42,10 @@ func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom
 }
 
 func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error {
-	// ! pointer -> test probles
+	if imr.expectedErrors.UpdateError {
+		return errors.New(recipe_dom.ErrCouldNotUpdateRecipe)
+	}
+
 	for i, sr := range imr.savedRecipes {
 		if sr.Id() == r.Id() {
 			imr.savedRecipes[i] = r.Clone()
@@ -78,4 +83,8 @@ func (imr *InMemRecipes) DeleteById(id uuid.UUID) error {
 		}
 	}
 	return errors.New(ErrRecipeNotFound)
+}
+
+func (imr *InMemRecipes) SetExpectedErrors(ee RecipeRepoErrorsToSet) {
+	imr.expectedErrors = ee
 }
