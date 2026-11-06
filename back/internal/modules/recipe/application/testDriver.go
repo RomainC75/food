@@ -84,9 +84,10 @@ func (td *TestDriver) GivenRecipe(expectedId uuid.UUID, req dto_recipe_req.Creat
 	return r
 }
 
-// func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
-// 	return
-// }
+func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+	td.inMemUuidGen.AddExpected(expectedId)
+	return td.recipeSrv.Create(td.ctx, r)
+}
 
 func (td *TestDriver) UpdateRecipe(r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
 	return td.recipeSrv.Update(td.ctx, r)
@@ -96,21 +97,21 @@ func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
 	return td.recipeSrv.Delete(td.ctx, id)
 }
 
-func (td *TestDriver) SetRecipeRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {
+func (td *TestDriver) GivenRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {
 	td.inMemRecipes.SetExpectedErrors(ets)
 }
 
 // Verifiyer
 
-func (td *TestDriver) GetSavedIngredients() []*recipe_dom.Ingredient {
+func (td *TestDriver) SavedIngredients() []*recipe_dom.Ingredient {
 	return td.inMemIngredients.GetSaved()
 }
 
-func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
+func (td *TestDriver) SavedRecipes() []*recipe_dom.Recipe {
 	return td.inMemRecipes.GetSavedRecipes()
 }
 
-func (td *TestDriver) assertErrContainsAll(t *testing.T, err error, errorStrs ...string) {
+func assertErrContainsAll(t *testing.T, err error, errorStrs ...string) {
 	for _, errorsStr := range errorStrs {
 		assert.Contains(t, err.Error(), errorsStr)
 	}

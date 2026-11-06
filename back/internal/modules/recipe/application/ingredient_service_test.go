@@ -39,7 +39,7 @@ func TestCreateIngredient(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSavedIngredient, createdIngredient)
 
-	savedIngredients := td.GetSavedIngredients()
+	savedIngredients := td.SavedIngredients()
 	assert.Len(t, savedIngredients, 1)
 	assert.Equal(t, expectedSavedIngredient, savedIngredients[0])
 }
@@ -55,7 +55,7 @@ func TestSearchIngredient(t *testing.T) {
 	}
 	found, err := td.Search(searchFilter)
 	assert.Nil(t, err)
-	assert.Equal(t, td.GetSavedIngredients()[1], found)
+	assert.Equal(t, td.SavedIngredients()[1], found)
 }
 
 func TestUpdateIngredient(t *testing.T) {
