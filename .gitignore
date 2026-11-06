@@ -3,3 +3,6 @@
 .env
 
 back/internal/db
+
+back/tmp
+data
