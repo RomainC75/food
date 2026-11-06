@@ -17,6 +17,7 @@ services:
       context: ./back
     environment:
       - BACK_PORT=${BACK_PORT}
+      - APP_NAME=${APP_NAME}
     ports:
       - 3000:${BACK_PORT}
     volumes:

@@ -2,23 +2,20 @@ package api
 
 import (
 	"fmt"
+	"food/config"
 	"food/internal/api/routes"
 	"log"
 	"log/slog"
 	"net/http"
 )
 
-var (
-	SERVER_PORT = "3000"
-)
-
 func Serve() {
-
+	port := config.Get().Server.Port
 	srv := http.Server{
-		Addr:    fmt.Sprintf(":%s", SERVER_PORT),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: routes.ConnectRoutes(),
 	}
-	log.Println(" -> server running on port :", SERVER_PORT)
+	log.Println(" -> server running on port :", port)
 	err := srv.ListenAndServe()
 
 	if err != nil {
