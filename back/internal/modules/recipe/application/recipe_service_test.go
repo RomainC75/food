@@ -227,15 +227,24 @@ func TestUpdateRecipe(t *testing.T) {
 }
 
 func TestDeleteRecipe(t *testing.T) {
-	td := NewTestDriver(t).GivenIngredients(saltI, pastaI)
-	createdRecipe := td.GivenRecipe(recipeId, recipeReq)
+	t.Run("should not delete recipe, cause id not found", func(t *testing.T) {
+		td := NewTestDriver(t).GivenIngredients(saltI, pastaI)
+		td.GivenRecipe(recipeId, recipeReq)
 
-	err := td.DeleteRecipe(uuid.New())
-	assert.EqualError(t, err, ErrRecipeNotFound)
-	assert.Len(t, td.GetSavedRecipes(), 1)
+		err := td.DeleteRecipe(uuid.New())
 
-	err = td.DeleteRecipe(createdRecipe.Id())
-	assert.Nil(t, err)
-	assert.Len(t, td.GetSavedRecipes(), 0)
+		assert.EqualError(t, err, ErrRecipeNotFound)
+		assert.Len(t, td.GetSavedRecipes(), 1)
+	})
+
+	t.Run("should delete recipe", func(t *testing.T) {
+		td := NewTestDriver(t).GivenIngredients(saltI, pastaI)
+		createdRecipe := td.GivenRecipe(recipeId, recipeReq)
+
+		err := td.DeleteRecipe(createdRecipe.Id())
+
+		assert.Nil(t, err)
+		assert.Len(t, td.GetSavedRecipes(), 0)
+	})
 
 }
