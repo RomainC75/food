@@ -81,8 +81,11 @@ func (imi *InMemoryIngredients) GetSaved() []*recipe_dom.Ingredient {
 	return imi.savedIngredients
 }
 
-func (imi *InMemoryIngredients) SetIngredientInMem(ingredient *recipe_dom.Ingredient) {
-	imi.savedIngredients = append(imi.savedIngredients, ingredient)
+func (imi *InMemoryIngredients) SetIngredientsInMem(ings ...*recipe_dom.Ingredient) *InMemoryIngredients {
+	for _, ing := range ings {
+		imi.savedIngredients = append(imi.savedIngredients, ing)
+	}
+	return imi
 }
 
 func (imi *InMemoryIngredients) GetLastDeleted() *recipe_dom.Ingredient {
