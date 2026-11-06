@@ -6,7 +6,6 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	recipe_infra "food/internal/modules/recipe/infra"
 	"food/utils/displayer"
-	"log"
 	"testing"
 
 	"github.com/google/uuid"
@@ -71,21 +70,15 @@ var (
 )
 
 func TestCreateRecipe(t *testing.T) {
-	td := NewTestDriver()
-	td.SetIngredientInMemory(saltI)
-	td.SetIngredientInMemory(pastaI)
+	td := NewTestDriver(t).GivenIngredients(saltI, pastaI)
 
-	createdRecipe, err := td.CreateRecipe(recipeId, recipeReq)
+	createdRecipe := td.GivenRecipe(recipeId, recipeReq)
 
 	// -- create expected model to compare --
 	expectedRecipe := recipe_dom.NewRecipe(recipeId, recipeName)
 	expectedRecipe.AddIngredient(saltI, saltQty)
 	expectedRecipe.AddIngredient(pastaI, pastaQty)
 
-	if err != nil {
-		log.Println("erro : ", err.Error())
-	}
-	assert.Nil(t, err)
 	assert.Equal(t, *expectedRecipe, *createdRecipe)
 
 }
@@ -185,7 +178,7 @@ var updateCases = []UpdateRecipeCase{
 func TestUpdateRecipe(t *testing.T) {
 	for _, cs := range updateCases {
 		t.Run(cs.TestName, func(t *testing.T) {
-			td := NewTestDriver()
+			td := NewTestDriver(t).GivenIngredients(cs.AvailableIngredients...)
 			td.SetRecipeRepoErrors(cs.RecipeRepoErrorsToSet)
 			if cs.AvailableRecipe.Name == "" {
 				_, err := td.UpdateRecipe(updateRecipeReq)
@@ -193,10 +186,8 @@ func TestUpdateRecipe(t *testing.T) {
 				return
 			}
 
-			var createdRecipe *recipe_dom.Recipe
-			createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, cs.AvailableIngredients)
+			createdRecipe := td.GivenRecipe(recipeId, recipeReq)
 			displayer.PrettyDisplay("available ingredients : ", td.GetSavedIngredients())
-			assert.Nil(t, err)
 			assert.Len(t, td.GetSavedRecipes(), 1)
 
 			// good Id
@@ -208,7 +199,7 @@ func TestUpdateRecipe(t *testing.T) {
 					t.Fail()
 					return
 				}
-				td.TestUpdateErrors(t, err, cs.ExpectedUpdateErrors)
+				td.assertErrContainsAll(t, err, cs.ExpectedUpdateErrors...)
 				return
 			}
 			// repo error
@@ -236,11 +227,10 @@ func TestUpdateRecipe(t *testing.T) {
 }
 
 func TestDeleteRecipe(t *testing.T) {
-	td := NewTestDriver()
-	createdRecipe, err := td.SetupFullRecipe(recipeId, recipeReq, []*recipe_dom.Ingredient{saltI, pastaI})
-	assert.Nil(t, err)
+	td := NewTestDriver(t).GivenIngredients(saltI, pastaI)
+	createdRecipe := td.GivenRecipe(recipeId, recipeReq)
 
-	err = td.DeleteRecipe(uuid.New())
+	err := td.DeleteRecipe(uuid.New())
 	assert.EqualError(t, err, ErrRecipeNotFound)
 	assert.Len(t, td.GetSavedRecipes(), 1)
 

@@ -10,9 +10,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type TestDriver struct {
+	t                *testing.T
 	ctx              context.Context
 	inMemUuidGen     *shared_infra.InMemUuidGen
 	inMemIngredients *recipe_infra.InMemoryIngredients
@@ -21,7 +23,7 @@ type TestDriver struct {
 	recipeSrv        *RecipeSrv
 }
 
-func NewTestDriver() *TestDriver {
+func NewTestDriver(t *testing.T) *TestDriver {
 	inMemUuidGen := shared_infra.NewInMemUuidGen()
 	inMemIngredients := recipe_infra.NewInMemoryIngredients()
 	inMemRecipes := recipe_infra.NewInMemRecipes()
@@ -30,6 +32,7 @@ func NewTestDriver() *TestDriver {
 	recipeSrv := NewRecipeSrv(inMemUuidGen, inMemIngredients, inMemRecipes)
 
 	return &TestDriver{
+		t:                t,
 		ctx:              context.Background(),
 		inMemUuidGen:     inMemUuidGen,
 		inMemIngredients: inMemIngredients,
@@ -48,16 +51,16 @@ func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngred
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
 
-func (td *TestDriver) GetSavedIngredients() []*recipe_dom.Ingredient {
-	return td.inMemIngredients.GetSaved()
-}
-
 func (td *TestDriver) DeleteIngredient(id uuid.UUID) error {
 	return td.ingredientSrv.DeleteById(td.ctx, id)
 }
 
-func (td *TestDriver) SetIngredientInMemory(ingredient *recipe_dom.Ingredient) error {
-	return td.inMemIngredients.Save(td.ctx, ingredient)
+func (td *TestDriver) GivenIngredients(ings ...*recipe_dom.Ingredient) *TestDriver {
+	td.t.Helper()
+	for _, ing := range ings {
+		require.NoError(td.t, td.inMemIngredients.Save(td.ctx, ing))
+	}
+	return td
 }
 
 func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
@@ -73,38 +76,42 @@ func (td *TestDriver) UpdateIngredient(updateIngDto dto_recipe_req.UpdateIngredi
 }
 
 // -- RECEIPE --
-func (td *TestDriver) SetupFullRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto, ingredients []*recipe_dom.Ingredient) (*recipe_dom.Recipe, error) {
-	for _, ing := range ingredients {
-		if err := td.SetIngredientInMemory(ing); err != nil {
-			return nil, err
-		}
-	}
-	return td.CreateRecipe(expectedId, r)
+func (td *TestDriver) GivenRecipe(expectedId uuid.UUID, req dto_recipe_req.CreateRecipeDto) *recipe_dom.Recipe {
+	td.t.Helper()
+	td.SetNextUuid(expectedId)
+	r, err := td.recipeSrv.Create(td.ctx, req)
+	require.NoError(td.t, err)
+	return r
 }
 
-func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
-	td.SetNextUuid(expectedId)
-	return td.recipeSrv.Create(td.ctx, r)
-}
+// func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+// 	return
+// }
 
 func (td *TestDriver) UpdateRecipe(r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
 	return td.recipeSrv.Update(td.ctx, r)
-}
-
-func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
-	return td.inMemRecipes.GetSavedRecipes()
 }
 
 func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
 	return td.recipeSrv.Delete(td.ctx, id)
 }
 
-func (td *TestDriver) TestUpdateErrors(t *testing.T, err error, errorStrs []string) {
+func (td *TestDriver) SetRecipeRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {
+	td.inMemRecipes.SetExpectedErrors(ets)
+}
+
+// Verifiyer
+
+func (td *TestDriver) GetSavedIngredients() []*recipe_dom.Ingredient {
+	return td.inMemIngredients.GetSaved()
+}
+
+func (td *TestDriver) GetSavedRecipes() []*recipe_dom.Recipe {
+	return td.inMemRecipes.GetSavedRecipes()
+}
+
+func (td *TestDriver) assertErrContainsAll(t *testing.T, err error, errorStrs ...string) {
 	for _, errorsStr := range errorStrs {
 		assert.Contains(t, err.Error(), errorsStr)
 	}
-}
-
-func (td *TestDriver) SetRecipeRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {
-	td.inMemRecipes.SetExpectedErrors(ets)
 }

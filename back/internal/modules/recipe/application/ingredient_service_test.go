@@ -32,7 +32,7 @@ var (
 )
 
 func TestCreateIngredient(t *testing.T) {
-	td := NewTestDriver()
+	td := NewTestDriver(t)
 	td.SetNextUuid(saltUuid)
 	createdIngredient, err := td.CreateIngredient(ingredient1)
 
@@ -45,7 +45,7 @@ func TestCreateIngredient(t *testing.T) {
 }
 
 func TestSearchIngredient(t *testing.T) {
-	td := NewTestDriver()
+	td := NewTestDriver(t)
 	td.SetNextUuid(saltUuid)
 	td.CreateIngredient(ingredient1)
 	td.CreateIngredient(ingredient2)
@@ -60,9 +60,7 @@ func TestSearchIngredient(t *testing.T) {
 
 func TestUpdateIngredient(t *testing.T) {
 
-	td := NewTestDriver()
-	saltIng := recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit)
-	td.SetIngredientInMemory(saltIng)
+	td := NewTestDriver(t).GivenIngredients(recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit))
 
 	// ingNot found
 	falseIdingredient := dto_recipe_req.UpdateIngredientDto{
@@ -81,8 +79,7 @@ func TestUpdateIngredient(t *testing.T) {
 }
 
 func TestDeleteIngredient(t *testing.T) {
-	td := NewTestDriver()
-	td.SetIngredientInMemory(expectedSavedIngredient)
+	td := NewTestDriver(t).GivenIngredients(expectedSavedIngredient)
 	err := td.DeleteIngredient(saltUuid)
 
 	assert.Nil(t, err)
