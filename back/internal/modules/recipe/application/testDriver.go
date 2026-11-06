@@ -44,7 +44,7 @@ func NewTestDriver(t *testing.T) *TestDriver {
 }
 
 func (td *TestDriver) SetNextUuid(id uuid.UUID) {
-	td.inMemUuidGen.AddExpected(id)
+	td.inMemUuidGen.SetNext(id)
 }
 
 func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
@@ -85,7 +85,7 @@ func (td *TestDriver) GivenRecipe(expectedId uuid.UUID, req dto_recipe_req.Creat
 }
 
 func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
-	td.inMemUuidGen.AddExpected(expectedId)
+	td.inMemUuidGen.SetNext(expectedId)
 	return td.recipeSrv.Create(td.ctx, r)
 }
 

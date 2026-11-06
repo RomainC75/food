@@ -10,7 +10,7 @@ func NewInMemUuidGen() *InMemUuidGen {
 	return &InMemUuidGen{}
 }
 
-func (imu *InMemUuidGen) AddExpected(id uuid.UUID) *InMemUuidGen {
+func (imu *InMemUuidGen) SetNext(id uuid.UUID) *InMemUuidGen {
 	imu.expected = id
 	return imu
 }
