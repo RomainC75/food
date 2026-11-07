@@ -14,15 +14,15 @@ var (
 	userEmail         = "name@email.com"
 	userClearPassword = "clear-pass"
 	userHashedPass    = "hashed pass"
-	newUserReq        = dto_idaccess_req.CreateUser{
+	newUserReq        = dto_idaccess_req.SignupUser{
 		Email:    userEmail,
 		Password: userHashedPass,
 	}
 )
 
-func TestCreateUser(t *testing.T) {
+func TestSignupUser(t *testing.T) {
 	// ? Next cases : password length / complexity ??
-	type CreateUserSetup struct {
+	type SignupUserSetup struct {
 		existingUser              *idaccess_dom.User
 		uuidExpected              uuid.UUID
 		bcryptHashExpected        string
@@ -31,15 +31,15 @@ func TestCreateUser(t *testing.T) {
 	}
 	tests := []struct {
 		name          string
-		createUserReq dto_idaccess_req.CreateUser
+		SignupUserReq dto_idaccess_req.SignupUser
 		expectedError string
-		setup         CreateUserSetup
+		setup         SignupUserSetup
 	}{
 		{
 			"should not create duplicate user",
 			newUserReq,
 			ErrExistingUser,
-			CreateUserSetup{
+			SignupUserSetup{
 				idaccess_dom.NewUser(userId, userEmail, userHashedPass),
 				uuid.New(),
 				"",
@@ -51,7 +51,7 @@ func TestCreateUser(t *testing.T) {
 			"should not create duplicate user",
 			newUserReq,
 			idaccess_dom.ErrHashingPassword,
-			CreateUserSetup{
+			SignupUserSetup{
 				nil,
 				uuid.New(),
 				"",
@@ -63,7 +63,7 @@ func TestCreateUser(t *testing.T) {
 			"should not save user",
 			newUserReq,
 			idaccess_dom.ErrCouldNotSaveUser,
-			CreateUserSetup{
+			SignupUserSetup{
 				nil,
 				uuid.New(),
 				"",
@@ -75,7 +75,7 @@ func TestCreateUser(t *testing.T) {
 			"should save user",
 			newUserReq,
 			"",
-			CreateUserSetup{
+			SignupUserSetup{
 				nil,
 				userId,
 				"",
@@ -92,7 +92,7 @@ func TestCreateUser(t *testing.T) {
 				SetupBcryptResponse(test.setup.isGenerateErrorExpected, userHashedPass).
 				SetupSavingUserError(test.setup.isSavingUserErrorExpected)
 
-			createdUser, err := td.CreateUser(newUserReq)
+			createdUser, err := td.SignupUser(newUserReq)
 			if test.expectedError != "" {
 				assert.EqualError(t, err, test.expectedError)
 				return

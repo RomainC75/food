@@ -18,7 +18,11 @@ type IdAccessSrv struct {
 	users   idaccess_dom.Users
 }
 
-func NewIdAccessSrv(uuidGen shared_domain.Uuids, bcryptHandler idaccess_dom.Bcrypt, users idaccess_dom.Users) *IdAccessSrv {
+func NewIdAccessSrv(
+	uuidGen shared_domain.Uuids,
+	bcryptHandler idaccess_dom.Bcrypt,
+	users idaccess_dom.Users,
+) *IdAccessSrv {
 	return &IdAccessSrv{
 		uuidGen: uuidGen,
 		bcrypt:  bcryptHandler,
@@ -26,7 +30,7 @@ func NewIdAccessSrv(uuidGen shared_domain.Uuids, bcryptHandler idaccess_dom.Bcry
 	}
 }
 
-func (iaSrv *IdAccessSrv) CreateUser(ctx context.Context, newUserReq dto_idaccess_req.CreateUser) (*idaccess_dom.User, error) {
+func (iaSrv *IdAccessSrv) SignupUser(ctx context.Context, newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
 	_, err := iaSrv.users.FindByEmail(ctx, newUserReq.Email)
 
 	if err == nil {
@@ -41,5 +45,4 @@ func (iaSrv *IdAccessSrv) CreateUser(ctx context.Context, newUserReq dto_idacces
 	newUser := idaccess_dom.NewUser(newUserId, newUserReq.Email, hashedPass)
 	err = iaSrv.users.Create(ctx, newUser)
 	return newUser, err
-
 }

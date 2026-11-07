@@ -34,8 +34,8 @@ func NewTestDriver(t *testing.T) *TestDriver {
 	}
 }
 
-func (td *TestDriver) CreateUser(newUserReq dto_idaccess_req.CreateUser) (*idaccess_dom.User, error) {
-	return td.IdAccessSrv.CreateUser(td.ctx, newUserReq)
+func (td *TestDriver) SignupUser(newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
+	return td.IdAccessSrv.SignupUser(td.ctx, newUserReq)
 }
 
 // ======== SETUP =========
