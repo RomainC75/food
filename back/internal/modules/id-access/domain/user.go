@@ -28,6 +28,10 @@ func (u *User) Email() string {
 	return u.email
 }
 
+func (u *User) Password() string {
+	return u.password
+}
+
 func (u *User) IsSameEmail(other string) bool {
 	return u.email == other
 }

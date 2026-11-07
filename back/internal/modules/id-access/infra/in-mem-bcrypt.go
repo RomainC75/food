@@ -6,9 +6,9 @@ import (
 )
 
 type InMemBcrypt struct {
-	expectedHashed          string
-	isGenerateErrorExpected bool
-	isValid                 bool
+	expectedHashed  string
+	isErrorExpected bool
+	isValid         bool
 }
 
 func NewInMemBcrypt() *InMemBcrypt {
@@ -16,7 +16,7 @@ func NewInMemBcrypt() *InMemBcrypt {
 }
 
 func (bg *InMemBcrypt) Generate(password string) (string, error) {
-	if bg.isGenerateErrorExpected {
+	if bg.isErrorExpected {
 		return "", errors.New(idaccess_dom.ErrHashingPassword)
 	}
 	return bg.expectedHashed, nil
@@ -29,6 +29,10 @@ func (bg *InMemBcrypt) SetNextHashPass(expectedHash string) {
 	bg.expectedHashed = expectedHash
 }
 
-func (bg *InMemBcrypt) SetIsGenerateErrorExpected(isGenerateErrorExpected bool) {
-	bg.isGenerateErrorExpected = isGenerateErrorExpected
+func (bg *InMemBcrypt) SetisErrorExpected(isErrorExpected bool) {
+	bg.isErrorExpected = isErrorExpected
+}
+
+func (bg *InMemBcrypt) SetIsValid(isValid bool) {
+	bg.isValid = isValid
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -40,6 +41,7 @@ func (imu *InMemoryUsers) FindById(ctx context.Context, id uuid.UUID) (*idaccess
 
 func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idaccess_dom.User, error) {
 	for _, u := range imu.savedUsers {
+		log.Println(u, email)
 		if u.IsSameEmail(email) {
 			return u.Clone(), nil
 		}

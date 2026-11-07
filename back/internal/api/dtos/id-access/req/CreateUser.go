@@ -1,6 +1,9 @@
 package dto_idaccess_req
 
-type SignupUser struct {
+type Credentials struct {
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,gte=8,lte=30"`
 }
+
+type SignupUser = Credentials
+type SigninUser = Credentials
