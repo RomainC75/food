@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ErrUserNotFound = "user not found"
+	ErrUserNotFound     = "user not found"
+	ErrCouldNotSaveUser = "could not save user"
 )
 
 type Users interface {

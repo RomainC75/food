@@ -8,6 +8,10 @@ import (
 	shared_domain "food/internal/shared/domain"
 )
 
+var (
+	ErrExistingUser = "error : user exists"
+)
+
 type IdAccessSrv struct {
 	uuidGen shared_domain.Uuids
 	bcrypt  idaccess_dom.Bcrypt
@@ -24,13 +28,14 @@ func NewIdAccessSrv(uuidGen shared_domain.Uuids, bcryptHandler idaccess_dom.Bcry
 
 func (iaSrv *IdAccessSrv) CreateUser(ctx context.Context, newUserReq dto_idaccess_req.CreateUser) (*idaccess_dom.User, error) {
 	_, err := iaSrv.users.FindByEmail(ctx, newUserReq.Email)
+
 	if err == nil {
-		return nil, err
+		return nil, errors.New(ErrExistingUser)
 	}
 	newUserId := iaSrv.uuidGen.Generate()
 	hashedPass, err := iaSrv.bcrypt.Generate(newUserReq.Email)
 	if err != nil {
-		return nil, errors.New(idaccess_dom.ErrGeneratingBcrypt)
+		return nil, err
 	}
 
 	newUser := idaccess_dom.NewUser(newUserId, newUserReq.Email, hashedPass)

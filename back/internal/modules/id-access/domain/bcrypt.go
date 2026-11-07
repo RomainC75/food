@@ -1,7 +1,7 @@
 package idaccess_dom
 
 var (
-	ErrGeneratingBcrypt = "error trying to hash the password"
+	ErrHashingPassword = "error trying to hash the password"
 )
 
 type Bcrypt interface {

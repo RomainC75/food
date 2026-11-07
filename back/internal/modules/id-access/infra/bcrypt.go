@@ -1,6 +1,11 @@
 package idaccess_infra
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"errors"
+	idaccess_dom "food/internal/modules/id-access/domain"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 var (
 	BCRYPT_COST = 10
@@ -15,7 +20,10 @@ func NewBcrypt() *BcryptGen {
 
 func (bg *BcryptGen) Generate(password string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), BCRYPT_COST)
-	return string(hashed), err
+	if err != nil {
+		return "", errors.New(idaccess_dom.ErrHashingPassword)
+	}
+	return string(hashed), nil
 }
 func (bg *BcryptGen) IsValid(hash string, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))

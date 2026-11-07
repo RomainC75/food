@@ -14,7 +14,7 @@ import (
 type TestDriver struct {
 	t           *testing.T
 	ctx         context.Context
-	users       idaccess_dom.Users
+	users       *idaccess_infra.InMemoryUsers
 	uuidGen     *shared_infra.InMemUuidGen
 	bcrypt      *idaccess_infra.InMemBcrypt
 	IdAccessSrv *IdAccessSrv
@@ -38,7 +38,10 @@ func (td *TestDriver) CreateUser(newUserReq dto_idaccess_req.CreateUser) (*idacc
 	return td.IdAccessSrv.CreateUser(td.ctx, newUserReq)
 }
 
-func (td *TestDriver) GivenHashedPass(expectedHash string) *TestDriver {
+// ======== SETUP =========
+
+func (td *TestDriver) SetupBcryptResponse(isGenerateError bool, expectedHash string) *TestDriver {
+	td.bcrypt.SetIsGenerateErrorExpected(isGenerateError)
 	td.bcrypt.SetNextHashPass(expectedHash)
 	return td
 }
@@ -46,4 +49,20 @@ func (td *TestDriver) GivenHashedPass(expectedHash string) *TestDriver {
 func (td *TestDriver) GivenUuid(id uuid.UUID) *TestDriver {
 	td.uuidGen.SetNext(id)
 	return td
+}
+
+func (td *TestDriver) GivenUser(existingUser *idaccess_dom.User) *TestDriver {
+	if existingUser != nil {
+		td.users.Create(td.ctx, existingUser)
+	}
+	return td
+}
+
+func (td *TestDriver) SetupSavingUserError(isSavingUserErrorExpected bool) *TestDriver {
+	td.users.SetupIsSavingUserError(isSavingUserErrorExpected)
+	return td
+}
+
+func (td *TestDriver) SavedUsers() []*idaccess_dom.User {
+	return td.users.SavedUsers()
 }
