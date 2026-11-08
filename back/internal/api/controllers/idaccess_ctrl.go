@@ -58,8 +58,12 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	res := dto_idaccess_res.SignupResDto{
+		UserId: found.Id(),
+		Email:  found.Email(),
+	}
+	json_utils.JsonResponse(w, res)
 
-	json_utils.JsonResponse(w, found)
 }
 
 func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
