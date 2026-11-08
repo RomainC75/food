@@ -6,6 +6,7 @@ import (
 	"errors"
 	"food/config"
 	dto_idaccess_req "food/internal/api/dtos/id-access/req"
+	dto_idaccess_res "food/internal/api/dtos/id-access/res"
 	api_validator "food/internal/api/validator"
 	idaccess_app "food/internal/modules/id-access/application"
 	idaccess_dom "food/internal/modules/id-access/domain"
@@ -78,8 +79,12 @@ func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
-	json_utils.JsonResponse(w, found)
+	res := dto_idaccess_res.SigninResDto{
+		UserId: found.UserID,
+		Email:  found.Email,
+		Token:  found.Token,
+	}
+	json_utils.JsonResponse(w, res)
 }
 
 func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
