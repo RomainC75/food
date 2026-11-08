@@ -25,11 +25,14 @@ type IdAccessCtrl struct {
 }
 
 func NewIdAccessCtrl() *IdAccessCtrl {
+	jwtSecret := config.Get().Jwt.Secret
+	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin)
+	timeDate := shared_infra.NewDateTime()
 	return &IdAccessCtrl{
 		idaccessSrv: idaccess_app.NewIdAccessSrv(
 			shared_infra.NewUuidGenerator(),
 			idaccess_infra.NewBcrypt(),
-			idaccess_infra.NewJWT(config.Get().Jwt.Secret, time.Duration(config.Get().Jwt.ExpiresInMin)),
+			idaccess_infra.NewJWT(timeDate, jwtSecret, expiresIn),
 			idaccess_infra.NewInMemoryUsers(),
 		),
 	}
