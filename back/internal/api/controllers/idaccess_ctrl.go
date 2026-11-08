@@ -26,7 +26,7 @@ type IdAccessCtrl struct {
 
 func NewIdAccessCtrl() *IdAccessCtrl {
 	jwtSecret := config.Get().Jwt.Secret
-	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin)
+	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin * int(time.Minute))
 	timeDate := shared_infra.NewDateTime()
 	return &IdAccessCtrl{
 		idaccessSrv: idaccess_app.NewIdAccessSrv(
@@ -118,9 +118,9 @@ func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
 func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request) {
 	email := r.Context().Value(idaccess_dom.TokenEmailKey)
 	userId := r.Context().Value(idaccess_dom.TokenUserIdKey)
-	id, err := uuid.Parse(userId.(string))
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusUnauthorized)
+	id, ok := userId.(uuid.UUID)
+	if !ok {
+		http.Error(w, "could not parse token ()", http.StatusUnauthorized)
 		return
 	}
 	data := idaccess_dom.VerifyInfo{

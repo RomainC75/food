@@ -63,18 +63,23 @@ func (j *JWT) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
 		return []byte(j.secret), nil
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}), jwt.WithTimeFunc(j.dateTime.Now))
 	if err != nil {
-		log.Println("---> first : ", err.Error())
 		return idaccess_dom.VerifyInfo{}, err
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-		userId, err := uuid.Parse(claims["user_id"].(string))
+		userId, ok := claims["user_id"]
+		if !ok {
+			return idaccess_dom.VerifyInfo{}, errors.New("could not get user_id from token")
+		}
+		log.Println("--> userId : ", userId)
+		userUuid, err := uuid.Parse(userId.(string))
 		if err != nil {
 			return idaccess_dom.VerifyInfo{}, errors.New(fmt.Sprintf("%s : %s", ErrInvalidId, claims["user_id"].(string)))
 		}
+		log.Println("--> userUuid : ", userUuid)
 
 		return idaccess_dom.VerifyInfo{
-			UserId:    userId,
+			UserId:    userUuid,
 			UserEmail: claims["user_email"].(string),
 		}, nil
 	}
