@@ -19,6 +19,10 @@ func Set() {
 		Server: Server{
 			Port: v.GetString("BACK_PORT"),
 		},
+		Jwt: Jwt{
+			Secret:       v.GetString("JWT_SECRET"),
+			ExpiresInMin: v.GetInt("JWT_EXPIRES_IN_MIN"),
+		},
 	}
 
 	err := viper.Unmarshal(&configurations)
