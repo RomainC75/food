@@ -8,6 +8,8 @@ import (
 type InMemJWT struct {
 	expectedToken           string
 	isGenerateErrorExpected bool
+	isVerifyError           bool
+	verifyInfo              idaccess_dom.VerifyInfo
 }
 
 func NewInMemJWT() *InMemJWT {
@@ -19,6 +21,13 @@ func (imj *InMemJWT) Generate(user *idaccess_dom.User) (string, error) {
 		return "", errors.New(idaccess_dom.ErrCouldNotGenerateJwt)
 	}
 	return imj.expectedToken, nil
+}
+
+func (imj *InMemJWT) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
+	if imj.isVerifyError {
+		return idaccess_dom.VerifyInfo{}, errors.New(idaccess_dom.ErrCouldNotVerifyToken)
+	}
+	return imj.verifyInfo, nil
 }
 
 func (imj *InMemJWT) SetupExpectedTokenError(expectedGenError bool) {

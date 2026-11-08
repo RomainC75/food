@@ -1,56 +1,73 @@
 package idaccess_infra
 
 import (
+	"fmt"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-)
-
-var (
-	JWT_KEY       = "super key"
-	EXPIRE_IN_MIN = 30
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 type JWT struct {
+	secret    []byte
+	expiresIn time.Duration
 }
 
-func NewJWT() *JWT {
-	return &JWT{}
+func NewJWT(secret string, expiresIn time.Duration) *JWT {
+	return &JWT{
+		secret:    []byte(secret),
+		expiresIn: expiresIn,
+	}
 }
 
 type CustomClaim struct {
 	jwt.RegisteredClaims
-	UserId    string `json:"user_id"`
+	UserID    string `json:"user_id"`
 	UserEmail string `json:"user_email"`
 }
 
 func (j *JWT) Generate(user *idaccess_dom.User) (string, error) {
-	t := jwt.New(jwt.GetSigningMethod("RS256"))
-
-	t.Claims = &CustomClaim{
-		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * time.Duration(EXPIRE_IN_MIN))),
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, CustomClaim{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(j.expiresIn)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			Subject:   user.Id().String(),
 		},
-		user.Id().String(),
-		user.Email(),
-	}
-	return t.SignedString(JWT_KEY)
+		UserID:    user.Id().String(),
+		UserEmail: user.Email(),
+	})
 
+	signedString, err := token.SignedString(j.secret)
+
+	if err != nil {
+		logrus.Warn("JWT Generate() : ", err.Error())
+		return "", fmt.Errorf("error creating jwt string: %v", err)
+	}
+
+	return signedString, nil
 }
 
-// func (j *JWT) Verify(tokenStr string) bool {
-// 	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
-// 		return []byte(JWT_KEY), nil
-// 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
-// 	if err != nil {
-// 		return false
-// 	}
+func (j *JWT) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
+		return []byte(j.secret), nil
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+	if err != nil {
+		return idaccess_dom.VerifyInfo{}, err
+	}
 
-// 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
-// 		fmt.Println(claims["foo"], claims["nbf"])
-// 		return true
-// 	}
-// 	fmt.Println(err)
-// 	return false
-// }
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		fmt.Println(claims, claims["user_id"], claims["user_email"])
+		userId, err := uuid.Parse(claims["user_id"].(string))
+		if err != nil {
+			return idaccess_dom.VerifyInfo{}, err
+		}
+		return idaccess_dom.VerifyInfo{
+			UserId:    userId,
+			UserEmail: claims["user_email"].(string),
+		}, nil
+	}
+	fmt.Println(err)
+	return idaccess_dom.VerifyInfo{}, err
+}

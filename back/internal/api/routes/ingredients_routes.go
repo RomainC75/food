@@ -8,12 +8,14 @@ import (
 )
 
 func ConnectIngredientRoutes(r *chi.Mux) {
-	ingredientCtrl := ctrl.NewIngredientController()
+	ingredientCtrl := ctrl.NewIngredientCtrl()
 
 	r.Route("/ingredient", func(r chi.Router) {
+		r.Use()
 		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
 			ingredientCtrl.Search(w, r)
 			// w.Write([]byte("welcome"))
 		})
+
 	})
 }

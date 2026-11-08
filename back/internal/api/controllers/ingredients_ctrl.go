@@ -17,7 +17,7 @@ type IngredientCtrl struct {
 	ingredientSrv *recipe_app.IngredientSrv
 }
 
-func NewIngredientController() *IngredientCtrl {
+func NewIngredientCtrl() *IngredientCtrl {
 	return &IngredientCtrl{
 		ingredientSrv: recipe_app.NewIngredientSrv(
 			shared_infra.NewInMemUuidGen(),

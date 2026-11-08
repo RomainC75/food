@@ -26,7 +26,8 @@ func (imu *InMemoryUsers) Create(ctx context.Context, newUser *idaccess_dom.User
 	if imu.isSavingUserErrorExpected {
 		return errors.New(idaccess_dom.ErrCouldNotSaveUser)
 	}
-	imu.savedUsers = append(imu.savedUsers, newUser)
+	imu.savedUsers = append(imu.savedUsers, newUser.Clone())
+	imu.DisplayAll()
 	return nil
 }
 
@@ -42,7 +43,7 @@ func (imu *InMemoryUsers) FindById(ctx context.Context, id uuid.UUID) (*idaccess
 func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idaccess_dom.User, error) {
 	for _, u := range imu.savedUsers {
 		log.Println(u, email)
-		if u.IsSameEmail(email) {
+		if u.Email() == email {
 			return u.Clone(), nil
 		}
 	}
@@ -57,4 +58,13 @@ func (imu *InMemoryUsers) SetupIsSavingUserError(isSavingUserErrorExpected bool)
 
 func (imu *InMemoryUsers) SavedUsers() []*idaccess_dom.User {
 	return imu.savedUsers
+}
+
+func (imu *InMemoryUsers) DisplayAll() {
+	log.Println("------- DISPLAY USERS --------")
+	for _, user := range imu.savedUsers {
+		u, _ := user.MarshalJSON()
+		log.Println(string(u))
+	}
+	log.Println("------- END ---------")
 }

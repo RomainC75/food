@@ -7,11 +7,13 @@ import (
 	idaccess_app_mod "food/internal/modules/id-access/application/models"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	shared_domain "food/internal/shared/domain"
+	"log"
 )
 
 var (
 	ErrExistingUser         = "error : user exists"
 	ErrWrongEmailOrPassword = "wrong email or password"
+	ErrDecodingToken        = "error trying to decode the token"
 )
 
 type IdAccessSrv struct {
@@ -42,12 +44,14 @@ func (iaSrv *IdAccessSrv) SignupUser(ctx context.Context, newUserReq dto_idacces
 		return nil, errors.New(ErrExistingUser)
 	}
 	newUserId := iaSrv.uuidGen.Generate()
-	hashedPass, err := iaSrv.bcrypt.Generate(newUserReq.Email)
+	hashedPass, err := iaSrv.bcrypt.Generate(newUserReq.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	newUser := idaccess_dom.NewUser(newUserId, newUserReq.Email, hashedPass)
+	u, _ := newUser.MarshalJSON()
+	log.Println("SRV user to save ", string(u))
 	err = iaSrv.users.Create(ctx, newUser)
 	return newUser, err
 }
@@ -65,9 +69,18 @@ func (iaSrv *IdAccessSrv) SigninUser(ctx context.Context, signinUserReq dto_idac
 	}
 
 	tokenStr, err := iaSrv.jwtGen.Generate(foundUser)
+	log.Println("--> TOKEN : ", tokenStr)
 	return idaccess_app_mod.SigninResult{
 		UserID: foundUser.Id(),
 		Email:  foundUser.Email(),
 		Token:  tokenStr,
 	}, err
+}
+
+func (iaSrv *IdAccessSrv) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
+	data, err := iaSrv.jwtGen.Verify(tokenStr)
+	if err != nil {
+		return data, errors.New(ErrDecodingToken)
+	}
+	return data, nil
 }

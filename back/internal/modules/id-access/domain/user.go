@@ -37,10 +37,19 @@ func (u *User) IsSameEmail(other string) bool {
 }
 
 func (u *User) Clone() *User {
-	return &User{
-		id:    u.id,
-		email: u.email,
+	if u == nil {
+		return nil
 	}
+	return &User{
+		id:       u.id,
+		email:    u.email,
+		password: u.password,
+	}
+	// bytes, err := json.Marshal(src)
+	// if err != nil {
+	// 	return err
+	// }
+	// return json.Unmarshal(bytes, dst)
 }
 
 // -----

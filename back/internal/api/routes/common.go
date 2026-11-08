@@ -9,5 +9,6 @@ func ConnectRoutes() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	ConnectIngredientRoutes(r)
+	ConnectIdAccessRoutes(r)
 	return r
 }
