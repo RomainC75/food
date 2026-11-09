@@ -8,6 +8,7 @@ import (
 
 func ConnectIdAccessRoutes(r *chi.Mux) {
 	idAccessCtrl := ctrl.NewIdAccessCtrl()
+	workspaceCtrl := ctrl.NewWorkspaceCtrl()
 
 	r.Route("/id-access", func(r chi.Router) {
 		r.Post("/signup", idAccessCtrl.Signup)
@@ -18,6 +19,12 @@ func ConnectIdAccessRoutes(r *chi.Mux) {
 	r.Route("/verify", func(r chi.Router) {
 		r.Use(idAccessCtrl.Verify)
 		r.Get("/", idAccessCtrl.ReturnAuthData)
+
+	})
+
+	r.Route("/workspace", func(r chi.Router) {
+		r.Use(idAccessCtrl.Verify)
+		r.Post("/", workspaceCtrl.Create)
 
 	})
 }
