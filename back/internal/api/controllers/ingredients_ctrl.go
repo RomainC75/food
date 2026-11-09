@@ -3,6 +3,7 @@ package ctrl
 import (
 	"context"
 	"encoding/json"
+	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	api_validator "food/internal/api/validator"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
@@ -42,6 +43,30 @@ func (ictrl *IngredientCtrl) Search(w http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 	found, err := ictrl.ingredientSrv.Search(ctx, req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	json_utils.JsonResponse(w, found)
+}
+
+func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Request) {
+	var req dto_recipe_req.CreateIngredientDto
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = api_validator.Get().Struct(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ctx := context.Background()
+	found, err := ictrl.ingredientSrv.Create(ctx, req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

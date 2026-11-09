@@ -13,40 +13,53 @@ import (
 )
 
 type TestDriver struct {
-	t           *testing.T
-	ctx         context.Context
-	users       *idaccess_infra.InMemoryUsers
-	uuidGen     *shared_infra.InMemUuidGen
-	bcrypt      *idaccess_infra.InMemBcrypt
-	jwtGen      *idaccess_infra.InMemJWT
-	IdAccessSrv *IdAccessSrv
+	t            *testing.T
+	ctx          context.Context
+	users        *idaccess_infra.InMemoryUsers
+	uuidGen      *shared_infra.InMemUuidGen
+	bcrypt       *idaccess_infra.InMemBcrypt
+	jwtGen       *idaccess_infra.InMemJWT
+	userSrv      *UserSrv
+	workspaceSrv *WorkspaceSrv
 }
 
 func NewTestDriver(t *testing.T) *TestDriver {
 	users := idaccess_infra.NewInMemoryUsers()
+	workspaces := idaccess_infra.NewInMemWorkspaces()
 	uuidGen := shared_infra.NewInMemUuidGen()
 	bcrypt := idaccess_infra.NewInMemBcrypt()
 	jwtGen := idaccess_infra.NewInMemJWT()
+	dateTime := shared_infra.NewInMemDateTime()
 	return &TestDriver{
-		t:           t,
-		ctx:         context.Background(),
-		users:       users,
-		uuidGen:     uuidGen,
-		bcrypt:      bcrypt,
-		jwtGen:      jwtGen,
-		IdAccessSrv: NewIdAccessSrv(uuidGen, bcrypt, jwtGen, users),
+		t:            t,
+		ctx:          context.Background(),
+		users:        users,
+		uuidGen:      uuidGen,
+		bcrypt:       bcrypt,
+		jwtGen:       jwtGen,
+		userSrv:      NewUserSrv(uuidGen, bcrypt, jwtGen, users),
+		workspaceSrv: NewWorkspaceSrv(uuidGen, workspaces, dateTime),
 	}
 }
 
 func (td *TestDriver) SignupUser(newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
-	return td.IdAccessSrv.SignupUser(td.ctx, newUserReq)
+	return td.userSrv.SignupUser(td.ctx, newUserReq)
 }
 
 func (td *TestDriver) SigninUser(newUserReq dto_idaccess_req.SignupUser) (idaccess_app_mod.SigninResult, error) {
-	return td.IdAccessSrv.SigninUser(td.ctx, newUserReq)
+	return td.userSrv.SigninUser(td.ctx, newUserReq)
+}
+
+func (td *TestDriver) CreateWorkspace(ws dto_idaccess_req.CreateWorkspace) (*idaccess_dom.Workspace, error) {
+	return td.workspaceSrv.Create(td.ctx, ws)
 }
 
 // ======== SETUP =========
+
+func (td *TestDriver) GivenUserIdContext(userId uuid.UUID) *TestDriver {
+	td.ctx = context.WithValue(td.ctx, idaccess_dom.TokenUserIdKey, userId)
+	return td
+}
 
 func (td *TestDriver) SetupBcryptGenResponse(isGenerateError bool, expectedHash string) *TestDriver {
 	td.bcrypt.SetisErrorExpected(isGenerateError)

@@ -3,7 +3,8 @@ package shared_infra
 import "github.com/google/uuid"
 
 type InMemUuidGen struct {
-	expected uuid.UUID
+	expected     []uuid.UUID
+	currentIndex int
 }
 
 func NewInMemUuidGen() *InMemUuidGen {
@@ -11,10 +12,23 @@ func NewInMemUuidGen() *InMemUuidGen {
 }
 
 func (imu *InMemUuidGen) SetNext(id uuid.UUID) *InMemUuidGen {
-	imu.expected = id
+	imu.expected = []uuid.UUID{id}
+	imu.currentIndex = 0
+	return imu
+}
+
+func (imu *InMemUuidGen) SetMultipleUuids(uuids []uuid.UUID) *InMemUuidGen {
+	imu.expected = uuids
+	imu.currentIndex = 0
 	return imu
 }
 
 func (imu *InMemUuidGen) Generate() uuid.UUID {
-	return imu.expected
+	if imu.currentIndex == len(imu.expected) {
+		panic("InMemUuidGenerator : no more uuids")
+	}
+
+	id := imu.expected[imu.currentIndex]
+	imu.currentIndex++
+	return id
 }

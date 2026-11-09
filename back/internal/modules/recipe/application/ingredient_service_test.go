@@ -18,12 +18,12 @@ var (
 	tomatoName     = "tomato"
 	tomatoBaseUnit = recipe_dom.Piece
 
-	ingredient1 = dto_recipe_req.CreateIngredientDto{
+	ingredientSalt = dto_recipe_req.CreateIngredientDto{
 		Name:     saltName,
 		BaseUnit: saltBaseUnit,
 	}
 
-	ingredient2 = dto_recipe_req.CreateIngredientDto{
+	ingredientTomato = dto_recipe_req.CreateIngredientDto{
 		Name:     tomatoName,
 		BaseUnit: tomatoBaseUnit,
 	}
@@ -34,7 +34,7 @@ var (
 func TestCreateIngredient(t *testing.T) {
 	td := NewTestDriver(t)
 	td.SetNextUuid(saltUuid)
-	createdIngredient, err := td.CreateIngredient(ingredient1)
+	createdIngredient, err := td.CreateIngredient(ingredientSalt)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSavedIngredient, createdIngredient)
@@ -46,9 +46,9 @@ func TestCreateIngredient(t *testing.T) {
 
 func TestSearchIngredient(t *testing.T) {
 	td := NewTestDriver(t)
-	td.SetNextUuid(saltUuid)
-	td.CreateIngredient(ingredient1)
-	td.CreateIngredient(ingredient2)
+	td.SetNextUuids(saltUuid, tomatoUuid)
+	td.CreateIngredient(ingredientSalt)
+	td.CreateIngredient(ingredientTomato)
 
 	searchFilter := recipe_dom.IngredientFilter{
 		Name: tomatoName,
