@@ -7,7 +7,6 @@ import (
 	idaccess_app_mod "food/internal/modules/id-access/application/models"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	shared_domain "food/internal/shared/domain"
-	"log"
 )
 
 var (
@@ -16,20 +15,20 @@ var (
 	ErrDecodingToken        = "error trying to decode the token"
 )
 
-type IdAccessSrv struct {
+type UserSrv struct {
 	uuidGen shared_domain.Uuids
 	bcrypt  idaccess_dom.Bcrypt
 	jwtGen  idaccess_dom.JWT
 	users   idaccess_dom.Users
 }
 
-func NewIdAccessSrv(
+func NewUserSrv(
 	uuidGen shared_domain.Uuids,
 	bcryptHandler idaccess_dom.Bcrypt,
 	jwtGen idaccess_dom.JWT,
 	users idaccess_dom.Users,
-) *IdAccessSrv {
-	return &IdAccessSrv{
+) *UserSrv {
+	return &UserSrv{
 		uuidGen: uuidGen,
 		bcrypt:  bcryptHandler,
 		jwtGen:  jwtGen,
@@ -37,39 +36,36 @@ func NewIdAccessSrv(
 	}
 }
 
-func (iaSrv *IdAccessSrv) SignupUser(ctx context.Context, newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
-	_, err := iaSrv.users.FindByEmail(ctx, newUserReq.Email)
+func (uSrv *UserSrv) SignupUser(ctx context.Context, newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
+	_, err := uSrv.users.FindByEmail(ctx, newUserReq.Email)
 
 	if err == nil {
 		return nil, errors.New(ErrExistingUser)
 	}
-	newUserId := iaSrv.uuidGen.Generate()
-	hashedPass, err := iaSrv.bcrypt.Generate(newUserReq.Password)
+	newUserId := uSrv.uuidGen.Generate()
+	hashedPass, err := uSrv.bcrypt.Generate(newUserReq.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	newUser := idaccess_dom.NewUser(newUserId, newUserReq.Email, hashedPass)
-	u, _ := newUser.MarshalJSON()
-	log.Println("SRV user to save ", string(u))
-	err = iaSrv.users.Create(ctx, newUser)
+	err = uSrv.users.Create(ctx, newUser)
 	return newUser, err
 }
 
-func (iaSrv *IdAccessSrv) SigninUser(ctx context.Context, signinUserReq dto_idaccess_req.SigninUser) (idaccess_app_mod.SigninResult, error) {
-	foundUser, err := iaSrv.users.FindByEmail(ctx, signinUserReq.Email)
+func (uSrv *UserSrv) SigninUser(ctx context.Context, signinUserReq dto_idaccess_req.SigninUser) (idaccess_app_mod.SigninResult, error) {
+	foundUser, err := uSrv.users.FindByEmail(ctx, signinUserReq.Email)
 
 	if err != nil {
 		return idaccess_app_mod.SigninResult{}, errors.New(ErrWrongEmailOrPassword)
 	}
 
-	isPassValid := iaSrv.bcrypt.IsValid(foundUser.Password(), signinUserReq.Password)
+	isPassValid := uSrv.bcrypt.IsValid(foundUser.Password(), signinUserReq.Password)
 	if !isPassValid {
 		return idaccess_app_mod.SigninResult{}, errors.New(ErrWrongEmailOrPassword)
 	}
 
-	tokenStr, err := iaSrv.jwtGen.Generate(foundUser)
-	log.Println("--> TOKEN : ", tokenStr)
+	tokenStr, err := uSrv.jwtGen.Generate(foundUser)
 	return idaccess_app_mod.SigninResult{
 		UserID: foundUser.Id(),
 		Email:  foundUser.Email(),
@@ -77,8 +73,9 @@ func (iaSrv *IdAccessSrv) SigninUser(ctx context.Context, signinUserReq dto_idac
 	}, err
 }
 
-func (iaSrv *IdAccessSrv) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
-	data, err := iaSrv.jwtGen.Verify(tokenStr)
+func (uSrv *UserSrv) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
+
+	data, err := uSrv.jwtGen.Verify(tokenStr)
 	if err != nil {
 		return data, errors.New(ErrDecodingToken)
 	}
