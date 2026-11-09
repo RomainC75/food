@@ -16,6 +16,7 @@ type TestDriver struct {
 	t            *testing.T
 	ctx          context.Context
 	users        *idaccess_infra.InMemoryUsers
+	workspaces   *idaccess_infra.InMemWorkspaces
 	uuidGen      *shared_infra.InMemUuidGen
 	bcrypt       *idaccess_infra.InMemBcrypt
 	jwtGen       *idaccess_infra.InMemJWT
@@ -34,6 +35,7 @@ func NewTestDriver(t *testing.T) *TestDriver {
 		t:            t,
 		ctx:          context.Background(),
 		users:        users,
+		workspaces:   workspaces,
 		uuidGen:      uuidGen,
 		bcrypt:       bcrypt,
 		jwtGen:       jwtGen,
@@ -82,6 +84,11 @@ func (td *TestDriver) GivenUuid(id uuid.UUID) *TestDriver {
 	return td
 }
 
+func (td *TestDriver) GivenUuids(ids ...uuid.UUID) *TestDriver {
+	td.uuidGen.SetMultipleUuids(ids)
+	return td
+}
+
 func (td *TestDriver) GivenUser(existingUser *idaccess_dom.User) *TestDriver {
 	if existingUser != nil {
 		td.users.Create(td.ctx, existingUser)
@@ -94,10 +101,6 @@ func (td *TestDriver) SetupSavingUserError(isSavingUserErrorExpected bool) *Test
 	return td
 }
 
-func (td *TestDriver) SavedUsers() []*idaccess_dom.User {
-	return td.users.SavedUsers()
-}
-
 func (td *TestDriver) SetupExpectedTokenError(expectGenTokenError bool) *TestDriver {
 	td.jwtGen.SetupExpectedTokenError(expectGenTokenError)
 	return td
@@ -106,4 +109,16 @@ func (td *TestDriver) SetupExpectedTokenError(expectGenTokenError bool) *TestDri
 func (td *TestDriver) SetupExpetedToken(expectedToken string) *TestDriver {
 	td.jwtGen.SetupExpectedToken(expectedToken)
 	return td
+}
+
+func (td *TestDriver) SavedUsers() []*idaccess_dom.User {
+	return td.users.SavedUsers()
+}
+
+func (td *TestDriver) SavedMemberships() []*idaccess_dom.Membership {
+	return td.workspaces.SavedMemberships()
+}
+
+func (td *TestDriver) SavedWorkspaces() []*idaccess_dom.Workspace {
+	return td.workspaces.SavedWorkspaces()
 }
