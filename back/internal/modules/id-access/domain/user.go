@@ -7,9 +7,10 @@ import (
 )
 
 type User struct {
-	id       uuid.UUID
-	email    string
-	password string
+	id            uuid.UUID
+	email         string
+	password      string
+	workspacesIDs []uuid.UUID
 }
 
 func NewUser(id uuid.UUID, email string, password string) *User {
