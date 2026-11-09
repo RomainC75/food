@@ -47,6 +47,10 @@ func (td *TestDriver) SetNextUuid(id uuid.UUID) {
 	td.inMemUuidGen.SetNext(id)
 }
 
+func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
+	td.inMemUuidGen.SetMultipleUuids(ids)
+}
+
 func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
