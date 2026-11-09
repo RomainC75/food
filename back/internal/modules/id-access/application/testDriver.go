@@ -111,6 +111,10 @@ func (td *TestDriver) SetupExpetedToken(expectedToken string) *TestDriver {
 	return td
 }
 
+func (td *TestDriver) SetupExpectedWorkspaceError(isErrorExpected bool) {
+	td.workspaces.SetIsErrorExpected(isErrorExpected)
+}
+
 func (td *TestDriver) SavedUsers() []*idaccess_dom.User {
 	return td.users.SavedUsers()
 }
