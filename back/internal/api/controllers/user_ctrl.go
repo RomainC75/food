@@ -21,7 +21,7 @@ import (
 )
 
 type IdAccessCtrl struct {
-	idaccessSrv *idaccess_app.IdAccessSrv
+	idaccessSrv *idaccess_app.UserSrv
 }
 
 func NewIdAccessCtrl() *IdAccessCtrl {
@@ -29,7 +29,7 @@ func NewIdAccessCtrl() *IdAccessCtrl {
 	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin * int(time.Minute))
 	timeDate := shared_infra.NewDateTime()
 	return &IdAccessCtrl{
-		idaccessSrv: idaccess_app.NewIdAccessSrv(
+		idaccessSrv: idaccess_app.NewUserSrv(
 			shared_infra.NewUuidGenerator(),
 			idaccess_infra.NewBcrypt(),
 			idaccess_infra.NewJWT(timeDate, jwtSecret, expiresIn),
@@ -52,8 +52,7 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	found, err := ictrl.idaccessSrv.SignupUser(ctx, req)
+	found, err := ictrl.idaccessSrv.SignupUser(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -80,8 +79,7 @@ func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := context.Background()
-	found, err := ictrl.idaccessSrv.SigninUser(ctx, req)
+	found, err := ictrl.idaccessSrv.SigninUser(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
