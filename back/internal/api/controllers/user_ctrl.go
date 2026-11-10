@@ -1,7 +1,6 @@
 package ctrl
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	dto_idaccess_req "food/internal/api/dtos/id-access/req"
@@ -9,12 +8,11 @@ import (
 	api_validator "food/internal/api/validator"
 	idaccess_app "food/internal/modules/id-access/application"
 	idaccess_dom "food/internal/modules/id-access/domain"
+	platform_http "food/internal/platform/http"
 	json_utils "food/utils/json"
 	"log"
 	"net/http"
 	"strings"
-
-	"github.com/google/uuid"
 )
 
 type IdAccessCtrl struct {
@@ -94,26 +92,24 @@ func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-
-		ctx := context.WithValue(r.Context(), idaccess_dom.TokenUserIdKey, tokenData.UserId)
-		ctx = context.WithValue(ctx, idaccess_dom.TokenEmailKey, tokenData.UserEmail)
+		ctx := platform_http.WithUserId(r.Context(), tokenData.UserId)
+		ctx = platform_http.WithUserEmail(ctx, tokenData.UserEmail)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request) {
-	email := r.Context().Value(idaccess_dom.TokenEmailKey)
-	userId := r.Context().Value(idaccess_dom.TokenUserIdKey)
+	email := platform_http.GetEmailFromContext(r)
 
-	id, ok := userId.(uuid.UUID)
+	id, ok := platform_http.GetUserIdFromContext(r.Context())
 	if !ok {
 		http.Error(w, "could not parse token ()", http.StatusUnauthorized)
 		return
 	}
 	data := idaccess_dom.VerifyInfo{
 		UserId:    id,
-		UserEmail: email.(string),
+		UserEmail: email,
 	}
 
 	json_utils.JsonResponse(w, data)

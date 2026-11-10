@@ -5,6 +5,7 @@ import (
 	"errors"
 	dto_idaccess_req "food/internal/api/dtos/id-access/req"
 	idaccess_dom "food/internal/modules/id-access/domain"
+	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
 
 	"github.com/google/uuid"
@@ -36,7 +37,7 @@ func (wSrv *WorkspaceSrv) Create(ctx context.Context, req dto_idaccess_req.Creat
 	workspaceId := wSrv.uuidGen.Generate()
 	membershipId := wSrv.uuidGen.Generate()
 
-	userId := ctx.Value(idaccess_dom.TokenUserIdKey).(uuid.UUID)
+	userId, _ := platform_http.GetUserIdFromContext(ctx)
 
 	workspace := idaccess_dom.NewWorkspace(workspaceId, req.Name)
 	membership := idaccess_dom.NewMembership(membershipId, userId, workspaceId, idaccess_dom.Manager)

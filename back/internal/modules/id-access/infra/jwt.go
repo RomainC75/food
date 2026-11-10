@@ -34,7 +34,7 @@ func NewJWT(dateTime shared_domain.DateTime, secret string, expiresIn time.Durat
 type CustomClaim struct {
 	jwt.RegisteredClaims
 	UserID    string `json:"user_id"`
-	UserEmail string `json:"user_email"`
+	UserEmail string `json:"email"`
 }
 
 func (j *JWT) Generate(user *idaccess_dom.User) (string, error) {
@@ -80,7 +80,7 @@ func (j *JWT) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
 
 		return idaccess_dom.VerifyInfo{
 			UserId:    userUuid,
-			UserEmail: claims["user_email"].(string),
+			UserEmail: claims["email"].(string),
 		}, nil
 	}
 	fmt.Println(err)

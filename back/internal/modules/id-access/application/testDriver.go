@@ -6,6 +6,7 @@ import (
 	idaccess_app_mod "food/internal/modules/id-access/application/models"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	idaccess_infra "food/internal/modules/id-access/infra"
+	platform_http "food/internal/platform/http"
 	shared_infra "food/internal/shared/infra"
 	"testing"
 
@@ -59,7 +60,7 @@ func (td *TestDriver) CreateWorkspace(ws dto_idaccess_req.CreateWorkspace) (*ida
 // ======== SETUP =========
 
 func (td *TestDriver) GivenUserIdContext(userId uuid.UUID) *TestDriver {
-	td.ctx = context.WithValue(td.ctx, idaccess_dom.TokenUserIdKey, userId)
+	td.ctx = platform_http.WithUserId(td.ctx, userId)
 	return td
 }
 

@@ -7,11 +7,6 @@ var (
 	ErrCouldNotVerifyToken = "could not verify token"
 )
 
-var (
-	TokenUserIdKey = "user_id"
-	TokenEmailKey  = "email"
-)
-
 type VerifyInfo struct {
 	UserId    uuid.UUID
 	UserEmail string
