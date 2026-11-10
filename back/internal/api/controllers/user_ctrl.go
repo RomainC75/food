@@ -10,7 +10,6 @@ import (
 	idaccess_dom "food/internal/modules/id-access/domain"
 	platform_http "food/internal/platform/http"
 	json_utils "food/utils/json"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -87,7 +86,6 @@ func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
 			return
 		}
 		tokenData, err := ictrl.userSrv.Verify(rawToken)
-		log.Println("---> ", rawToken, tokenData, err)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return

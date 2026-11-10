@@ -5,10 +5,14 @@ import (
 	"errors"
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
+	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
-	"log"
 
 	"github.com/google/uuid"
+)
+
+var (
+	ErrCouldNotGetWorkspaceId = "ingredient / could not get workdspaceId"
 )
 
 type IngredientSrv struct {
@@ -24,8 +28,10 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 }
 
 func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
-	workspaceId := ctx.Value("workspace_id").(uuid.UUID)
-	log.Println("---------> workdspaceId : ingredientSrv/Create : ", workspaceId)
+	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(ctx)
+	if !ok {
+		return nil, errors.New(ErrCouldNotGetWorkspaceId)
+	}
 
 	ingredient := recipe_dom.NewIngredient(is.uuidGen.Generate(), ingredientReq.Name, ingredientReq.BaseUnit, workspaceId)
 

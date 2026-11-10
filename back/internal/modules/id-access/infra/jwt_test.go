@@ -4,7 +4,6 @@ import (
 	idaccess_dom "food/internal/modules/id-access/domain"
 	shared_infra "food/internal/shared/infra"
 	utils_must "food/utils/must"
-	"log"
 	"testing"
 	"time"
 
@@ -95,8 +94,6 @@ func TestVerifyJwt(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			log.Println("START:::::::: ", generateNow.Unix())
-			log.Println("VERIFY :::::::: ", verifyNow.Unix())
 
 			dateTime := shared_infra.NewInMemDateTime().SetNow(generateNow)
 
@@ -104,7 +101,6 @@ func TestVerifyJwt(t *testing.T) {
 			user := idaccess_dom.NewUser(userId, userEmail, password)
 
 			tokenStr, err := jwt.Generate(user)
-			log.Println("--", tokenStr)
 
 			dateTime.SetNow(test.verifyNow)
 			if test.tokenToVerify != "" {
