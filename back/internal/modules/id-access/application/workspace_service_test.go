@@ -37,7 +37,6 @@ func TestCreateWorkspace(t *testing.T) {
 	})
 
 	t.Run("should not create a workspace, cause repo error", func(t *testing.T) {
-
 		td := NewTestDriver(t).GivenUserIdContext(userId).GivenUuids(workspaceId, mmembershipId)
 		td.SetupExpectedWorkspaceError(true)
 

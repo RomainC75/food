@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	ctrl "food/internal/api/controllers"
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
@@ -26,7 +27,7 @@ func WorkspaceMiddleware(authorizer recipe_dom.WorkspaceAuthorizer) func(http.Ha
 
 			err = authorizer.CanCreateInWorkspace(r.Context(), userId, wsId)
 			if err != nil {
-				http.Error(w, "forbidden", http.StatusForbidden)
+				http.Error(w, fmt.Sprintf("access forbidden to workspace %s", workspaceIdStr), http.StatusForbidden)
 				return
 			}
 

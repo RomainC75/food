@@ -18,6 +18,14 @@ func NewMembership(id uuid.UUID, userId uuid.UUID, workspaceId uuid.UUID, role R
 	}
 }
 
+func (m *Membership) IsSameWorkspace(workspaceId uuid.UUID) bool {
+	return m.workspaceId == workspaceId
+}
+
+func (m *Membership) IsSameUser(userId uuid.UUID) bool {
+	return m.userId == userId
+}
+
 func (m *Membership) Clone() *Membership {
 	return &Membership{
 		id:          m.id,

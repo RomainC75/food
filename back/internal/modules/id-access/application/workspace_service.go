@@ -55,5 +55,6 @@ func (wSrv *WorkspaceSrv) CanCreateInWorkspace(
 	userID uuid.UUID,
 	workspaceID uuid.UUID,
 ) error {
-	return nil
+	_, err := wSrv.workspaces.FindById(ctx, userID, workspaceID)
+	return err
 }

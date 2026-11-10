@@ -4,6 +4,12 @@ import (
 	"context"
 	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
+
+	"github.com/google/uuid"
+)
+
+const (
+	ErrWorkspaceNotFound = "workspace not found"
 )
 
 type InMemWorkspaces struct {
@@ -26,6 +32,19 @@ func (imw *InMemWorkspaces) CreateWithMembership(ctx context.Context, workspace 
 	imw.workspaces = append(imw.workspaces, workspace.Clone())
 	imw.memberships = append(imw.memberships, membership.Clone())
 	return nil
+}
+
+func (imw *InMemWorkspaces) FindById(ctx context.Context, userId uuid.UUID, workspaceId uuid.UUID) (*idaccess_dom.Workspace, error) {
+	for _, w := range imw.workspaces {
+		if w.Id() == workspaceId {
+			for _, m := range imw.memberships {
+				if m.IsSameWorkspace(w.Id()) && m.IsSameUser(userId) {
+					return w.Clone(), nil
+				}
+			}
+		}
+	}
+	return nil, errors.New(ErrWorkspaceNotFound)
 }
 
 // ===== TEST ===
