@@ -13,5 +13,6 @@ type CreateIngredientDto struct {
 
 type UpdateIngredientDto struct {
 	Id uuid.UUID
+	// no need of the workspace Id it has to be verified
 	CreateIngredientDto
 }

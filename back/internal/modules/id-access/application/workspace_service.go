@@ -48,3 +48,11 @@ func (wSrv *WorkspaceSrv) Create(ctx context.Context, req dto_idaccess_req.Creat
 
 	return workspace, nil
 }
+
+func (wSrv *WorkspaceSrv) CanCreateInWorkspace(
+	ctx context.Context,
+	userID uuid.UUID,
+	workspaceID uuid.UUID,
+) error {
+	return nil
+}

@@ -13,6 +13,8 @@ var (
 	pastaID       = uuid.MustParse("90cc7659-912a-460a-bf9e-fb04c1f9c08c")
 	tomatoSauceID = uuid.MustParse("ab618a4c-e2c7-4e34-ad1f-4fe88d2e98f9")
 	recipeID      = uuid.MustParse("d9578476-6f71-498b-9e49-c90bab2f6004")
+
+	workspaceID = uuid.MustParse("b1b9f832-b233-48db-8738-fb1908ba7a91")
 )
 
 const (
@@ -22,13 +24,13 @@ const (
 
 // Ingredients are pointers (mutable), so every test gets its own copy.
 func saltIngredient() *recipe_dom.Ingredient {
-	return recipe_dom.NewIngredient(saltID, "salt", recipe_dom.Gram)
+	return recipe_dom.NewIngredient(saltID, "salt", recipe_dom.Gram, workspaceID)
 }
 func pastaIngredient() *recipe_dom.Ingredient {
-	return recipe_dom.NewIngredient(pastaID, "pasta", recipe_dom.Kilo)
+	return recipe_dom.NewIngredient(pastaID, "pasta", recipe_dom.Kilo, workspaceID)
 }
 func tomatoSauceIngredient() *recipe_dom.Ingredient {
-	return recipe_dom.NewIngredient(tomatoSauceID, "tomato sauce", recipe_dom.Kilo)
+	return recipe_dom.NewIngredient(tomatoSauceID, "tomato sauce", recipe_dom.Kilo, workspaceID)
 }
 
 func allIngredients() []*recipe_dom.Ingredient {

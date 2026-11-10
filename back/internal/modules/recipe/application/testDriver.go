@@ -27,7 +27,6 @@ func NewTestDriver(t *testing.T) *TestDriver {
 	inMemUuidGen := shared_infra.NewInMemUuidGen()
 	inMemIngredients := recipe_infra.NewInMemoryIngredients()
 	inMemRecipes := recipe_infra.NewInMemRecipes()
-
 	ingredientSrv := NewIngredientSrv(inMemUuidGen, inMemIngredients)
 	recipeSrv := NewRecipeSrv(inMemUuidGen, inMemIngredients, inMemRecipes)
 
@@ -37,10 +36,15 @@ func NewTestDriver(t *testing.T) *TestDriver {
 		inMemUuidGen:     inMemUuidGen,
 		inMemIngredients: inMemIngredients,
 		inMemRecipes:     inMemRecipes,
-
-		ingredientSrv: ingredientSrv,
-		recipeSrv:     recipeSrv,
+		ingredientSrv:    ingredientSrv,
+		recipeSrv:        recipeSrv,
 	}
+}
+
+func (td *TestDriver) SetContext(userId uuid.UUID, workspaceId uuid.UUID) *TestDriver {
+	td.ctx = context.WithValue(td.ctx, "user_id", userId)
+	td.ctx = context.WithValue(td.ctx, "workspace_id", workspaceId)
+	return td
 }
 
 func (td *TestDriver) SetNextUuid(id uuid.UUID) {
@@ -51,7 +55,7 @@ func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
 	td.inMemUuidGen.SetMultipleUuids(ids)
 }
 
-func (td *TestDriver) CreateIngredient(ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
 

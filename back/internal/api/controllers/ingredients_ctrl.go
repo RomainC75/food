@@ -7,9 +7,6 @@ import (
 	api_validator "food/internal/api/validator"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
-	recipe_infra "food/internal/modules/recipe/infra"
-	recipe_infra_init "food/internal/modules/recipe/infra/init"
-	shared_infra "food/internal/shared/infra"
 	json_utils "food/utils/json"
 	"net/http"
 )
@@ -18,12 +15,9 @@ type IngredientCtrl struct {
 	ingredientSrv *recipe_app.IngredientSrv
 }
 
-func NewIngredientCtrl() *IngredientCtrl {
+func NewIngredientCtrl(ingredientSrv *recipe_app.IngredientSrv) *IngredientCtrl {
 	return &IngredientCtrl{
-		ingredientSrv: recipe_app.NewIngredientSrv(
-			shared_infra.NewInMemUuidGen(),
-			recipe_infra.NewInMemoryIngredients().SetIngredientsInMem(recipe_infra_init.Ingredients...),
-		),
+		ingredientSrv: ingredientSrv,
 	}
 }
 
@@ -65,8 +59,7 @@ func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	ctx := context.Background()
-	found, err := ictrl.ingredientSrv.Create(ctx, req)
+	found, err := ictrl.ingredientSrv.Create(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -28,13 +28,16 @@ var (
 		BaseUnit: tomatoBaseUnit,
 	}
 
-	expectedSavedIngredient = recipe_dom.NewIngredient(saltUuid, saltName, recipe_dom.BaseUnit(saltBaseUnit))
+	userUuid      = uuid.MustParse("89a9525a-0e49-4e1b-9990-a5042ca19c00")
+	workspaceUuid = uuid.MustParse("b1b9f832-b233-48db-8738-fb1908ba7a91")
+
+	expectedSavedIngredient = recipe_dom.NewIngredient(saltUuid, saltName, recipe_dom.BaseUnit(saltBaseUnit), workspaceUuid)
 )
 
 func TestCreateIngredient(t *testing.T) {
-	td := NewTestDriver(t)
+	td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
 	td.SetNextUuid(saltUuid)
-	createdIngredient, err := td.CreateIngredient(ingredientSalt)
+	createdIngredient, err := td.CreateIngredient(workspaceUuid, ingredientSalt)
 
 	assert.Nil(t, err)
 	assert.Equal(t, expectedSavedIngredient, createdIngredient)
@@ -45,10 +48,10 @@ func TestCreateIngredient(t *testing.T) {
 }
 
 func TestSearchIngredient(t *testing.T) {
-	td := NewTestDriver(t)
+	td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
 	td.SetNextUuids(saltUuid, tomatoUuid)
-	td.CreateIngredient(ingredientSalt)
-	td.CreateIngredient(ingredientTomato)
+	td.CreateIngredient(workspaceUuid, ingredientSalt)
+	td.CreateIngredient(workspaceUuid, ingredientTomato)
 
 	searchFilter := recipe_dom.IngredientFilter{
 		Name: tomatoName,
@@ -60,7 +63,7 @@ func TestSearchIngredient(t *testing.T) {
 
 func TestUpdateIngredient(t *testing.T) {
 
-	td := NewTestDriver(t).GivenIngredients(recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit))
+	td := NewTestDriver(t).GivenIngredients(recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit, workspaceUuid))
 
 	// ingNot found
 	falseIdingredient := dto_recipe_req.UpdateIngredientDto{

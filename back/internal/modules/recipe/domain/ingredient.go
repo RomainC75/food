@@ -7,16 +7,18 @@ import (
 )
 
 type Ingredient struct {
-	id       uuid.UUID
-	name     string
-	baseUnit BaseUnit
+	id          uuid.UUID
+	name        string
+	baseUnit    BaseUnit
+	workspaceId uuid.UUID
 }
 
-func NewIngredient(id uuid.UUID, name string, baseUnit BaseUnit) *Ingredient {
+func NewIngredient(id uuid.UUID, name string, baseUnit BaseUnit, workspaceId uuid.UUID) *Ingredient {
 	return &Ingredient{
-		id:       id,
-		name:     name,
-		baseUnit: baseUnit,
+		id:          id,
+		name:        name,
+		baseUnit:    baseUnit,
+		workspaceId: workspaceId,
 	}
 }
 

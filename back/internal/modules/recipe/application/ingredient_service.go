@@ -6,6 +6,7 @@ import (
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	shared_domain "food/internal/shared/domain"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -23,7 +24,10 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 }
 
 func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
-	ingredient := recipe_dom.NewIngredient(is.uuidGen.Generate(), ingredientReq.Name, ingredientReq.BaseUnit)
+	workspaceId := ctx.Value("workspace_id").(uuid.UUID)
+	log.Println("---------> workdspaceId : ingredientSrv/Create : ", workspaceId)
+
+	ingredient := recipe_dom.NewIngredient(is.uuidGen.Generate(), ingredientReq.Name, ingredientReq.BaseUnit, workspaceId)
 
 	err := is.ingredients.Save(ctx, ingredient)
 	return ingredient, err

@@ -2,6 +2,10 @@ package idaccess_dom
 
 import "github.com/google/uuid"
 
+var (
+	WorkspaceIdKey = "workspace_id"
+)
+
 type Workspace struct {
 	id   uuid.UUID
 	name string

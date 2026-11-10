@@ -4,37 +4,26 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"food/config"
 	dto_idaccess_req "food/internal/api/dtos/id-access/req"
 	dto_idaccess_res "food/internal/api/dtos/id-access/res"
 	api_validator "food/internal/api/validator"
 	idaccess_app "food/internal/modules/id-access/application"
 	idaccess_dom "food/internal/modules/id-access/domain"
-	idaccess_infra "food/internal/modules/id-access/infra"
-	shared_infra "food/internal/shared/infra"
 	json_utils "food/utils/json"
+	"log"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 )
 
 type IdAccessCtrl struct {
-	idaccessSrv *idaccess_app.UserSrv
+	userSrv *idaccess_app.UserSrv
 }
 
-func NewIdAccessCtrl() *IdAccessCtrl {
-	jwtSecret := config.Get().Jwt.Secret
-	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin * int(time.Minute))
-	timeDate := shared_infra.NewDateTime()
+func NewIdAccessCtrl(userSrv *idaccess_app.UserSrv) *IdAccessCtrl {
 	return &IdAccessCtrl{
-		idaccessSrv: idaccess_app.NewUserSrv(
-			shared_infra.NewUuidGenerator(),
-			idaccess_infra.NewBcrypt(),
-			idaccess_infra.NewJWT(timeDate, jwtSecret, expiresIn),
-			idaccess_infra.NewInMemoryUsers(),
-		),
+		userSrv: userSrv,
 	}
 }
 
@@ -52,7 +41,7 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, err := ictrl.idaccessSrv.SignupUser(r.Context(), req)
+	found, err := ictrl.userSrv.SignupUser(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -79,7 +68,7 @@ func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, err := ictrl.idaccessSrv.SigninUser(r.Context(), req)
+	found, err := ictrl.userSrv.SigninUser(r.Context(), req)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -99,8 +88,8 @@ func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
-
-		tokenData, err := ictrl.idaccessSrv.Verify(rawToken)
+		tokenData, err := ictrl.userSrv.Verify(rawToken)
+		log.Println("---> ", rawToken, tokenData, err)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
@@ -116,6 +105,7 @@ func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
 func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request) {
 	email := r.Context().Value(idaccess_dom.TokenEmailKey)
 	userId := r.Context().Value(idaccess_dom.TokenUserIdKey)
+
 	id, ok := userId.(uuid.UUID)
 	if !ok {
 		http.Error(w, "could not parse token ()", http.StatusUnauthorized)
