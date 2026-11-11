@@ -50,6 +50,10 @@ func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idacc
 	return nil, errors.New(idaccess_dom.ErrUserNotFound)
 }
 
+func (imu *InMemoryUsers) Init(user *idaccess_dom.User) {
+	imu.savedUsers = append(imu.savedUsers, user)
+}
+
 // ========= TESTS =========
 
 func (imu *InMemoryUsers) SetupIsSavingUserError(isSavingUserErrorExpected bool) {
