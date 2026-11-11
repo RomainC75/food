@@ -6,7 +6,6 @@ import (
 	idaccess_app "food/internal/modules/id-access/application"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
-	"net/http"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -17,12 +16,10 @@ func ConnectIngredientRoutes(r *chi.Mux, ingredientSrv *recipe_app.IngredientSrv
 	r.Route("/workspace/{workspaceId}/ingredients", func(r chi.Router) {
 		r.Use(userCtrl.Verify)
 		r.Use(middlewares.WorkspaceMiddleware(authorizer))
-		r.Post("/", ingredientCtrl.CreateIncredient)
 
-		r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-			ingredientCtrl.Search(w, r)
-			// w.Write([]byte("welcome"))
-		})
+		r.Post("/", ingredientCtrl.CreateIncredient)
+		r.Get("/", ingredientCtrl.Search)
+		r.Delete("/{ingredient-id}", ingredientCtrl.Delete)
 
 	})
 }

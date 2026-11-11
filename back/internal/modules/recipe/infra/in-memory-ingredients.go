@@ -33,19 +33,21 @@ func (imi *InMemoryIngredients) GetById(ctx context.Context, workspaceId uuid.UU
 	if imi.expectedGetError {
 		return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
 	}
-	if len(imi.savedIngredients) > 0 {
-		b, _ := imi.savedIngredients[0].MarshalJSON()
-		log.Println(string(b))
-	}
-	log.Println("-----> ", imi.expectedGetError)
 	for _, i := range imi.savedIngredients {
-		log.Println("GET id : ", i.Id(), ingredientId)
-		log.Println("GET ws : ", i.WorkspaceId(), workspaceId)
 		if i.Id() == ingredientId && i.WorkspaceId() == workspaceId {
 			return i.Clone(), nil
 		}
 	}
 	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
+}
+
+func (imi *InMemoryIngredients) ExistsByName(ctx context.Context, workspaceId uuid.UUID, name string) (bool, error) {
+	for _, i := range imi.savedIngredients {
+		if i.WorkspaceId() == workspaceId && i.Name() == name {
+			return true, nil
+		}
+	}
+	return false, nil
 }
 
 func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {

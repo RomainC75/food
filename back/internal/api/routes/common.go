@@ -18,7 +18,7 @@ func ConnectRoutes() *chi.Mux {
 	jwtSecret := config.Get().Jwt.Secret
 	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin * int(time.Minute))
 	timeDate := shared_infra.NewDateTime()
-	uuidGen := shared_infra.NewInMemUuidGen()
+	uuidGen := shared_infra.NewUuidGenerator()
 
 	ingredientSrv := recipe_app.NewIngredientSrv(
 		uuidGen,
@@ -31,7 +31,7 @@ func ConnectRoutes() *chi.Mux {
 		idaccess_infra.NewJWT(timeDate, jwtSecret, expiresIn),
 		idaccess_infra.NewInMemoryUsers(),
 	)
-	idaccess_infra_persist.PopulateUsers(uuidGen, userSrv)
+	idaccess_infra_persist.PopulateUsers(userSrv)
 
 	workspaceSrv := idaccess_app.NewWorkspaceSrv(
 		uuidGen,

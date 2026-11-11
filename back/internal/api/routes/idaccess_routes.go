@@ -13,19 +13,16 @@ func ConnectIdAccessRoutes(r *chi.Mux, userSrv *idaccess_app.UserSrv, workspaceS
 
 	r.Route("/id-access", func(r chi.Router) {
 		r.Post("/signup", idAccessCtrl.Signup)
-
 		r.Post("/signin", idAccessCtrl.Signin)
-
 	})
+
 	r.Route("/verify", func(r chi.Router) {
 		r.Use(idAccessCtrl.Verify)
 		r.Get("/", idAccessCtrl.ReturnAuthData)
-
 	})
 
 	r.Route("/workspace", func(r chi.Router) {
 		r.Use(idAccessCtrl.Verify)
 		r.Post("/", workspaceCtrl.Create)
-
 	})
 }

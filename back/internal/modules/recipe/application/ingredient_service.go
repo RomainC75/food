@@ -7,13 +7,13 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
-	"log"
 
 	"github.com/google/uuid"
 )
 
 var (
-	ErrCouldNotGetWorkspaceId = "ingredient / could not get workdspaceId"
+	ErrCouldNotGetWorkspaceId  = "ingredient / could not get workdspaceId"
+	ErrIngredientAlreadyExists = "ingredient already exists"
 )
 
 type IngredientSrv struct {
@@ -30,13 +30,18 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 
 func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
 	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
-	uuid := is.uuidGen.Generate()
+	exists, err := is.ingredients.ExistsByName(ctx, workspaceId, ingredientReq.Name)
+	if err != nil {
+		return nil, err
+	}
 
-	log.Println("------------- uuid + workspace ", uuid, workspaceId)
+	if exists {
+		return nil, errors.New(ErrIngredientAlreadyExists)
+	}
+
+	uuid := is.uuidGen.Generate()
 	ingredient := recipe_dom.NewIngredient(uuid, ingredientReq.Name, ingredientReq.BaseUnit, workspaceId)
-	b, _ := ingredient.MarshalJSON()
-	log.Println("----saved : ", string(b))
-	err := is.ingredients.Save(ctx, ingredient)
+	err = is.ingredients.Save(ctx, ingredient)
 	return ingredient, err
 }
 

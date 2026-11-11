@@ -3,12 +3,15 @@ package ctrl
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	api_validator "food/internal/api/validator"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
 	json_utils "food/utils/json"
 	"net/http"
+
+	"github.com/google/uuid"
 )
 
 type IngredientCtrl struct {
@@ -66,4 +69,20 @@ func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Req
 	}
 
 	json_utils.JsonResponse(w, found)
+}
+
+func (ictrl *IngredientCtrl) Delete(w http.ResponseWriter, r *http.Request) {
+	ingredientUuid, err := uuid.Parse(r.PathValue("ingredient-id"))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = ictrl.ingredientSrv.DeleteById(r.Context(), ingredientUuid)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	json_utils.JsonResponse(w, fmt.Sprintf("ingredient %s deleted", ingredientUuid.String()))
 }
