@@ -16,7 +16,7 @@ import (
 func TestCreateRecipe(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
 
-	created, err := td.CreateRecipe(recipeID, createSaltPastaReq())
+	created, err := td.CreateRecipe(workspaceID, recipeID, createSaltPastaReq())
 
 	require.NoError(t, err)
 	assert.Equal(t, expectedSaltPasta(), created)
@@ -27,9 +27,9 @@ func TestCreateRecipe(t *testing.T) {
 
 func TestUpdateRecipe_Success(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(allIngredients()...)
-	td.GivenRecipe(recipeID, createSaltPastaReq())
+	td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
 
-	updated, err := td.UpdateRecipe(updateReq(
+	updated, err := td.UpdateRecipe(workspaceID, updateReq(
 		dto_recipe_req.IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
 		dto_recipe_req.IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 	))
@@ -101,11 +101,11 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			td := NewTestDriver(t).GivenIngredients(tc.ingredients...)
 			if tc.recipeExists {
-				td.GivenRecipe(recipeID, createSaltPastaReq())
+				td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
 			}
 			td.GivenRepoErrors(tc.repoErrors)
 
-			_, err := td.UpdateRecipe(tc.req)
+			_, err := td.UpdateRecipe(workspaceID, tc.req)
 
 			assertErrContainsAll(t, err, tc.wantErr...)
 		})
@@ -117,7 +117,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 func TestDeleteRecipe(t *testing.T) {
 	t.Run("unknown id returns not found and keeps the recipe", func(t *testing.T) {
 		td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
-		td.GivenRecipe(recipeID, createSaltPastaReq())
+		td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
 
 		err := td.DeleteRecipe(uuid.New())
 
@@ -127,7 +127,7 @@ func TestDeleteRecipe(t *testing.T) {
 
 	t.Run("existing recipe is deleted", func(t *testing.T) {
 		td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
-		td.GivenRecipe(recipeID, createSaltPastaReq())
+		td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
 
 		err := td.DeleteRecipe(recipeID)
 

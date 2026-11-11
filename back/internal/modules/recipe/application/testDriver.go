@@ -56,12 +56,12 @@ func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
 }
 
 func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
-	td.SetContext(uuid.New(), workspaceid)
+	td.SetContext(uuid.Nil, workspaceid)
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
 
 func (td *TestDriver) DeleteIngredient(workspaceId uuid.UUID, id uuid.UUID) error {
-	td.SetContext(uuid.New(), workspaceId)
+	td.SetContext(uuid.Nil, workspaceId)
 	return td.ingredientSrv.DeleteById(td.ctx, id)
 }
 
@@ -77,31 +77,33 @@ func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
 	return td.inMemIngredients.GetLastDeleted()
 }
 
-func (td *TestDriver) Search(workspace uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
-	td.SetContext(uuid.New(), workspace)
+func (td *TestDriver) Search(workspaceId uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
+	td.SetContext(uuid.Nil, workspaceId)
 	return td.ingredientSrv.Search(td.ctx, i)
 }
 
 func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, updateIngDto dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
-	td.SetContext(uuid.New(), workspaceId)
+	td.SetContext(uuid.Nil, workspaceId)
 	return td.ingredientSrv.Update(td.ctx, updateIngDto)
 }
 
 // -- RECEIPE --
-func (td *TestDriver) GivenRecipe(expectedId uuid.UUID, req dto_recipe_req.CreateRecipeDto) *recipe_dom.Recipe {
+func (td *TestDriver) GivenRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, req dto_recipe_req.CreateRecipeDto) *recipe_dom.Recipe {
 	td.t.Helper()
 	td.SetNextUuid(expectedId)
-	r, err := td.recipeSrv.Create(td.ctx, req)
+	r, err := td.CreateRecipe(workspaceId, expectedId, req)
 	require.NoError(td.t, err)
 	return r
 }
 
-func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) CreateRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+	td.SetContext(uuid.Nil, workspaceId)
 	td.inMemUuidGen.SetNext(expectedId)
 	return td.recipeSrv.Create(td.ctx, r)
 }
 
-func (td *TestDriver) UpdateRecipe(r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) UpdateRecipe(workspaceId uuid.UUID, r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
+	td.SetContext(uuid.Nil, workspaceId)
 	return td.recipeSrv.Update(td.ctx, r)
 }
 
