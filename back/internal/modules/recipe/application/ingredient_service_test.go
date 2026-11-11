@@ -47,6 +47,21 @@ func TestCreateIngredient(t *testing.T) {
 	assert.Equal(t, expectedSavedIngredient, savedIngredients[0])
 }
 
+func TestGetIngredientById(t *testing.T) {
+	td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
+	td.SetNextUuids(saltUuid, tomatoUuid)
+	td.CreateIngredient(workspaceUuid, ingredientSalt)
+	td.CreateIngredient(workspaceUuid, ingredientTomato)
+
+	searchFilter := recipe_dom.IngredientFilter{
+		Name: tomatoName,
+	}
+
+	found, err := td.Search(workspaceUuid, searchFilter)
+	assert.Nil(t, err)
+	assert.Equal(t, td.SavedIngredients()[1], found)
+}
+
 func TestSearchIngredient(t *testing.T) {
 	td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
 	td.SetNextUuids(saltUuid, tomatoUuid)
@@ -56,33 +71,52 @@ func TestSearchIngredient(t *testing.T) {
 	searchFilter := recipe_dom.IngredientFilter{
 		Name: tomatoName,
 	}
-	found, err := td.Search(searchFilter)
+	found, err := td.Search(workspaceUuid, searchFilter)
 	assert.Nil(t, err)
 	assert.Equal(t, td.SavedIngredients()[1], found)
 }
 
 func TestUpdateIngredient(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit, workspaceUuid))
-
-	// ingNot found
 	falseIdingredient := dto_recipe_req.UpdateIngredientDto{
-		Id: tomatoUuid,
+		Id: saltUuid,
 		CreateIngredientDto: dto_recipe_req.CreateIngredientDto{
 			Name:     tomatoName,
 			BaseUnit: tomatoBaseUnit,
 		},
 	}
-	_, err := td.UpdateIngredient(falseIdingredient)
-	assert.EqualError(t, err, recipe_dom.ErrIngredientNotFound)
 
-	// ? ing ok, but cannot update
+	t.Run("cannot get the ingredient", func(t *testing.T) {
+		td.GivenIngredientRepoErrors(true, false)
+		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredient)
+		assert.EqualError(t, err, recipe_dom.ErrIngredientNotFound)
 
-	// ? everything ok
+	})
+
+	t.Run("should not update ingredient", func(t *testing.T) {
+		td.GivenIngredientRepoErrors(false, true)
+		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredient)
+		assert.EqualError(t, err, recipe_dom.ErrIngredientCouldNotBeUpdated)
+	})
+
+	t.Run("should update ingredient", func(t *testing.T) {
+		td.GivenIngredientRepoErrors(false, false)
+		updatedIngredient, err := td.UpdateIngredient(workspaceUuid, falseIdingredient)
+
+		expectedIngredient := recipe_dom.NewIngredient(saltUuid, tomatoName, tomatoBaseUnit, workspaceUuid)
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedIngredient, updatedIngredient)
+
+		assert.Len(t, td.SavedIngredients(), 1)
+		assert.Equal(t, expectedIngredient, td.SavedIngredients()[0])
+	})
+
 }
 
 func TestDeleteIngredient(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(expectedSavedIngredient)
-	err := td.DeleteIngredient(saltUuid)
+	err := td.DeleteIngredient(workspaceUuid, saltUuid)
 
 	assert.Nil(t, err)
 	deletedIngredient := td.GetDeletedLastIngredient()

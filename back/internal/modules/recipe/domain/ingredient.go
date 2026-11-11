@@ -34,6 +34,10 @@ func (ing *Ingredient) BaseUnit() BaseUnit {
 	return ing.baseUnit
 }
 
+func (ing *Ingredient) WorkspaceId() uuid.UUID {
+	return ing.workspaceId
+}
+
 func (ing *Ingredient) SetName(new string) {
 	ing.name = new
 }
@@ -63,20 +67,23 @@ func (ing *Ingredient) IsQtyValid(q Quantity) bool {
 
 func (i *Ingredient) Clone() *Ingredient {
 	return &Ingredient{
-		id:       i.id,
-		name:     i.name,
-		baseUnit: i.baseUnit,
+		id:          i.id,
+		name:        i.name,
+		baseUnit:    i.baseUnit,
+		workspaceId: i.workspaceId,
 	}
 }
 
 func (i *Ingredient) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ID       uuid.UUID `json:"id"`
-		Name     string    `json:"name"`
-		BaseUnit BaseUnit  `json:"base_unit"`
+		ID        uuid.UUID `json:"id"`
+		Name      string    `json:"name"`
+		BaseUnit  BaseUnit  `json:"base_unit"`
+		Workspace uuid.UUID `json:"workspaceId"`
 	}{
-		ID:       i.id,
-		Name:     i.name,
-		BaseUnit: i.baseUnit,
+		ID:        i.id,
+		Name:      i.name,
+		BaseUnit:  i.baseUnit,
+		Workspace: i.workspaceId,
 	})
 }

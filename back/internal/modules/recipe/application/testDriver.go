@@ -56,10 +56,12 @@ func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
 }
 
 func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
+	td.SetContext(uuid.New(), workspaceid)
 	return td.ingredientSrv.Create(td.ctx, ingredientDto)
 }
 
-func (td *TestDriver) DeleteIngredient(id uuid.UUID) error {
+func (td *TestDriver) DeleteIngredient(workspaceId uuid.UUID, id uuid.UUID) error {
+	td.SetContext(uuid.New(), workspaceId)
 	return td.ingredientSrv.DeleteById(td.ctx, id)
 }
 
@@ -75,11 +77,13 @@ func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
 	return td.inMemIngredients.GetLastDeleted()
 }
 
-func (td *TestDriver) Search(i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) Search(workspace uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
+	td.SetContext(uuid.New(), workspace)
 	return td.ingredientSrv.Search(td.ctx, i)
 }
 
-func (td *TestDriver) UpdateIngredient(updateIngDto dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, updateIngDto dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
+	td.SetContext(uuid.New(), workspaceId)
 	return td.ingredientSrv.Update(td.ctx, updateIngDto)
 }
 
@@ -107,6 +111,10 @@ func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
 
 func (td *TestDriver) GivenRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {
 	td.inMemRecipes.SetExpectedErrors(ets)
+}
+
+func (td *TestDriver) GivenIngredientRepoErrors(expectedGetError bool, expectedUpdateError bool) {
+	td.inMemIngredients.SetExpectedErrors(expectedGetError, expectedUpdateError)
 }
 
 // Verifiyer

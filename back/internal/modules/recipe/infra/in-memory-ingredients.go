@@ -4,18 +4,17 @@ import (
 	"context"
 	"errors"
 	recipe_dom "food/internal/modules/recipe/domain"
+	"log"
 
 	"github.com/google/uuid"
 )
 
-var (
-	ErrIngredientNotFound = "ingredient not found"
-)
-
 type InMemoryIngredients struct {
-	savedIngredients   []*recipe_dom.Ingredient
-	expectedIngredient *recipe_dom.Ingredient
-	deletedIngredient  *recipe_dom.Ingredient
+	savedIngredients    []*recipe_dom.Ingredient
+	expectedIngredient  *recipe_dom.Ingredient
+	expectedGetError    bool
+	expectedUpdateError bool
+	deletedIngredient   *recipe_dom.Ingredient
 }
 
 func NewInMemoryIngredients() *InMemoryIngredients {
@@ -25,17 +24,28 @@ func NewInMemoryIngredients() *InMemoryIngredients {
 }
 
 func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
-	imi.savedIngredients = append(imi.savedIngredients, ingredient)
+	imi.savedIngredients = append(imi.savedIngredients, ingredient.Clone())
+	log.Println(" after save ---------", imi.savedIngredients)
 	return nil
 }
 
-func (imi *InMemoryIngredients) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom.Ingredient, error) {
+func (imi *InMemoryIngredients) GetById(ctx context.Context, workspaceId uuid.UUID, ingredientId uuid.UUID) (*recipe_dom.Ingredient, error) {
+	if imi.expectedGetError {
+		return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
+	}
+	if len(imi.savedIngredients) > 0 {
+		b, _ := imi.savedIngredients[0].MarshalJSON()
+		log.Println(string(b))
+	}
+	log.Println("-----> ", imi.expectedGetError)
 	for _, i := range imi.savedIngredients {
-		if i.Id() == id {
+		log.Println("GET id : ", i.Id(), ingredientId)
+		log.Println("GET ws : ", i.WorkspaceId(), workspaceId)
+		if i.Id() == ingredientId && i.WorkspaceId() == workspaceId {
 			return i.Clone(), nil
 		}
 	}
-	return &recipe_dom.Ingredient{}, errors.New(ErrIngredientNotFound)
+	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
 }
 
 func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
@@ -54,19 +64,22 @@ func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.Ingredi
 	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
 }
 
-func (imi *InMemoryIngredients) Update(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
+func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUID, ingredient *recipe_dom.Ingredient) error {
+	if imi.expectedUpdateError {
+		return errors.New(recipe_dom.ErrIngredientCouldNotBeUpdated)
+	}
 	for i, ing := range imi.savedIngredients {
 		if ing.Id() == ingredient.Id() {
 			imi.savedIngredients[i] = ingredient
 			return nil
 		}
 	}
-	return errors.New(ErrIngredientNotFound)
+	return errors.New(recipe_dom.ErrIngredientNotFound)
 }
 
-func (imi *InMemoryIngredients) DeleteById(ctx context.Context, id uuid.UUID) error {
+func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) error {
 	for i, ing := range imi.savedIngredients {
-		if id == ing.Id() {
+		if workspaceId == ing.WorkspaceId() && id == ing.Id() {
 			imi.savedIngredients = append(imi.savedIngredients[0:i], imi.savedIngredients[i+1:]...)
 			imi.deletedIngredient = ing
 		}
@@ -91,4 +104,9 @@ func (imi *InMemoryIngredients) SetIngredientsInMem(ings ...*recipe_dom.Ingredie
 func (imi *InMemoryIngredients) GetLastDeleted() *recipe_dom.Ingredient {
 	return imi.deletedIngredient
 
+}
+
+func (imi *InMemoryIngredients) SetExpectedErrors(expectedGetError bool, expectedUpdateError bool) {
+	imi.expectedGetError = expectedGetError
+	imi.expectedUpdateError = expectedUpdateError
 }

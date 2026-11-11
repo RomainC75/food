@@ -6,6 +6,7 @@ import (
 	"fmt"
 	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
+	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
 	"food/utils/displayer"
 	"strings"
@@ -77,10 +78,11 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, r dto_recipe_req.CreateRecipe
 		WrongUnit:          make([]dto_recipe_req.IngredientBasicInfo, 0, len(r.Ingredients)),
 	}
 
+	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
 	recipe := recipe_dom.NewRecipe(rSrv.uuidGen.Generate(), r.Name)
 
 	for _, bi := range r.Ingredients {
-		i, err := rSrv.ingredients.GetById(ctx, bi.Id)
+		i, err := rSrv.ingredients.GetById(ctx, workspaceId, bi.Id)
 		if err != nil {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
 			continue
@@ -115,7 +117,7 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, r dto_recipe_req.UpdateRecipe
 	foundRecipe.DeleteAllIngredients()
 
 	for _, bi := range r.Ingredients {
-		foundIngredient, err := rSrv.ingredients.GetById(ctx, bi.Id)
+		foundIngredient, err := rSrv.ingredients.GetById(ctx, workspaceID, bi.Id)
 		displayer.PrettyDisplay("get this ingredient by id: ", bi)
 		if err != nil {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)

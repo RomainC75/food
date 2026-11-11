@@ -7,6 +7,7 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -28,13 +29,13 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 }
 
 func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
-	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(ctx)
-	if !ok {
-		return nil, errors.New(ErrCouldNotGetWorkspaceId)
-	}
+	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
+	uuid := is.uuidGen.Generate()
 
-	ingredient := recipe_dom.NewIngredient(is.uuidGen.Generate(), ingredientReq.Name, ingredientReq.BaseUnit, workspaceId)
-
+	log.Println("------------- uuid + workspace ", uuid, workspaceId)
+	ingredient := recipe_dom.NewIngredient(uuid, ingredientReq.Name, ingredientReq.BaseUnit, workspaceId)
+	b, _ := ingredient.MarshalJSON()
+	log.Println("----saved : ", string(b))
 	err := is.ingredients.Save(ctx, ingredient)
 	return ingredient, err
 }
@@ -43,8 +44,16 @@ func (is *IngredientSrv) Search(ctx context.Context, f recipe_dom.IngredientFilt
 	return is.ingredients.Search(ctx, f)
 }
 
+func (is *IngredientSrv) GetById(ctx context.Context, ingredientId uuid.UUID) (*recipe_dom.Ingredient, error) {
+	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
+	return is.ingredients.GetById(ctx, workspaceId, ingredientId)
+
+}
+
 func (is *IngredientSrv) Update(ctx context.Context, uir dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
-	found, err := is.ingredients.GetById(ctx, uir.Id)
+	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
+
+	found, err := is.ingredients.GetById(ctx, workspaceId, uir.Id)
 	if err != nil {
 		return nil, errors.New(recipe_dom.ErrIngredientNotFound)
 	}
@@ -54,16 +63,12 @@ func (is *IngredientSrv) Update(ctx context.Context, uir dto_recipe_req.UpdateIn
 	if uir.BaseUnit != "" {
 		found.SetBaseUnit(uir.BaseUnit)
 	}
-	err = is.ingredients.Update(ctx, found)
+	err = is.ingredients.Update(ctx, workspaceId, found)
 	return found, err
 }
 
 func (is *IngredientSrv) DeleteById(ctx context.Context, id uuid.UUID) error {
-	_, err := is.ingredients.GetById(ctx, id)
-	if err != nil {
-		return err
-	}
-
-	return is.ingredients.DeleteById(ctx, id)
+	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
+	return is.ingredients.DeleteById(ctx, workspaceId, id)
 
 }
