@@ -3,8 +3,8 @@ package recipe_infra
 import (
 	"context"
 	"errors"
+	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
-	"log"
 
 	"github.com/google/uuid"
 )
@@ -25,20 +25,19 @@ func NewInMemoryIngredients() *InMemoryIngredients {
 
 func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
 	imi.savedIngredients = append(imi.savedIngredients, ingredient.Clone())
-	log.Println(" after save ---------", imi.savedIngredients)
 	return nil
 }
 
 func (imi *InMemoryIngredients) GetById(ctx context.Context, workspaceId uuid.UUID, ingredientId uuid.UUID) (*recipe_dom.Ingredient, error) {
 	if imi.expectedGetError {
-		return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
+		return &recipe_dom.Ingredient{}, fmt.Errorf("get ingredient %s : %w", ingredientId.String(), recipe_dom.ErrIngredientNotFound)
 	}
 	for _, i := range imi.savedIngredients {
 		if i.Id() == ingredientId && i.WorkspaceId() == workspaceId {
 			return i.Clone(), nil
 		}
 	}
-	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
+	return &recipe_dom.Ingredient{}, fmt.Errorf("get ingredient %s : %w", ingredientId.String(), recipe_dom.ErrIngredientNotFound)
 }
 
 func (imi *InMemoryIngredients) ExistsByName(ctx context.Context, workspaceId uuid.UUID, name string) (bool, error) {
@@ -63,7 +62,7 @@ func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.Ingredi
 		}
 		return ing, nil
 	}
-	return &recipe_dom.Ingredient{}, errors.New(recipe_dom.ErrIngredientNotFound)
+	return &recipe_dom.Ingredient{}, recipe_dom.ErrIngredientNotFound
 }
 
 func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUID, ingredient *recipe_dom.Ingredient) error {
@@ -76,7 +75,7 @@ func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUI
 			return nil
 		}
 	}
-	return errors.New(recipe_dom.ErrIngredientNotFound)
+	return recipe_dom.ErrIngredientNotFound
 }
 
 func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) error {
@@ -87,7 +86,7 @@ func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid
 		}
 		return nil
 	}
-	return errors.New(recipe_dom.ErrIngredientNotFound)
+	return recipe_dom.ErrIngredientNotFound
 }
 
 // ---------- Added for tests ------

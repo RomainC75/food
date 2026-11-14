@@ -98,7 +98,9 @@ func TestUpdateIngredient(t *testing.T) {
 	t.Run("cannot get the ingredient", func(t *testing.T) {
 		td.GivenIngredientRepoErrors(true, false)
 		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredientCmd)
-		assert.EqualError(t, err, recipe_dom.ErrIngredientNotFound)
+		//
+		assert.Contains(t, err.Error(), recipe_dom.ErrIngredientNotFound.Error())
+		assert.Contains(t, err.Error(), saltUuid.String())
 
 	})
 

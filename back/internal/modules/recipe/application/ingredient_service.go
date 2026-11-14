@@ -69,7 +69,7 @@ func (is *IngredientSrv) Update(ctx context.Context, cmd UpdateIngredientCmd) (*
 
 	found, err := is.ingredients.GetById(ctx, workspaceId, cmd.Id)
 	if err != nil {
-		return nil, errors.New(recipe_dom.ErrIngredientNotFound)
+		return nil, err
 	}
 	if cmd.Name != "" {
 		found.SetName(cmd.Name)

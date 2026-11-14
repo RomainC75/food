@@ -2,12 +2,13 @@ package recipe_dom
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 )
 
 var (
-	ErrIngredientNotFound          = "ingredient not found"
+	ErrIngredientNotFound          = errors.New("ingredient not found")
 	ErrIngredientCouldNotBeUpdated = "ingredient could not be updated"
 )
 
