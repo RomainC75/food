@@ -45,8 +45,8 @@ func NewTestDriver(t *testing.T) *TestDriver {
 	}
 }
 
-func (td *TestDriver) SignupUser(newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
-	return td.userSrv.SignupUser(td.ctx, newUserReq)
+func (td *TestDriver) SignupUser(cmd SignupCmd) (*idaccess_dom.User, error) {
+	return td.userSrv.SignupUser(td.ctx, cmd)
 }
 
 func (td *TestDriver) SigninUser(newUserReq dto_idaccess_req.SignupUser) (idaccess_app_mod.SigninResult, error) {

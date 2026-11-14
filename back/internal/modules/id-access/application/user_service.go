@@ -15,6 +15,11 @@ var (
 	ErrDecodingToken        = "error trying to decode the token"
 )
 
+type SignupCmd struct {
+	Email    string
+	Password string
+}
+
 type UserSrv struct {
 	uuidGen shared_domain.Uuids
 	bcrypt  idaccess_dom.Bcrypt
@@ -36,19 +41,19 @@ func NewUserSrv(
 	}
 }
 
-func (uSrv *UserSrv) SignupUser(ctx context.Context, newUserReq dto_idaccess_req.SignupUser) (*idaccess_dom.User, error) {
-	_, err := uSrv.users.FindByEmail(ctx, newUserReq.Email)
+func (uSrv *UserSrv) SignupUser(ctx context.Context, cmd SignupCmd) (*idaccess_dom.User, error) {
+	_, err := uSrv.users.FindByEmail(ctx, cmd.Email)
 
 	if err == nil {
 		return nil, errors.New(ErrExistingUser)
 	}
 	newUserId := uSrv.uuidGen.Generate()
-	hashedPass, err := uSrv.bcrypt.Generate(newUserReq.Password)
+	hashedPass, err := uSrv.bcrypt.Generate(cmd.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	newUser := idaccess_dom.NewUser(newUserId, newUserReq.Email, hashedPass)
+	newUser := idaccess_dom.NewUser(newUserId, cmd.Email, hashedPass)
 	err = uSrv.users.Create(ctx, newUser)
 	return newUser, err
 }

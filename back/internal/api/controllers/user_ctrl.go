@@ -38,7 +38,8 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	found, err := ictrl.userSrv.SignupUser(r.Context(), req)
+	signupCmd := idaccess_app.SignupCmd{req.Email, req.Password}
+	found, err := ictrl.userSrv.SignupUser(r.Context(), signupCmd)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

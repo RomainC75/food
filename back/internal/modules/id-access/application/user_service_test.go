@@ -15,7 +15,7 @@ var (
 	userClearPassword = "clear-pass"
 	userHashedPass    = "hashed pass"
 	user              = idaccess_dom.NewUser(userId, userEmail, userHashedPass)
-	newUserReq        = dto_idaccess_req.SignupUser{
+	signupCmd         = SignupCmd{
 		Email:    userEmail,
 		Password: userHashedPass,
 	}
@@ -32,13 +32,13 @@ func TestSignupUser(t *testing.T) {
 	}
 	tests := []struct {
 		name          string
-		SignupUserReq dto_idaccess_req.SignupUser
+		signupCmd     SignupCmd
 		expectedError string
 		setup         SignupUserSetup
 	}{
 		{
 			"should not create duplicate user",
-			newUserReq,
+			signupCmd,
 			ErrExistingUser,
 			SignupUserSetup{
 				user,
@@ -50,7 +50,7 @@ func TestSignupUser(t *testing.T) {
 		},
 		{
 			"should not create duplicate user",
-			newUserReq,
+			signupCmd,
 			idaccess_dom.ErrHashingPassword,
 			SignupUserSetup{
 				nil,
@@ -62,7 +62,7 @@ func TestSignupUser(t *testing.T) {
 		},
 		{
 			"should not save user",
-			newUserReq,
+			signupCmd,
 			idaccess_dom.ErrCouldNotSaveUser,
 			SignupUserSetup{
 				nil,
@@ -74,7 +74,7 @@ func TestSignupUser(t *testing.T) {
 		},
 		{
 			"should save user",
-			newUserReq,
+			signupCmd,
 			"",
 			SignupUserSetup{
 				nil,
@@ -93,7 +93,7 @@ func TestSignupUser(t *testing.T) {
 				SetupBcryptGenResponse(test.setup.isGenerateErrorExpected, userHashedPass).
 				SetupSavingUserError(test.setup.isSavingUserErrorExpected)
 
-			createdUser, err := td.SignupUser(newUserReq)
+			createdUser, err := td.SignupUser(test.signupCmd)
 			if test.expectedError != "" {
 				assert.EqualError(t, err, test.expectedError)
 				return
