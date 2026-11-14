@@ -6,15 +6,14 @@ import (
 	"github.com/google/uuid"
 )
 
-type IngredientBasicInfo struct {
+type IngredientBasicInfoDto struct {
 	Id   uuid.UUID
 	Qty  float32
 	Unit recipe_dom.BaseUnit
 }
-
 type CreateRecipeDto struct {
 	Name        string
-	Ingredients []IngredientBasicInfo
+	Ingredients []IngredientBasicInfoDto
 }
 
 type UpdateRecipeDto struct {

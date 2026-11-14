@@ -2,7 +2,6 @@ package recipe_app
 
 import (
 	"context"
-	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	recipe_infra "food/internal/modules/recipe/infra"
 	shared_infra "food/internal/shared/infra"
@@ -88,23 +87,23 @@ func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, cmd UpdateIngredie
 }
 
 // -- RECEIPE --
-func (td *TestDriver) GivenRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, req dto_recipe_req.CreateRecipeDto) *recipe_dom.Recipe {
+func (td *TestDriver) GivenRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, cmd CreateRecipeCmd) *recipe_dom.Recipe {
 	td.t.Helper()
 	td.SetNextUuid(expectedId)
-	r, err := td.CreateRecipe(workspaceId, expectedId, req)
+	r, err := td.CreateRecipe(workspaceId, expectedId, cmd)
 	require.NoError(td.t, err)
 	return r
 }
 
-func (td *TestDriver) CreateRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, r dto_recipe_req.CreateRecipeDto) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) CreateRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
 	td.SetContext(uuid.Nil, workspaceId)
 	td.inMemUuidGen.SetNext(expectedId)
-	return td.recipeSrv.Create(td.ctx, r)
+	return td.recipeSrv.Create(td.ctx, cmd)
 }
 
-func (td *TestDriver) UpdateRecipe(workspaceId uuid.UUID, r dto_recipe_req.UpdateRecipeDto) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) UpdateRecipe(workspaceId uuid.UUID, cmd UpdateRecipeCmd) (*recipe_dom.Recipe, error) {
 	td.SetContext(uuid.Nil, workspaceId)
-	return td.recipeSrv.Update(td.ctx, r)
+	return td.recipeSrv.Update(td.ctx, cmd)
 }
 
 func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {

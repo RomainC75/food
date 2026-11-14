@@ -1,7 +1,6 @@
 package recipe_app
 
 import (
-	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 
 	"github.com/google/uuid"
@@ -39,10 +38,10 @@ func allIngredients() []*recipe_dom.Ingredient {
 
 // -- requests --
 
-func createSaltPastaReq() dto_recipe_req.CreateRecipeDto {
-	return dto_recipe_req.CreateRecipeDto{
+func createSaltPastaReq() CreateRecipeCmd {
+	return CreateRecipeCmd{
 		Name: recipeName,
-		Ingredients: []dto_recipe_req.IngredientBasicInfo{
+		Ingredients: []IngredientBasicInfo{
 			{saltID, 5, recipe_dom.Gram},
 			{pastaID, 500, recipe_dom.Gram},
 		},
@@ -50,10 +49,10 @@ func createSaltPastaReq() dto_recipe_req.CreateRecipeDto {
 }
 
 // updateReq builds an update of recipeID with the new name and the given lines.
-func updateReq(lines ...dto_recipe_req.IngredientBasicInfo) dto_recipe_req.UpdateRecipeDto {
-	return dto_recipe_req.UpdateRecipeDto{
+func updateReq(lines ...IngredientBasicInfo) UpdateRecipeCmd {
+	return UpdateRecipeCmd{
 		Id: recipeID,
-		CreateRecipeDto: dto_recipe_req.CreateRecipeDto{
+		CreateRecipeCmd: CreateRecipeCmd{
 			Name:        recipeNewName,
 			Ingredients: lines,
 		},

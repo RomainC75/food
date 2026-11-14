@@ -1,7 +1,6 @@
 package recipe_app
 
 import (
-	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	recipe_infra "food/internal/modules/recipe/infra"
 	"testing"
@@ -30,8 +29,8 @@ func TestUpdateRecipe_Success(t *testing.T) {
 	td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
 
 	updated, err := td.UpdateRecipe(workspaceID, updateReq(
-		dto_recipe_req.IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
-		dto_recipe_req.IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
+		IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
+		IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 	))
 
 	require.NoError(t, err)
@@ -45,22 +44,22 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 		ingredients  []*recipe_dom.Ingredient // known by the ingredient repo
 		recipeExists bool
 		repoErrors   recipe_infra.RecipeRepoErrorsToSet
-		req          dto_recipe_req.UpdateRecipeDto
+		cmd          UpdateRecipeCmd
 		wantErr      []string // every string must be contained in err.Error()
 	}{
 		{
 			name:         "recipe not found",
 			recipeExists: false,
-			req:          updateReq(),
+			cmd:          updateReq(),
 			wantErr:      []string{ErrRecipeNotFound},
 		},
 		{
 			name:         "ingredient not found",
 			ingredients:  []*recipe_dom.Ingredient{saltIngredient(), pastaIngredient()}, // no tomato sauce
 			recipeExists: true,
-			req: updateReq(
-				dto_recipe_req.IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
-				dto_recipe_req.IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
+			cmd: updateReq(
+				IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
+				IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 			),
 			wantErr: []string{ErrAddingIngredients, ErrIngredientsNotFound, tomatoSauceID.String()},
 		},
@@ -68,9 +67,9 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 			name:         "wrong unit",
 			ingredients:  allIngredients(),
 			recipeExists: true,
-			req: updateReq(
-				dto_recipe_req.IngredientBasicInfo{pastaID, 500, recipe_dom.Liter},
-				dto_recipe_req.IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
+			cmd: updateReq(
+				IngredientBasicInfo{pastaID, 500, recipe_dom.Liter},
+				IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 			),
 			wantErr: []string{ErrAddingIngredients, ErrWrongUnit, pastaID.String()},
 		},
@@ -78,9 +77,9 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 			name:         "negative quantity",
 			ingredients:  allIngredients(),
 			recipeExists: true,
-			req: updateReq(
-				dto_recipe_req.IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
-				dto_recipe_req.IngredientBasicInfo{tomatoSauceID, -10, recipe_dom.Gram},
+			cmd: updateReq(
+				IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
+				IngredientBasicInfo{tomatoSauceID, -10, recipe_dom.Gram},
 			),
 			wantErr: []string{ErrAddingIngredients, ErrWrongQuantity, tomatoSauceID.String()},
 		},
@@ -89,9 +88,9 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 			ingredients:  allIngredients(),
 			recipeExists: true,
 			repoErrors:   recipe_infra.RecipeRepoErrorsToSet{UpdateError: true},
-			req: updateReq(
-				dto_recipe_req.IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
-				dto_recipe_req.IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
+			cmd: updateReq(
+				IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
+				IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 			),
 			wantErr: []string{recipe_dom.ErrCouldNotUpdateRecipe},
 		},
@@ -105,7 +104,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 			}
 			td.GivenRepoErrors(tc.repoErrors)
 
-			_, err := td.UpdateRecipe(workspaceID, tc.req)
+			_, err := td.UpdateRecipe(workspaceID, tc.cmd)
 
 			assertErrContainsAll(t, err, tc.wantErr...)
 		})
