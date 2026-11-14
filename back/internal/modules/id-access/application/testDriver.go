@@ -2,8 +2,6 @@ package idaccess_app
 
 import (
 	"context"
-	dto_idaccess_req "food/internal/api/dtos/id-access/req"
-	idaccess_app_mod "food/internal/modules/id-access/application/models"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	idaccess_infra "food/internal/modules/id-access/infra"
 	platform_http "food/internal/platform/http"
@@ -49,8 +47,8 @@ func (td *TestDriver) SignupUser(cmd SignupCmd) (*idaccess_dom.User, error) {
 	return td.userSrv.SignupUser(td.ctx, cmd)
 }
 
-func (td *TestDriver) SigninUser(newUserReq dto_idaccess_req.SignupUser) (idaccess_app_mod.SigninResult, error) {
-	return td.userSrv.SigninUser(td.ctx, newUserReq)
+func (td *TestDriver) SigninUser(cmd SigninCmd) (SigninResult, error) {
+	return td.userSrv.SigninUser(td.ctx, cmd)
 }
 
 func (td *TestDriver) CreateWorkspace(createWCmd CreateWorkspaceCmd) (*idaccess_dom.Workspace, error) {

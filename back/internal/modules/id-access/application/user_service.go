@@ -3,10 +3,10 @@ package idaccess_app
 import (
 	"context"
 	"errors"
-	dto_idaccess_req "food/internal/api/dtos/id-access/req"
-	idaccess_app_mod "food/internal/modules/id-access/application/models"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	shared_domain "food/internal/shared/domain"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -15,9 +15,18 @@ var (
 	ErrDecodingToken        = "error trying to decode the token"
 )
 
-type SignupCmd struct {
+type Credentials struct {
 	Email    string
 	Password string
+}
+
+type SignupCmd = Credentials
+type SigninCmd = Credentials
+
+type SigninResult struct {
+	UserID uuid.UUID
+	Email  string
+	Token  string
 }
 
 type UserSrv struct {
@@ -58,20 +67,20 @@ func (uSrv *UserSrv) SignupUser(ctx context.Context, cmd SignupCmd) (*idaccess_d
 	return newUser, err
 }
 
-func (uSrv *UserSrv) SigninUser(ctx context.Context, signinUserReq dto_idaccess_req.SigninUser) (idaccess_app_mod.SigninResult, error) {
-	foundUser, err := uSrv.users.FindByEmail(ctx, signinUserReq.Email)
+func (uSrv *UserSrv) SigninUser(ctx context.Context, cmd SigninCmd) (SigninResult, error) {
+	foundUser, err := uSrv.users.FindByEmail(ctx, cmd.Email)
 
 	if err != nil {
-		return idaccess_app_mod.SigninResult{}, errors.New(ErrWrongEmailOrPassword)
+		return SigninResult{}, errors.New(ErrWrongEmailOrPassword)
 	}
 
-	isPassValid := uSrv.bcrypt.IsValid(foundUser.Password(), signinUserReq.Password)
+	isPassValid := uSrv.bcrypt.IsValid(foundUser.Password(), cmd.Password)
 	if !isPassValid {
-		return idaccess_app_mod.SigninResult{}, errors.New(ErrWrongEmailOrPassword)
+		return SigninResult{}, errors.New(ErrWrongEmailOrPassword)
 	}
 
 	tokenStr, err := uSrv.jwtGen.Generate(foundUser)
-	return idaccess_app_mod.SigninResult{
+	return SigninResult{
 		UserID: foundUser.Id(),
 		Email:  foundUser.Email(),
 		Token:  tokenStr,

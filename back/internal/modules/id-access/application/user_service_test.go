@@ -1,7 +1,6 @@
 package idaccess_app
 
 import (
-	dto_idaccess_req "food/internal/api/dtos/id-access/req"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	"testing"
 
@@ -122,14 +121,14 @@ func TestSignin(t *testing.T) {
 	}
 	tests := []struct {
 		name          string
-		SignupUserReq dto_idaccess_req.SignupUser
+		SignupUserReq SigninCmd
 		expectedToken string
 		expectedError string
 		setup         SignupUserSetup
 	}{
 		{
 			name: "should not signup due to bad email",
-			SignupUserReq: dto_idaccess_req.SigninUser{
+			SignupUserReq: SigninCmd{
 				Email:    "badmail@email.com",
 				Password: userClearPassword,
 			},
@@ -142,7 +141,7 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			name: "should not signup due to bad pass",
-			SignupUserReq: dto_idaccess_req.SigninUser{
+			SignupUserReq: SigninCmd{
 				Email:    userEmail,
 				Password: userClearPassword,
 			},
@@ -155,7 +154,7 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			name: "should raise an error trying to generate a jwt",
-			SignupUserReq: dto_idaccess_req.SigninUser{
+			SignupUserReq: SigninCmd{
 				Email:    userEmail,
 				Password: userClearPassword,
 			},
@@ -168,7 +167,7 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			name: "should sign the user in",
-			SignupUserReq: dto_idaccess_req.SigninUser{
+			SignupUserReq: SigninCmd{
 				Email:    userEmail,
 				Password: userClearPassword,
 			},
