@@ -55,9 +55,9 @@ func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
 	td.inMemUuidGen.SetMultipleUuids(ids)
 }
 
-func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, ingredientDto dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, cmd CreateIngredientCmd) (*recipe_dom.Ingredient, error) {
 	td.SetContext(uuid.Nil, workspaceid)
-	return td.ingredientSrv.Create(td.ctx, ingredientDto)
+	return td.ingredientSrv.Create(td.ctx, cmd)
 }
 
 func (td *TestDriver) DeleteIngredient(workspaceId uuid.UUID, id uuid.UUID) error {

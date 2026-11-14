@@ -18,12 +18,12 @@ var (
 	tomatoName     = "tomato"
 	tomatoBaseUnit = recipe_dom.Piece
 
-	ingredientSalt = dto_recipe_req.CreateIngredientDto{
+	ingredientSalt = CreateIngredientCmd{
 		Name:     saltName,
 		BaseUnit: saltBaseUnit,
 	}
 
-	ingredientTomato = dto_recipe_req.CreateIngredientDto{
+	ingredientTomato = CreateIngredientCmd{
 		Name:     tomatoName,
 		BaseUnit: tomatoBaseUnit,
 	}

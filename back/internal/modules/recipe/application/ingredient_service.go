@@ -16,6 +16,11 @@ var (
 	ErrIngredientAlreadyExists = "ingredient already exists"
 )
 
+type CreateIngredientCmd struct {
+	Name     string
+	BaseUnit recipe_dom.BaseUnit
+}
+
 type IngredientSrv struct {
 	uuidGen     shared_domain.Uuids
 	ingredients recipe_dom.Ingredients
@@ -28,9 +33,9 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 	}
 }
 
-func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_req.CreateIngredientDto) (*recipe_dom.Ingredient, error) {
+func (is *IngredientSrv) Create(ctx context.Context, cmd CreateIngredientCmd) (*recipe_dom.Ingredient, error) {
 	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
-	exists, err := is.ingredients.ExistsByName(ctx, workspaceId, ingredientReq.Name)
+	exists, err := is.ingredients.ExistsByName(ctx, workspaceId, cmd.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +45,7 @@ func (is *IngredientSrv) Create(ctx context.Context, ingredientReq dto_recipe_re
 	}
 
 	uuid := is.uuidGen.Generate()
-	ingredient := recipe_dom.NewIngredient(uuid, ingredientReq.Name, ingredientReq.BaseUnit, workspaceId)
+	ingredient := recipe_dom.NewIngredient(uuid, cmd.Name, cmd.BaseUnit, workspaceId)
 	err = is.ingredients.Save(ctx, ingredient)
 	return ingredient, err
 }

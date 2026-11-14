@@ -62,7 +62,10 @@ func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	found, err := ictrl.ingredientSrv.Create(r.Context(), req)
+	found, err := ictrl.ingredientSrv.Create(r.Context(), recipe_app.CreateIngredientCmd{
+		Name:     req.Name,
+		BaseUnit: req.BaseUnit,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
