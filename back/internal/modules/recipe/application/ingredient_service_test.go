@@ -100,14 +100,15 @@ func TestUpdateIngredient(t *testing.T) {
 		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredientCmd)
 		//
 		assert.Contains(t, err.Error(), recipe_dom.ErrIngredientNotFound.Error())
-		assert.Contains(t, err.Error(), saltUuid.String())
+		assert.Contains(t, err.Error(), falseIdingredientCmd.Id.String())
 
 	})
 
 	t.Run("should not update ingredient", func(t *testing.T) {
 		td.GivenIngredientRepoErrors(false, true)
 		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredientCmd)
-		assert.EqualError(t, err, recipe_dom.ErrIngredientCouldNotBeUpdated)
+		assert.Contains(t, err.Error(), recipe_dom.ErrIngredientCouldNotBeUpdated.Error())
+		assert.Contains(t, err.Error(), falseIdingredientCmd.Id.String())
 	})
 
 	t.Run("should update ingredient", func(t *testing.T) {
@@ -127,7 +128,12 @@ func TestUpdateIngredient(t *testing.T) {
 
 func TestDeleteIngredient(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(expectedSavedIngredient)
-	err := td.DeleteIngredient(workspaceUuid, saltUuid)
+
+	err := td.DeleteIngredient(workspaceUuid, tomatoSauceID)
+	assert.Contains(t, err.Error(), recipe_dom.ErrIngredientNotFound.Error())
+	assert.Contains(t, err.Error(), tomatoSauceID.String())
+
+	err = td.DeleteIngredient(workspaceUuid, saltUuid)
 
 	assert.Nil(t, err)
 	deletedIngredient := td.GetDeletedLastIngredient()

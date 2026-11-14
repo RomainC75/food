@@ -2,7 +2,6 @@ package recipe_infra
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 
@@ -67,7 +66,7 @@ func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.Ingredi
 
 func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUID, ingredient *recipe_dom.Ingredient) error {
 	if imi.expectedUpdateError {
-		return errors.New(recipe_dom.ErrIngredientCouldNotBeUpdated)
+		return fmt.Errorf("update ingredient %s : %w", ingredient.Id().String(), recipe_dom.ErrIngredientCouldNotBeUpdated)
 	}
 	for i, ing := range imi.savedIngredients {
 		if ing.Id() == ingredient.Id() {
@@ -75,18 +74,19 @@ func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUI
 			return nil
 		}
 	}
-	return recipe_dom.ErrIngredientNotFound
+	return fmt.Errorf("update ingredient %s : %w", ingredient.Id().String(), recipe_dom.ErrIngredientNotFound)
 }
 
 func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) error {
+
 	for i, ing := range imi.savedIngredients {
 		if workspaceId == ing.WorkspaceId() && id == ing.Id() {
 			imi.savedIngredients = append(imi.savedIngredients[0:i], imi.savedIngredients[i+1:]...)
 			imi.deletedIngredient = ing
+			return nil
 		}
-		return nil
 	}
-	return recipe_dom.ErrIngredientNotFound
+	return fmt.Errorf("delete ingredient %s : %w", id.String(), recipe_dom.ErrIngredientNotFound)
 }
 
 // ---------- Added for tests ------

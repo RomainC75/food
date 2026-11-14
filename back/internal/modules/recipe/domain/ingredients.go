@@ -9,7 +9,7 @@ import (
 
 var (
 	ErrIngredientNotFound          = errors.New("ingredient not found")
-	ErrIngredientCouldNotBeUpdated = "ingredient could not be updated"
+	ErrIngredientCouldNotBeUpdated = errors.New("ingredient could not be updated")
 )
 
 type IngredientFilter struct {
