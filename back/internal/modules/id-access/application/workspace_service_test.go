@@ -1,7 +1,6 @@
 package idaccess_app
 
 import (
-	dto_idaccess_req "food/internal/api/dtos/id-access/req"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	"testing"
 
@@ -16,11 +15,12 @@ func TestCreateWorkspace(t *testing.T) {
 
 	t.Run("should create a workspace", func(t *testing.T) {
 
-		td := NewTestDriver(t).GivenUserIdContext(userId).GivenUuids(workspaceId, mmembershipId)
+		td := NewTestDriver(t).GivenUuids(workspaceId, mmembershipId)
 		workspaceName := "my-workspace"
 
-		req := dto_idaccess_req.CreateWorkspace{
-			Name: workspaceName,
+		req := CreateWorkspaceCmd{
+			Name:   workspaceName,
+			UserId: userId,
 		}
 		ws, err := td.CreateWorkspace(req)
 		assert.Nil(t, err)
@@ -37,17 +37,22 @@ func TestCreateWorkspace(t *testing.T) {
 	})
 
 	t.Run("should not create a workspace, cause repo error", func(t *testing.T) {
-		td := NewTestDriver(t).GivenUserIdContext(userId).GivenUuids(workspaceId, mmembershipId)
+		td := NewTestDriver(t).GivenUuids(workspaceId, mmembershipId)
 		td.SetupExpectedWorkspaceError(true)
 
 		workspaceName := "my-workspace"
 
-		req := dto_idaccess_req.CreateWorkspace{
-			Name: workspaceName,
+		req := CreateWorkspaceCmd{
+			Name:   workspaceName,
+			UserId: userId,
 		}
 		_, err := td.CreateWorkspace(req)
 		assert.NotNil(t, err)
 		assert.EqualError(t, err, ErrTryingToCreateWorkspace)
 
 	})
+}
+
+func TestGetWorkspaces(t *testing.T) {
+
 }

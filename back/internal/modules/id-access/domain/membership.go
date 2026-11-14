@@ -18,6 +18,10 @@ func NewMembership(id uuid.UUID, userId uuid.UUID, workspaceId uuid.UUID, role R
 	}
 }
 
+func (m *Membership) WorkspaceId() uuid.UUID {
+	return m.workspaceId
+}
+
 func (m *Membership) IsSameWorkspace(workspaceId uuid.UUID) bool {
 	return m.workspaceId == workspaceId
 }

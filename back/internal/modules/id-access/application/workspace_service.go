@@ -3,7 +3,6 @@ package idaccess_app
 import (
 	"context"
 	"errors"
-	dto_idaccess_req "food/internal/api/dtos/id-access/req"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
@@ -14,6 +13,11 @@ import (
 var (
 	ErrTryingToCreateWorkspace = "error trying to create a workspace"
 )
+
+type CreateWorkspaceCmd struct {
+	Name   string
+	UserId uuid.UUID
+}
 
 type WorkspaceSrv struct {
 	uuidGen    shared_domain.Uuids
@@ -33,14 +37,12 @@ func NewWorkspaceSrv(
 	}
 }
 
-func (wSrv *WorkspaceSrv) Create(ctx context.Context, req dto_idaccess_req.CreateWorkspace) (*idaccess_dom.Workspace, error) {
+func (wSrv *WorkspaceSrv) Create(ctx context.Context, cmd CreateWorkspaceCmd) (*idaccess_dom.Workspace, error) {
 	workspaceId := wSrv.uuidGen.Generate()
 	membershipId := wSrv.uuidGen.Generate()
 
-	userId, _ := platform_http.GetUserIdFromContext(ctx)
-
-	workspace := idaccess_dom.NewWorkspace(workspaceId, req.Name)
-	membership := idaccess_dom.NewMembership(membershipId, userId, workspaceId, idaccess_dom.Manager)
+	workspace := idaccess_dom.NewWorkspace(workspaceId, cmd.Name)
+	membership := idaccess_dom.NewMembership(membershipId, cmd.UserId, workspaceId, idaccess_dom.Manager)
 
 	err := wSrv.workspaces.CreateWithMembership(ctx, workspace, membership)
 	if err != nil {
@@ -48,6 +50,11 @@ func (wSrv *WorkspaceSrv) Create(ctx context.Context, req dto_idaccess_req.Creat
 	}
 
 	return workspace, nil
+}
+
+func (wSrv *WorkspaceSrv) Get(ctx context.Context) ([]*idaccess_dom.Workspace, error) {
+	userId, _ := platform_http.GetUserIdFromContext(ctx)
+	return wSrv.workspaces.GetWorkspaces(ctx, userId)
 }
 
 func (wSrv *WorkspaceSrv) CanCreateInWorkspace(

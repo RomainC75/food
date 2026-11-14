@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
+	"slices"
 
 	"github.com/google/uuid"
 )
 
 const (
-	ErrWorkspaceNotFound = "workspace not found"
+	ErrWorkspaceNotFound    = "workspace not found"
+	ErrNoWorkspaceAvailable = "no workspace available"
 )
 
 type InMemWorkspaces struct {
@@ -45,6 +47,26 @@ func (imw *InMemWorkspaces) FindById(ctx context.Context, userId uuid.UUID, work
 		}
 	}
 	return nil, errors.New(ErrWorkspaceNotFound)
+}
+
+func (imw *InMemWorkspaces) GetWorkspaces(ctx context.Context, userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
+	wpIds := make([]uuid.UUID, 0, 10)
+	for _, m := range imw.memberships {
+		if m.IsSameUser(userId) {
+			wpIds = append(wpIds, m.WorkspaceId())
+		}
+	}
+	if len(wpIds) == 0 {
+		return nil, errors.New(ErrNoWorkspaceAvailable)
+	}
+	wp := make([]*idaccess_dom.Workspace, 0, 10)
+	for _, w := range imw.workspaces {
+		if slices.Contains(wpIds, w.Id()) {
+			wp = append(wp, w)
+		}
+	}
+	return wp, nil
+
 }
 
 // ===== TEST ===

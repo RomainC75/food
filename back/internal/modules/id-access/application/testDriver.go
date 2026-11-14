@@ -53,8 +53,8 @@ func (td *TestDriver) SigninUser(newUserReq dto_idaccess_req.SignupUser) (idacce
 	return td.userSrv.SigninUser(td.ctx, newUserReq)
 }
 
-func (td *TestDriver) CreateWorkspace(ws dto_idaccess_req.CreateWorkspace) (*idaccess_dom.Workspace, error) {
-	return td.workspaceSrv.Create(td.ctx, ws)
+func (td *TestDriver) CreateWorkspace(createWCmd CreateWorkspaceCmd) (*idaccess_dom.Workspace, error) {
+	return td.workspaceSrv.Create(td.ctx, createWCmd)
 }
 
 // ======== SETUP =========

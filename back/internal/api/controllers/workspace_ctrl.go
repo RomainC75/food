@@ -6,6 +6,7 @@ import (
 	dto_idaccess_res "food/internal/api/dtos/id-access/res"
 	api_validator "food/internal/api/validator"
 	idaccess_app "food/internal/modules/id-access/application"
+	platform_http "food/internal/platform/http"
 	json_utils "food/utils/json"
 	"net/http"
 )
@@ -34,7 +35,11 @@ func (ictrl *WorkspaceCtrl) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdW, err := ictrl.workspaceSrv.Create(r.Context(), req)
+	userId, _ := platform_http.GetUserIdFromContext(r.Context())
+	createdW, err := ictrl.workspaceSrv.Create(r.Context(), idaccess_app.CreateWorkspaceCmd{
+		Name:   req.Name,
+		UserId: userId,
+	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
