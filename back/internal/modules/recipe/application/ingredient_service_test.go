@@ -1,7 +1,6 @@
 package recipe_app
 
 import (
-	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	"testing"
 
@@ -88,9 +87,9 @@ func TestSearchIngredient(t *testing.T) {
 
 func TestUpdateIngredient(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit, workspaceUuid))
-	falseIdingredient := dto_recipe_req.UpdateIngredientDto{
+	falseIdingredientCmd := UpdateIngredientCmd{
 		Id: saltUuid,
-		CreateIngredientDto: dto_recipe_req.CreateIngredientDto{
+		CreateIngredientCmd: CreateIngredientCmd{
 			Name:     tomatoName,
 			BaseUnit: tomatoBaseUnit,
 		},
@@ -98,20 +97,20 @@ func TestUpdateIngredient(t *testing.T) {
 
 	t.Run("cannot get the ingredient", func(t *testing.T) {
 		td.GivenIngredientRepoErrors(true, false)
-		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredient)
+		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredientCmd)
 		assert.EqualError(t, err, recipe_dom.ErrIngredientNotFound)
 
 	})
 
 	t.Run("should not update ingredient", func(t *testing.T) {
 		td.GivenIngredientRepoErrors(false, true)
-		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredient)
+		_, err := td.UpdateIngredient(workspaceUuid, falseIdingredientCmd)
 		assert.EqualError(t, err, recipe_dom.ErrIngredientCouldNotBeUpdated)
 	})
 
 	t.Run("should update ingredient", func(t *testing.T) {
 		td.GivenIngredientRepoErrors(false, false)
-		updatedIngredient, err := td.UpdateIngredient(workspaceUuid, falseIdingredient)
+		updatedIngredient, err := td.UpdateIngredient(workspaceUuid, falseIdingredientCmd)
 
 		expectedIngredient := recipe_dom.NewIngredient(saltUuid, tomatoName, tomatoBaseUnit, workspaceUuid)
 

@@ -82,9 +82,9 @@ func (td *TestDriver) Search(workspaceId uuid.UUID, i recipe_dom.IngredientFilte
 	return td.ingredientSrv.Search(td.ctx, i)
 }
 
-func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, updateIngDto dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, cmd UpdateIngredientCmd) (*recipe_dom.Ingredient, error) {
 	td.SetContext(uuid.Nil, workspaceId)
-	return td.ingredientSrv.Update(td.ctx, updateIngDto)
+	return td.ingredientSrv.Update(td.ctx, cmd)
 }
 
 // -- RECEIPE --

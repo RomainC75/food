@@ -3,7 +3,6 @@ package recipe_app
 import (
 	"context"
 	"errors"
-	dto_recipe_req "food/internal/api/dtos/recipe/req"
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
@@ -19,6 +18,11 @@ var (
 type CreateIngredientCmd struct {
 	Name     string
 	BaseUnit recipe_dom.BaseUnit
+}
+
+type UpdateIngredientCmd struct {
+	Id uuid.UUID
+	CreateIngredientCmd
 }
 
 type IngredientSrv struct {
@@ -60,18 +64,18 @@ func (is *IngredientSrv) GetById(ctx context.Context, ingredientId uuid.UUID) (*
 
 }
 
-func (is *IngredientSrv) Update(ctx context.Context, uir dto_recipe_req.UpdateIngredientDto) (*recipe_dom.Ingredient, error) {
+func (is *IngredientSrv) Update(ctx context.Context, cmd UpdateIngredientCmd) (*recipe_dom.Ingredient, error) {
 	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
 
-	found, err := is.ingredients.GetById(ctx, workspaceId, uir.Id)
+	found, err := is.ingredients.GetById(ctx, workspaceId, cmd.Id)
 	if err != nil {
 		return nil, errors.New(recipe_dom.ErrIngredientNotFound)
 	}
-	if uir.Name != "" {
-		found.SetName(uir.Name)
+	if cmd.Name != "" {
+		found.SetName(cmd.Name)
 	}
-	if uir.BaseUnit != "" {
-		found.SetBaseUnit(uir.BaseUnit)
+	if cmd.BaseUnit != "" {
+		found.SetBaseUnit(cmd.BaseUnit)
 	}
 	err = is.ingredients.Update(ctx, workspaceId, found)
 	return found, err
