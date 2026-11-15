@@ -50,7 +50,7 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 		UserId: found.Id(),
 		Email:  found.Email(),
 	}
-	json_utils.JsonResponse(w, res)
+	json_utils.JsonResponse(w, res, http.StatusCreated)
 
 }
 
@@ -81,7 +81,7 @@ func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
 		Email:  found.Email,
 		Token:  found.Token,
 	}
-	json_utils.JsonResponse(w, res)
+	json_utils.JsonResponse(w, res, http.StatusOK)
 }
 
 func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
@@ -116,7 +116,7 @@ func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request
 		UserEmail: email,
 	}
 
-	json_utils.JsonResponse(w, data)
+	json_utils.JsonResponse(w, data, http.StatusOK)
 }
 
 func (ictrl *IdAccessCtrl) extractBearer(r *http.Request) (string, error) {

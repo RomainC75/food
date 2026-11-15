@@ -48,6 +48,6 @@ func (ictrl *WorkspaceCtrl) Create(w http.ResponseWriter, r *http.Request) {
 		Id:   createdW.Id(),
 		Name: createdW.Name(),
 	}
-	json_utils.JsonResponse(w, res)
+	json_utils.JsonResponse(w, res, http.StatusCreated)
 
 }

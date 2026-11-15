@@ -45,7 +45,7 @@ func (ictrl *IngredientCtrl) Search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json_utils.JsonResponse(w, found)
+	json_utils.JsonResponse(w, found, http.StatusOK)
 }
 
 func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Request) {
@@ -71,7 +71,7 @@ func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	json_utils.JsonResponse(w, found)
+	json_utils.JsonResponse(w, found, http.StatusCreated)
 }
 
 func (ictrl *IngredientCtrl) Delete(w http.ResponseWriter, r *http.Request) {
@@ -87,5 +87,5 @@ func (ictrl *IngredientCtrl) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json_utils.JsonResponse(w, fmt.Sprintf("ingredient %s deleted", ingredientUuid.String()))
+	json_utils.JsonResponse(w, fmt.Sprintf("ingredient %s deleted", ingredientUuid.String()), http.StatusAccepted)
 }

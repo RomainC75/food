@@ -14,7 +14,7 @@ func Serve() {
 		Addr:    fmt.Sprintf(":%s", port),
 		Handler: routes.ConnectRoutes(),
 	}
-	slog.Println(" -> server running on port :", port)
+	slog.Info(" -> server running on port :", port)
 	err := srv.ListenAndServe()
 
 	if err != nil {
