@@ -2,15 +2,13 @@ package recipe_infra
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 
 	"github.com/google/uuid"
 )
 
-var (
-	ErrRecipeNotFound = "recipe not found"
-)
+var ()
 
 type RecipeRepoErrorsToSet struct {
 	UpdateError bool
@@ -38,12 +36,12 @@ func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom
 			return r.Clone(), nil
 		}
 	}
-	return nil, errors.New(ErrRecipeNotFound)
+	return nil, fmt.Errorf("get recipe by id %s : %w", id.String(), recipe_dom.ErrRecipeNotFound)
 }
 
 func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error {
 	if imr.expectedErrors.UpdateError {
-		return errors.New(recipe_dom.ErrCouldNotUpdateRecipe)
+		return fmt.Errorf("update ingredient %s : %w", r.Id().String(), recipe_dom.ErrCouldNotUpdateRecipe)
 	}
 
 	for i, sr := range imr.savedRecipes {
@@ -52,7 +50,7 @@ func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error
 			return nil
 		}
 	}
-	return errors.New(ErrRecipeNotFound)
+	return fmt.Errorf("update ingredient %s : %w", r.Id().String(), recipe_dom.ErrRecipeNotFound)
 	// !! for the real one
 	// 	Updates the recipe.
 	// Deletes its existing ingredient relationships.
@@ -66,23 +64,13 @@ func (imr *InMemRecipes) Delete(ctx context.Context, id uuid.UUID) error {
 			return nil
 		}
 	}
-	return errors.New(ErrRecipeNotFound)
+	return fmt.Errorf("delete recipe %s : %w", id.String(), recipe_dom.ErrRecipeNotFound)
 }
 
 // == TEST ==
 
 func (imr *InMemRecipes) GetSavedRecipes() []*recipe_dom.Recipe {
 	return imr.savedRecipes
-}
-
-func (imr *InMemRecipes) DeleteById(id uuid.UUID) error {
-	for i, r := range imr.savedRecipes {
-		if r.Id() == id {
-			imr.savedRecipes = append(imr.savedRecipes[:i], imr.savedRecipes[i+1:]...)
-			return nil
-		}
-	}
-	return errors.New(ErrRecipeNotFound)
 }
 
 func (imr *InMemRecipes) SetExpectedErrors(ee RecipeRepoErrorsToSet) {

@@ -51,7 +51,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 			name:         "recipe not found",
 			recipeExists: false,
 			cmd:          updateReq(),
-			wantErr:      []string{ErrRecipeNotFound},
+			wantErr:      []string{recipe_dom.ErrRecipeNotFound.Error()},
 		},
 		{
 			name:         "ingredient not found",
@@ -92,7 +92,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 				IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
 				IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 			),
-			wantErr: []string{recipe_dom.ErrCouldNotUpdateRecipe},
+			wantErr: []string{recipe_dom.ErrCouldNotUpdateRecipe.Error()},
 		},
 	}
 
@@ -114,13 +114,15 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 // ---------- Delete ----------
 
 func TestDeleteRecipe(t *testing.T) {
-	t.Run("unknown id returns not found and keeps the recipe", func(t *testing.T) {
+	t.Run("should return an error if the recipe is not found", func(t *testing.T) {
 		td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
 		td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
 
-		err := td.DeleteRecipe(uuid.New())
+		recipeToDelete := uuid.New()
+		err := td.DeleteRecipe(recipeToDelete)
 
-		assert.EqualError(t, err, ErrRecipeNotFound)
+		assert.Contains(t, err.Error(), recipe_dom.ErrRecipeNotFound.Error())
+		assert.Contains(t, err.Error(), recipeToDelete.String())
 		assert.Len(t, td.SavedRecipes(), 1)
 	})
 

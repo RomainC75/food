@@ -2,7 +2,6 @@ package recipe_app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
@@ -14,7 +13,6 @@ import (
 )
 
 var (
-	ErrRecipeNotFound    = "recipe not found"
 	ErrAddingIngredients = "error adding ingredients"
 
 	ErrIngredientsNotFound = "ingredients not found"
@@ -126,7 +124,7 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, cmd UpdateRecipeCmd) (*recipe
 	// get
 	foundRecipe, err := rSrv.recipes.GetById(ctx, cmd.Id)
 	if err != nil {
-		return nil, errors.New(ErrRecipeNotFound)
+		return nil, err
 	}
 	foundRecipe.SetName(cmd.Name)
 	foundRecipe.DeleteAllIngredients()

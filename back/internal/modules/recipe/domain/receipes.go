@@ -2,12 +2,14 @@ package recipe_dom
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 )
 
 var (
-	ErrCouldNotUpdateRecipe = "could not update the recipe"
+	ErrCouldNotUpdateRecipe = errors.New("could not update the recipe")
+	ErrRecipeNotFound       = errors.New("recipe not found")
 )
 
 type Recipes interface {
