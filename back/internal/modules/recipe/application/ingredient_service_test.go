@@ -57,18 +57,38 @@ func TestCreateIngredient(t *testing.T) {
 }
 
 func TestGetIngredientById(t *testing.T) {
-	td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
-	td.SetNextUuids(saltUuid, tomatoUuid)
-	td.CreateIngredient(workspaceUuid, ingredientSalt)
-	td.CreateIngredient(workspaceUuid, ingredientTomato)
+	t.Run("should not get the ingredient", func(t *testing.T) {
+		td := NewTestDriver(t)
 
-	searchFilter := recipe_dom.IngredientFilter{
-		Name: tomatoName,
-	}
+		ingredientId := uuid.New()
+		getIngredientByIdCmd := GetIngredientByIdCmd{
+			WorkspaceId:  workspaceUuid,
+			IngredientId: ingredientId,
+		}
+		_, err := td.GetIngredientById(workspaceUuid, getIngredientByIdCmd)
 
-	found, err := td.Search(workspaceUuid, searchFilter)
-	assert.Nil(t, err)
-	assert.Equal(t, td.SavedIngredients()[1], found)
+		assert.Contains(t, err.Error(), recipe_dom.ErrIngredientNotFound.Error())
+		assert.Contains(t, err.Error(), ingredientId.String())
+
+	})
+	t.Run("should get the ingredient ", func(t *testing.T) {
+		td := NewTestDriver(t)
+		td.SetNextUuids(saltUuid, tomatoUuid)
+		createdIngredient, _ := td.CreateIngredient(workspaceUuid, ingredientSalt)
+		td.CreateIngredient(workspaceUuid, ingredientTomato)
+
+		getIngredientByIdCmd := GetIngredientByIdCmd{
+			WorkspaceId:  workspaceUuid,
+			IngredientId: createdIngredient.Id(),
+		}
+		found, err := td.GetIngredientById(workspaceUuid, getIngredientByIdCmd)
+
+		expectedIngredient := recipe_dom.NewIngredient(saltUuid, ingredientSalt.Name, ingredientSalt.BaseUnit, workspaceUuid)
+		assert.Nil(t, err)
+		assert.Equal(t, td.SavedIngredients()[0], found)
+
+		assert.Equal(t, expectedIngredient, found)
+	})
 }
 
 func TestSearchIngredient(t *testing.T) {

@@ -76,6 +76,10 @@ func (td *TestDriver) GetDeletedLastIngredient() *recipe_dom.Ingredient {
 	return td.inMemIngredients.GetLastDeleted()
 }
 
+func (td *TestDriver) GetIngredientById(workspaceId uuid.UUID, cmd GetIngredientByIdCmd) (*recipe_dom.Ingredient, error) {
+	return td.ingredientSrv.GetById(td.ctx, cmd)
+}
+
 func (td *TestDriver) Search(workspaceId uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	td.SetContext(uuid.Nil, workspaceId)
 	return td.ingredientSrv.Search(td.ctx, i)

@@ -20,6 +20,10 @@ type CreateIngredientCmd struct {
 	BaseUnit recipe_dom.BaseUnit
 }
 
+type GetIngredientByIdCmd struct {
+	WorkspaceId  uuid.UUID
+	IngredientId uuid.UUID
+}
 type UpdateIngredientCmd struct {
 	Id uuid.UUID
 	CreateIngredientCmd
@@ -58,9 +62,8 @@ func (is *IngredientSrv) Search(ctx context.Context, f recipe_dom.IngredientFilt
 	return is.ingredients.Search(ctx, f)
 }
 
-func (is *IngredientSrv) GetById(ctx context.Context, ingredientId uuid.UUID) (*recipe_dom.Ingredient, error) {
-	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
-	return is.ingredients.GetById(ctx, workspaceId, ingredientId)
+func (is *IngredientSrv) GetById(ctx context.Context, cmd GetIngredientByIdCmd) (*recipe_dom.Ingredient, error) {
+	return is.ingredients.GetById(ctx, cmd.WorkspaceId, cmd.IngredientId)
 
 }
 
