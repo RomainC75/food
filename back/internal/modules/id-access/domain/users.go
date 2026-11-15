@@ -2,13 +2,14 @@ package idaccess_dom
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 )
 
 var (
-	ErrUserNotFound     = "user not found"
-	ErrCouldNotSaveUser = "could not save user"
+	ErrUserNotFound     = errors.New("user not found")
+	ErrCouldNotSaveUser = errors.New("could not save user")
 )
 
 type Users interface {

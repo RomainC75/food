@@ -2,12 +2,13 @@ package idaccess_dom
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 )
 
-const (
-	ErrCouldNotCreateWorkspace = "could not create workspace"
+var (
+	ErrCouldNotCreateWorkspace = errors.New("could not create workspace")
 )
 
 type Workspaces interface {

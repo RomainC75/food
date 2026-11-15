@@ -1,7 +1,6 @@
 package idaccess_infra
 
 import (
-	"errors"
 	"fmt"
 	idaccess_dom "food/internal/modules/id-access/domain"
 
@@ -22,7 +21,7 @@ func NewBcrypt() *BcryptGen {
 func (bg *BcryptGen) Generate(password string) (string, error) {
 	hashed, err := bcrypt.GenerateFromPassword([]byte(password), BCRYPT_COST)
 	if err != nil {
-		return "", errors.New(idaccess_dom.ErrHashingPassword)
+		return "", idaccess_dom.ErrHashingPassword
 	}
 	return string(hashed), nil
 }

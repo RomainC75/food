@@ -50,7 +50,7 @@ func TestSignupUser(t *testing.T) {
 		{
 			"should not create duplicate user",
 			signupCmd,
-			idaccess_dom.ErrHashingPassword,
+			idaccess_dom.ErrHashingPassword.Error(),
 			SignupUserSetup{
 				nil,
 				uuid.New(),
@@ -62,7 +62,7 @@ func TestSignupUser(t *testing.T) {
 		{
 			"should not save user",
 			signupCmd,
-			idaccess_dom.ErrCouldNotSaveUser,
+			idaccess_dom.ErrCouldNotSaveUser.Error(),
 			SignupUserSetup{
 				nil,
 				uuid.New(),
@@ -159,7 +159,7 @@ func TestSignin(t *testing.T) {
 				Password: userClearPassword,
 			},
 			expectedToken: "",
-			expectedError: idaccess_dom.ErrCouldNotGenerateJwt,
+			expectedError: idaccess_dom.ErrCouldNotGenerateJwt.Error(),
 			setup: SignupUserSetup{
 				isBcryptPassValid:  true,
 				isGenTokenExpected: true,

@@ -1,10 +1,14 @@
 package idaccess_dom
 
-import "github.com/google/uuid"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
 
 var (
-	ErrCouldNotGenerateJwt = "could not generate jwt"
-	ErrCouldNotVerifyToken = "could not verify token"
+	ErrCouldNotGenerateJwt = errors.New("could not generate jwt")
+	ErrCouldNotVerifyToken = errors.New("could not verify token")
 )
 
 type VerifyInfo struct {

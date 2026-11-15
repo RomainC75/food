@@ -2,7 +2,6 @@ package idaccess_infra
 
 import (
 	"context"
-	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	"log"
 
@@ -24,7 +23,7 @@ func NewInMemoryUsers() *InMemoryUsers {
 
 func (imu *InMemoryUsers) Create(ctx context.Context, newUser *idaccess_dom.User) error {
 	if imu.isSavingUserErrorExpected {
-		return errors.New(idaccess_dom.ErrCouldNotSaveUser)
+		return idaccess_dom.ErrCouldNotSaveUser
 	}
 	imu.savedUsers = append(imu.savedUsers, newUser.Clone())
 	imu.DisplayAll()
@@ -37,7 +36,7 @@ func (imu *InMemoryUsers) FindById(ctx context.Context, id uuid.UUID) (*idaccess
 			return u.Clone(), nil
 		}
 	}
-	return nil, errors.New(idaccess_dom.ErrUserNotFound)
+	return nil, idaccess_dom.ErrUserNotFound
 }
 
 func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idaccess_dom.User, error) {
@@ -47,7 +46,7 @@ func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idacc
 			return u.Clone(), nil
 		}
 	}
-	return nil, errors.New(idaccess_dom.ErrUserNotFound)
+	return nil, idaccess_dom.ErrUserNotFound
 }
 
 func (imu *InMemoryUsers) Init(user *idaccess_dom.User) {

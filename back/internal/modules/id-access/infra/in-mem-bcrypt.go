@@ -1,7 +1,6 @@
 package idaccess_infra
 
 import (
-	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
 )
 
@@ -17,7 +16,7 @@ func NewInMemBcrypt() *InMemBcrypt {
 
 func (bg *InMemBcrypt) Generate(password string) (string, error) {
 	if bg.isErrorExpected {
-		return "", errors.New(idaccess_dom.ErrHashingPassword)
+		return "", idaccess_dom.ErrHashingPassword
 	}
 	return bg.expectedHashed, nil
 }

@@ -29,7 +29,7 @@ func NewInMemWorkspaces() *InMemWorkspaces {
 
 func (imw *InMemWorkspaces) CreateWithMembership(ctx context.Context, workspace *idaccess_dom.Workspace, membership *idaccess_dom.Membership) error {
 	if imw.isErrorExpected {
-		return errors.New(idaccess_dom.ErrCouldNotCreateWorkspace)
+		return idaccess_dom.ErrCouldNotCreateWorkspace
 	}
 	imw.workspaces = append(imw.workspaces, workspace.Clone())
 	imw.memberships = append(imw.memberships, membership.Clone())
