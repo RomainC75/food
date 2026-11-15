@@ -1,7 +1,6 @@
 package config
 
 import (
-	"food/utils/displayer"
 	"log"
 	"strings"
 
@@ -25,8 +24,6 @@ func Set() {
 			ExpiresInMin: v.GetInt("JWT_EXPIRES_IN_MIN"),
 		},
 	}
-
-	displayer.PrettyDisplay("config :", configurations)
 
 	err := viper.Unmarshal(&configurations)
 	if err != nil {

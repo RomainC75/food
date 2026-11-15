@@ -7,7 +7,6 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
-	"food/utils/displayer"
 	"strings"
 
 	"github.com/google/uuid"
@@ -44,7 +43,6 @@ type ErrIngredientNotFound struct {
 
 func (einf *ErrIngredientNotFound) Error() string {
 	fullStr := &strings.Builder{}
-	displayer.PrettyDisplay("ERR FULL : ", einf)
 	if len(einf.IngredientNotFound) > 0 {
 		compileErrorMessage(einf.IngredientNotFound, fullStr, ErrIngredientsNotFound)
 	}
@@ -131,7 +129,6 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, cmd UpdateRecipeCmd) (*recipe
 
 	for _, bi := range cmd.Ingredients {
 		foundIngredient, err := rSrv.ingredients.GetById(ctx, workspaceID, bi.Id)
-		displayer.PrettyDisplay("get this ingredient by id: ", bi)
 		if err != nil {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
 			continue
