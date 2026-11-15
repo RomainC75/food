@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"food/config"
 	"food/internal/api/routes"
-	"log"
 	"log/slog"
 	"net/http"
 )
@@ -15,7 +14,7 @@ func Serve() {
 		Addr:    fmt.Sprintf(":%s", port),
 		Handler: routes.ConnectRoutes(),
 	}
-	log.Println(" -> server running on port :", port)
+	slog.Println(" -> server running on port :", port)
 	err := srv.ListenAndServe()
 
 	if err != nil {

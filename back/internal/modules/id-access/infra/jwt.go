@@ -5,7 +5,6 @@ import (
 	"fmt"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	shared_domain "food/internal/shared/domain"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -71,12 +70,10 @@ func (j *JWT) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
 		if !ok {
 			return idaccess_dom.VerifyInfo{}, errors.New("could not get user_id from token")
 		}
-		log.Println("--> userId : ", userId)
 		userUuid, err := uuid.Parse(userId.(string))
 		if err != nil {
 			return idaccess_dom.VerifyInfo{}, errors.New(fmt.Sprintf("%s : %s", ErrInvalidId, claims["user_id"].(string)))
 		}
-		log.Println("--> userUuid : ", userUuid)
 
 		return idaccess_dom.VerifyInfo{
 			UserId:    userUuid,
