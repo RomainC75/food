@@ -2,6 +2,7 @@ package recipe_app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
@@ -13,8 +14,7 @@ import (
 )
 
 var (
-	ErrAddingIngredients = "error adding ingredients"
-
+	ErrAddingIngredients   = "error adding ingredients"
 	ErrIngredientsNotFound = "ingredients not found"
 	ErrWrongUnit           = "wrong unit"
 	ErrWrongQuantity       = "wrong quantity"
@@ -96,7 +96,7 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe
 
 	for _, bi := range cmd.Ingredients {
 		i, err := rSrv.ingredients.GetById(ctx, workspaceId, bi.Id)
-		if err != nil {
+		if errors.Is(err, recipe_dom.ErrIngredientNotFound) {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
 			continue
 		}
