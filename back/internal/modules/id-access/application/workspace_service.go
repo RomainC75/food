@@ -57,7 +57,7 @@ func (wSrv *WorkspaceSrv) Get(ctx context.Context) ([]*idaccess_dom.Workspace, e
 	return wSrv.workspaces.GetWorkspaces(ctx, userId)
 }
 
-func (wSrv *WorkspaceSrv) CanCreateInWorkspace(
+func (wSrv *WorkspaceSrv) IsMember(
 	ctx context.Context,
 	userID uuid.UUID,
 	workspaceID uuid.UUID,

@@ -15,7 +15,7 @@ func NewFakeWorkspaceAuthorizer() *FakeWorkspaceAuthorizer {
 	return &FakeWorkspaceAuthorizer{}
 }
 
-func (wa *FakeWorkspaceAuthorizer) CanCreateInWorkspace(
+func (wa *FakeWorkspaceAuthorizer) IsMember(
 	ctx context.Context,
 	userID uuid.UUID,
 	workspaceID uuid.UUID,

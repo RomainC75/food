@@ -7,7 +7,7 @@ import (
 )
 
 type WorkspaceAuthorizer interface {
-	CanCreateInWorkspace(
+	IsMember(
 		ctx context.Context,
 		userID uuid.UUID,
 		workspaceID uuid.UUID,

@@ -25,7 +25,7 @@ func WorkspaceMiddleware(authorizer recipe_dom.WorkspaceAuthorizer) func(http.Ha
 				return
 			}
 
-			err = authorizer.CanCreateInWorkspace(r.Context(), userId, wsId)
+			err = authorizer.IsMember(r.Context(), userId, wsId)
 			if err != nil {
 				http.Error(w, fmt.Sprintf("access forbidden to workspace %s", workspaceIdStr), http.StatusForbidden)
 				return
