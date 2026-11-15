@@ -6,6 +6,7 @@ import (
 	"food/internal/api/routes"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 func Serve() {
@@ -14,7 +15,7 @@ func Serve() {
 		Addr:    fmt.Sprintf(":%s", port),
 		Handler: routes.ConnectRoutes(),
 	}
-	slog.Info(" -> server running on port :", port)
+	slog.Info(" -> server running on port : ", port, time.Now())
 	err := srv.ListenAndServe()
 
 	if err != nil {

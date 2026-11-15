@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
-	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
 
 	"github.com/google/uuid"
@@ -52,8 +51,7 @@ func (wSrv *WorkspaceSrv) Create(ctx context.Context, cmd CreateWorkspaceCmd) (*
 	return workspace, nil
 }
 
-func (wSrv *WorkspaceSrv) Get(ctx context.Context) ([]*idaccess_dom.Workspace, error) {
-	userId, _ := platform_http.GetUserIdFromContext(ctx)
+func (wSrv *WorkspaceSrv) Get(ctx context.Context, userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
 	return wSrv.workspaces.GetWorkspaces(ctx, userId)
 }
 

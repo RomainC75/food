@@ -55,6 +55,10 @@ func (td *TestDriver) CreateWorkspace(createWCmd CreateWorkspaceCmd) (*idaccess_
 	return td.workspaceSrv.Create(td.ctx, createWCmd)
 }
 
+func (td *TestDriver) GetWorkspaces(userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
+	return td.workspaceSrv.Get(td.ctx, userId)
+}
+
 // ======== SETUP =========
 
 func (td *TestDriver) GivenUserIdContext(userId uuid.UUID) *TestDriver {

@@ -57,7 +57,7 @@ func (imw *InMemWorkspaces) GetWorkspaces(ctx context.Context, userId uuid.UUID)
 		}
 	}
 	if len(wpIds) == 0 {
-		return nil, errors.New(ErrNoWorkspaceAvailable)
+		return []*idaccess_dom.Workspace{}, nil
 	}
 	wp := make([]*idaccess_dom.Workspace, 0, 10)
 	for _, w := range imw.workspaces {
