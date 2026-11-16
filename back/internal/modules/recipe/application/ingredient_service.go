@@ -30,6 +30,11 @@ type UpdateIngredientCmd struct {
 	CreateIngredientCmd
 }
 
+type DeleteIngredientCmd struct {
+	Id          uuid.UUID
+	WorkspaceId uuid.UUID
+}
+
 type IngredientSrv struct {
 	uuidGen     shared_domain.Uuids
 	ingredients recipe_dom.Ingredients
@@ -58,8 +63,8 @@ func (is *IngredientSrv) Create(ctx context.Context, cmd CreateIngredientCmd) (*
 	return ingredient, err
 }
 
-func (is *IngredientSrv) Search(ctx context.Context, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
-	return is.ingredients.Search(ctx, f)
+func (is *IngredientSrv) Search(ctx context.Context, workspaceId uuid.UUID, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
+	return is.ingredients.Search(ctx, workspaceId, f)
 }
 
 func (is *IngredientSrv) GetById(ctx context.Context, cmd GetIngredientByIdCmd) (*recipe_dom.Ingredient, error) {
@@ -84,8 +89,7 @@ func (is *IngredientSrv) Update(ctx context.Context, cmd UpdateIngredientCmd) (*
 	return found, err
 }
 
-func (is *IngredientSrv) DeleteById(ctx context.Context, id uuid.UUID) error {
-	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
-	return is.ingredients.DeleteById(ctx, workspaceId, id)
+func (is *IngredientSrv) DeleteById(ctx context.Context, cmd DeleteIngredientCmd) error {
+	return is.ingredients.DeleteById(ctx, cmd.WorkspaceId, cmd.Id)
 
 }

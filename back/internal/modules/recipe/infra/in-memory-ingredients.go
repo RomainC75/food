@@ -48,18 +48,18 @@ func (imi *InMemoryIngredients) ExistsByName(ctx context.Context, workspaceId uu
 	return false, nil
 }
 
-func (imi *InMemoryIngredients) Search(ctx context.Context, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
+// TODO : check it
+func (imi *InMemoryIngredients) Search(ctx context.Context, workspaceId uuid.UUID, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	for _, ing := range imi.savedIngredients {
-		if f.Id != nil && ing.Id() != *f.Id {
-			continue
+		if ing.WorkspaceId() == workspaceId {
+			if f.Name != "" && ing.Name() != f.Name {
+				continue
+			}
+			if f.BaseUnit != "" && ing.BaseUnit() != f.BaseUnit {
+				continue
+			}
+			return ing, nil
 		}
-		if f.Name != "" && ing.Name() != f.Name {
-			continue
-		}
-		if f.BaseUnit != "" && ing.BaseUnit() != f.BaseUnit {
-			continue
-		}
-		return ing, nil
 	}
 	return &recipe_dom.Ingredient{}, recipe_dom.ErrIngredientNotFound
 }

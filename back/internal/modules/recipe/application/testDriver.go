@@ -60,8 +60,11 @@ func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, cmd CreateIngredie
 }
 
 func (td *TestDriver) DeleteIngredient(workspaceId uuid.UUID, id uuid.UUID) error {
-	td.SetContext(uuid.Nil, workspaceId)
-	return td.ingredientSrv.DeleteById(td.ctx, id)
+	deleteCmd := DeleteIngredientCmd{
+		Id:          id,
+		WorkspaceId: workspaceId,
+	}
+	return td.ingredientSrv.DeleteById(td.ctx, deleteCmd)
 }
 
 func (td *TestDriver) GivenIngredients(ings ...*recipe_dom.Ingredient) *TestDriver {
@@ -80,9 +83,9 @@ func (td *TestDriver) GetIngredientById(workspaceId uuid.UUID, cmd GetIngredient
 	return td.ingredientSrv.GetById(td.ctx, cmd)
 }
 
-func (td *TestDriver) Search(workspaceId uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
+func (td *TestDriver) Search(workspaceId uuid.UUID, workdspaceId uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	td.SetContext(uuid.Nil, workspaceId)
-	return td.ingredientSrv.Search(td.ctx, i)
+	return td.ingredientSrv.Search(td.ctx, workdspaceId, i)
 }
 
 func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, cmd UpdateIngredientCmd) (*recipe_dom.Ingredient, error) {

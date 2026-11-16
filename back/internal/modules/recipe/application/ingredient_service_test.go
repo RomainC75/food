@@ -102,7 +102,7 @@ func TestSearchIngredient(t *testing.T) {
 	searchFilter := recipe_dom.IngredientFilter{
 		Name: tomatoName,
 	}
-	found, err := td.Search(workspaceUuid, searchFilter)
+	found, err := td.Search(workspaceUuid, workspaceUuid, searchFilter)
 	assert.Nil(t, err)
 	assert.Equal(t, td.SavedIngredients()[1], found)
 }
