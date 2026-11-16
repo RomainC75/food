@@ -18,6 +18,10 @@ func NewMembership(id uuid.UUID, userId uuid.UUID, workspaceId uuid.UUID, role R
 	}
 }
 
+func (m *Membership) Id() uuid.UUID {
+	return m.id
+}
+
 func (m *Membership) WorkspaceId() uuid.UUID {
 	return m.workspaceId
 }

@@ -31,9 +31,9 @@ func TestCreateWorkspace(t *testing.T) {
 		assert.Equal(t, expectedWorkspace, ws)
 
 		assert.Len(t, td.SavedWorkspaces(), 1)
-		assert.Equal(t, expectedWorkspace, td.SavedWorkspaces()[0])
+		assert.Equal(t, expectedWorkspace, td.SavedWorkspaces()[expectedWorkspace.Id()])
 		assert.Len(t, td.SavedMemberships(), 1)
-		assert.Equal(t, expectedMembership, td.SavedMemberships()[0])
+		assert.Equal(t, expectedMembership, td.SavedMemberships()[expectedMembership.Id()])
 	})
 
 	t.Run("should not create a workspace, cause repo error", func(t *testing.T) {

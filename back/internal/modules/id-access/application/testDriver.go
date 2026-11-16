@@ -122,10 +122,10 @@ func (td *TestDriver) SavedUsers() map[uuid.UUID]*idaccess_dom.User {
 	return td.users.SavedUsers()
 }
 
-func (td *TestDriver) SavedMemberships() []*idaccess_dom.Membership {
+func (td *TestDriver) SavedMemberships() map[uuid.UUID]*idaccess_dom.Membership {
 	return td.workspaces.SavedMemberships()
 }
 
-func (td *TestDriver) SavedWorkspaces() []*idaccess_dom.Workspace {
+func (td *TestDriver) SavedWorkspaces() map[uuid.UUID]*idaccess_dom.Workspace {
 	return td.workspaces.SavedWorkspaces()
 }
