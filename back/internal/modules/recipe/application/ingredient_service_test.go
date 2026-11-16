@@ -49,7 +49,7 @@ func TestCreateIngredient(t *testing.T) {
 		assert.Equal(t, expectedSavedIngredient, savedIngredients[0])
 	})
 	t.Run("should not create a duplicate ingredient", func(t *testing.T) {
-		td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
+		td := NewTestDriver(t)
 		td.SetNextUuid(saltUuid)
 		td.CreateIngredient(workspaceUuid, ingredientSalt)
 		_, err := td.CreateIngredient(workspaceUuid, ingredientSalt)
@@ -94,7 +94,7 @@ func TestGetIngredientById(t *testing.T) {
 }
 
 func TestSearchIngredient(t *testing.T) {
-	td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
+	td := NewTestDriver(t)
 	td.SetNextUuids(saltUuid, tomatoUuid)
 	td.CreateIngredient(workspaceUuid, ingredientSalt)
 	td.CreateIngredient(workspaceUuid, ingredientTomato)

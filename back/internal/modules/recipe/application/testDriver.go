@@ -40,12 +40,6 @@ func NewTestDriver(t *testing.T) *TestDriver {
 	}
 }
 
-func (td *TestDriver) SetContext(userId uuid.UUID, workspaceId uuid.UUID) *TestDriver {
-	td.ctx = context.WithValue(td.ctx, "user_id", userId)
-	td.ctx = context.WithValue(td.ctx, "workspace_id", workspaceId)
-	return td
-}
-
 func (td *TestDriver) SetNextUuid(id uuid.UUID) {
 	td.inMemUuidGen.SetNext(id)
 }
@@ -55,7 +49,6 @@ func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
 }
 
 func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, cmd CreateIngredientCmd) (*recipe_dom.Ingredient, error) {
-	td.SetContext(uuid.Nil, workspaceid)
 	return td.ingredientSrv.Create(td.ctx, cmd)
 }
 
