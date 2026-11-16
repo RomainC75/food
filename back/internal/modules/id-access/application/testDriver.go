@@ -109,7 +109,7 @@ func (td *TestDriver) SetupExpectedTokenError(expectGenTokenError bool) *TestDri
 	return td
 }
 
-func (td *TestDriver) SetupExpetedToken(expectedToken string) *TestDriver {
+func (td *TestDriver) SetupExpectedToken(expectedToken string) *TestDriver {
 	td.jwtGen.SetupExpectedToken(expectedToken)
 	return td
 }

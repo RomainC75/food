@@ -46,23 +46,16 @@ func (u *User) Clone() *User {
 		email:    u.email,
 		password: u.password,
 	}
-	// bytes, err := json.Marshal(src)
-	// if err != nil {
-	// 	return err
-	// }
-	// return json.Unmarshal(bytes, dst)
 }
 
 // -----
 
 func (u *User) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		ID       uuid.UUID `json:"id"`
-		Email    string    `json:"email"`
-		Password string    `json:"password"`
+		ID    uuid.UUID `json:"id"`
+		Email string    `json:"email"`
 	}{
-		ID:       u.id,
-		Email:    u.email,
-		Password: u.password,
+		ID:    u.id,
+		Email: u.email,
 	})
 }

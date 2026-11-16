@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -25,9 +24,5 @@ func Set() {
 		},
 	}
 
-	err := viper.Unmarshal(&configurations)
-	if err != nil {
-		log.Fatal("unable to decode into struct")
-	}
-
+	// displayer.PrettyDisplay("config", configurations)
 }

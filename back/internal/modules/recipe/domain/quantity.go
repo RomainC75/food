@@ -22,6 +22,9 @@ func NewQuantity(v float32, u BaseUnit) (Quantity, error) {
 }
 
 func MustNewQuantity(v float32, u BaseUnit) Quantity {
+	if v < 0 {
+		panic("quantity cannot be negative")
+	}
 	return Quantity{
 		value: v,
 		unit:  u,

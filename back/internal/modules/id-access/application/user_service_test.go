@@ -186,7 +186,7 @@ func TestSignin(t *testing.T) {
 				GivenUser(user).
 				SetupExpectedTokenError(test.setup.isGenTokenExpected).
 				SetBcryptIsValid(test.setup.isBcryptPassValid).
-				SetupExpetedToken(test.expectedToken)
+				SetupExpectedToken(test.expectedToken)
 
 			tokenRes, err := td.SigninUser(test.SignupUserReq)
 
