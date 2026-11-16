@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
-	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
 	"strings"
 
@@ -26,13 +25,16 @@ type IngredientBasicInfo struct {
 }
 
 type CreateRecipeCmd struct {
+	WorkspaceId uuid.UUID
 	Name        string
 	Ingredients []IngredientBasicInfo
 }
 
 type UpdateRecipeCmd struct {
-	Id uuid.UUID
-	CreateRecipeCmd
+	WorkspaceId uuid.UUID
+	Id          uuid.UUID
+	Name        string
+	Ingredients []IngredientBasicInfo
 }
 
 type ErrIngredientNotFound struct {
@@ -89,11 +91,10 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe
 		WrongUnit:          make([]IngredientBasicInfo, 0, len(cmd.Ingredients)),
 	}
 
-	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
 	recipe := recipe_dom.NewRecipe(rSrv.uuidGen.Generate(), cmd.Name)
 
 	for _, bi := range cmd.Ingredients {
-		i, err := rSrv.ingredients.GetById(ctx, workspaceId, bi.Id)
+		i, err := rSrv.ingredients.GetById(ctx, cmd.WorkspaceId, bi.Id)
 		if errors.Is(err, recipe_dom.ErrIngredientNotFound) {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
 			continue
@@ -128,7 +129,7 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, cmd UpdateRecipeCmd) (*recipe
 	foundRecipe.DeleteAllIngredients()
 
 	for _, bi := range cmd.Ingredients {
-		foundIngredient, err := rSrv.ingredients.GetById(ctx, workspaceID, bi.Id)
+		foundIngredient, err := rSrv.ingredients.GetById(ctx, cmd.WorkspaceId, bi.Id)
 		if err != nil {
 			errINF.IngredientNotFound = append(errINF.IngredientNotFound, bi)
 			continue

@@ -110,7 +110,8 @@ func TestSearchIngredient(t *testing.T) {
 func TestUpdateIngredient(t *testing.T) {
 	td := NewTestDriver(t).GivenIngredients(recipe_dom.NewIngredient(saltUuid, saltName, saltBaseUnit, workspaceUuid))
 	falseIdingredientCmd := UpdateIngredientCmd{
-		Id: saltUuid,
+		WorkspaceId: workspaceID,
+		Id:          saltUuid,
 		CreateIngredientCmd: CreateIngredientCmd{
 			Name:     tomatoName,
 			BaseUnit: tomatoBaseUnit,

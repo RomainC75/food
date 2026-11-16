@@ -40,7 +40,8 @@ func allIngredients() []*recipe_dom.Ingredient {
 
 func createSaltPastaReq() CreateRecipeCmd {
 	return CreateRecipeCmd{
-		Name: recipeName,
+		WorkspaceId: workspaceID,
+		Name:        recipeName,
 		Ingredients: []IngredientBasicInfo{
 			{saltID, 5, recipe_dom.Gram},
 			{pastaID, 500, recipe_dom.Gram},
@@ -49,13 +50,12 @@ func createSaltPastaReq() CreateRecipeCmd {
 }
 
 // updateReq builds an update of recipeID with the new name and the given lines.
-func updateReq(lines ...IngredientBasicInfo) UpdateRecipeCmd {
+func updateReq(workspaceId uuid.UUID, lines ...IngredientBasicInfo) UpdateRecipeCmd {
 	return UpdateRecipeCmd{
-		Id: recipeID,
-		CreateRecipeCmd: CreateRecipeCmd{
-			Name:        recipeNewName,
-			Ingredients: lines,
-		},
+		WorkspaceId: workspaceId,
+		Id:          recipeID,
+		Name:        recipeNewName,
+		Ingredients: lines,
 	}
 }
 

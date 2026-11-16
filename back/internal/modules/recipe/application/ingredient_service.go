@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	recipe_dom "food/internal/modules/recipe/domain"
-	platform_http "food/internal/platform/http"
 	shared_domain "food/internal/shared/domain"
 
 	"github.com/google/uuid"
@@ -16,9 +15,9 @@ var (
 )
 
 type CreateIngredientCmd struct {
+	WorkspaceId uuid.UUID
 	Name        string
 	BaseUnit    recipe_dom.BaseUnit
-	WorkspaceId uuid.UUID
 }
 
 type GetIngredientByIdCmd struct {
@@ -26,14 +25,17 @@ type GetIngredientByIdCmd struct {
 	IngredientId uuid.UUID
 }
 type UpdateIngredientCmd struct {
-	Id uuid.UUID
+	WorkspaceId uuid.UUID
+	Id          uuid.UUID
 	CreateIngredientCmd
 }
 
 type DeleteIngredientCmd struct {
-	Id          uuid.UUID
 	WorkspaceId uuid.UUID
+	Id          uuid.UUID
 }
+
+// ======================
 
 type IngredientSrv struct {
 	uuidGen     shared_domain.Uuids
@@ -73,9 +75,7 @@ func (is *IngredientSrv) GetById(ctx context.Context, cmd GetIngredientByIdCmd) 
 }
 
 func (is *IngredientSrv) Update(ctx context.Context, cmd UpdateIngredientCmd) (*recipe_dom.Ingredient, error) {
-	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
-
-	found, err := is.ingredients.GetById(ctx, workspaceId, cmd.Id)
+	found, err := is.ingredients.GetById(ctx, cmd.WorkspaceId, cmd.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +85,7 @@ func (is *IngredientSrv) Update(ctx context.Context, cmd UpdateIngredientCmd) (*
 	if cmd.BaseUnit != "" {
 		found.SetBaseUnit(cmd.BaseUnit)
 	}
-	err = is.ingredients.Update(ctx, workspaceId, found)
+	err = is.ingredients.Update(ctx, cmd.WorkspaceId, found)
 	return found, err
 }
 

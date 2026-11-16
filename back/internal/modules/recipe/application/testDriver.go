@@ -84,12 +84,10 @@ func (td *TestDriver) GetIngredientById(workspaceId uuid.UUID, cmd GetIngredient
 }
 
 func (td *TestDriver) Search(workspaceId uuid.UUID, workdspaceId uuid.UUID, i recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
-	td.SetContext(uuid.Nil, workspaceId)
 	return td.ingredientSrv.Search(td.ctx, workdspaceId, i)
 }
 
 func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, cmd UpdateIngredientCmd) (*recipe_dom.Ingredient, error) {
-	td.SetContext(uuid.Nil, workspaceId)
 	return td.ingredientSrv.Update(td.ctx, cmd)
 }
 
@@ -103,13 +101,11 @@ func (td *TestDriver) GivenRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, c
 }
 
 func (td *TestDriver) CreateRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
-	td.SetContext(uuid.Nil, workspaceId)
 	td.inMemUuidGen.SetNext(expectedId)
 	return td.recipeSrv.Create(td.ctx, cmd)
 }
 
 func (td *TestDriver) UpdateRecipe(workspaceId uuid.UUID, cmd UpdateRecipeCmd) (*recipe_dom.Recipe, error) {
-	td.SetContext(uuid.Nil, workspaceId)
 	return td.recipeSrv.Update(td.ctx, cmd)
 }
 
