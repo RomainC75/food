@@ -46,6 +46,10 @@ func (ing *Ingredient) SetBaseUnit(new BaseUnit) {
 	ing.baseUnit = new
 }
 
+func (ing *Ingredient) IsSameWorkspace(workspaceId uuid.UUID) bool {
+	return ing.workspaceId == workspaceId
+}
+
 func (ing *Ingredient) IsQtyValid(q Quantity) bool {
 	if ing.baseUnit == Piece {
 		if q.unit != Piece {

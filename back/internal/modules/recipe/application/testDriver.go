@@ -116,7 +116,7 @@ func (td *TestDriver) GivenIngredientRepoErrors(expectedGetError bool, expectedU
 
 // Verifiyer
 
-func (td *TestDriver) SavedIngredients() []*recipe_dom.Ingredient {
+func (td *TestDriver) SavedIngredients() map[uuid.UUID]*recipe_dom.Ingredient {
 	return td.inMemIngredients.GetSaved()
 }
 
