@@ -18,13 +18,15 @@ var (
 	tomatoBaseUnit = recipe_dom.Piece
 
 	ingredientSalt = CreateIngredientCmd{
-		Name:     saltName,
-		BaseUnit: saltBaseUnit,
+		Name:        saltName,
+		BaseUnit:    saltBaseUnit,
+		WorkspaceId: workspaceUuid,
 	}
 
 	ingredientTomato = CreateIngredientCmd{
-		Name:     tomatoName,
-		BaseUnit: tomatoBaseUnit,
+		Name:        tomatoName,
+		BaseUnit:    tomatoBaseUnit,
+		WorkspaceId: workspaceID,
 	}
 
 	userUuid      = uuid.MustParse("89a9525a-0e49-4e1b-9990-a5042ca19c00")
@@ -35,7 +37,7 @@ var (
 
 func TestCreateIngredient(t *testing.T) {
 	t.Run("should create a ingredient", func(t *testing.T) {
-		td := NewTestDriver(t).SetContext(userUuid, workspaceUuid)
+		td := NewTestDriver(t)
 		td.SetNextUuid(saltUuid)
 		createdIngredient, err := td.CreateIngredient(workspaceUuid, ingredientSalt)
 

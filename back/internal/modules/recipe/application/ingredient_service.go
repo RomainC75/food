@@ -16,8 +16,9 @@ var (
 )
 
 type CreateIngredientCmd struct {
-	Name     string
-	BaseUnit recipe_dom.BaseUnit
+	Name        string
+	BaseUnit    recipe_dom.BaseUnit
+	WorkspaceId uuid.UUID
 }
 
 type GetIngredientByIdCmd struct {
@@ -42,8 +43,7 @@ func NewIngredientSrv(uuidGen shared_domain.Uuids, ingredients recipe_dom.Ingred
 }
 
 func (is *IngredientSrv) Create(ctx context.Context, cmd CreateIngredientCmd) (*recipe_dom.Ingredient, error) {
-	workspaceId, _ := platform_http.GetWorkspaceIdFromContext(ctx)
-	exists, err := is.ingredients.ExistsByName(ctx, workspaceId, cmd.Name)
+	exists, err := is.ingredients.ExistsByName(ctx, cmd.WorkspaceId, cmd.Name)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func (is *IngredientSrv) Create(ctx context.Context, cmd CreateIngredientCmd) (*
 	}
 
 	uuid := is.uuidGen.Generate()
-	ingredient := recipe_dom.NewIngredient(uuid, cmd.Name, cmd.BaseUnit, workspaceId)
+	ingredient := recipe_dom.NewIngredient(uuid, cmd.Name, cmd.BaseUnit, cmd.WorkspaceId)
 	err = is.ingredients.Save(ctx, ingredient)
 	return ingredient, err
 }
