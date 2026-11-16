@@ -4,12 +4,14 @@ import (
 	"context"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	"log"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
 type InMemoryUsers struct {
-	savedUsers                []*idaccess_dom.User
+	m                         sync.RWMutex
+	savedUsers                map[uuid.UUID]*idaccess_dom.User
 	isSavingUserErrorExpected bool
 	expectedUser              *idaccess_dom.User
 	deletedUser               *idaccess_dom.User
@@ -17,7 +19,8 @@ type InMemoryUsers struct {
 
 func NewInMemoryUsers() *InMemoryUsers {
 	return &InMemoryUsers{
-		savedUsers: make([]*idaccess_dom.User, 0, 10),
+		m:          sync.RWMutex{},
+		savedUsers: make(map[uuid.UUID]*idaccess_dom.User, 10),
 	}
 }
 
@@ -25,31 +28,37 @@ func (imu *InMemoryUsers) Create(ctx context.Context, newUser *idaccess_dom.User
 	if imu.isSavingUserErrorExpected {
 		return idaccess_dom.ErrCouldNotSaveUser
 	}
-	imu.savedUsers = append(imu.savedUsers, newUser.Clone())
+	imu.m.Lock()
+	imu.savedUsers[newUser.Id()] = newUser.Clone()
+	imu.m.Unlock()
+
 	imu.DisplayAll()
 	return nil
 }
 
 func (imu *InMemoryUsers) FindById(ctx context.Context, id uuid.UUID) (*idaccess_dom.User, error) {
-	for _, u := range imu.savedUsers {
-		if u.Id() == id {
-			return u.Clone(), nil
-		}
+	imu.m.RLock()
+	found, ok := imu.savedUsers[id]
+	imu.m.RUnlock()
+	if !ok {
+		return nil, idaccess_dom.ErrUserNotFound
 	}
-	return nil, idaccess_dom.ErrUserNotFound
+	return found.Clone(), nil
 }
 
 func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idaccess_dom.User, error) {
+	imu.m.RLock()
 	for _, u := range imu.savedUsers {
 		if u.Email() == email {
 			return u.Clone(), nil
 		}
 	}
+	imu.m.RUnlock()
 	return nil, idaccess_dom.ErrUserNotFound
 }
 
 func (imu *InMemoryUsers) Init(user *idaccess_dom.User) {
-	imu.savedUsers = append(imu.savedUsers, user)
+	imu.savedUsers[user.Id()] = user.Clone()
 }
 
 // ========= TESTS =========
@@ -58,7 +67,7 @@ func (imu *InMemoryUsers) SetupIsSavingUserError(isSavingUserErrorExpected bool)
 	imu.isSavingUserErrorExpected = isSavingUserErrorExpected
 }
 
-func (imu *InMemoryUsers) SavedUsers() []*idaccess_dom.User {
+func (imu *InMemoryUsers) SavedUsers() map[uuid.UUID]*idaccess_dom.User {
 	return imu.savedUsers
 }
 

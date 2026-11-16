@@ -118,7 +118,7 @@ func (td *TestDriver) SetupExpectedWorkspaceError(isErrorExpected bool) {
 	td.workspaces.SetIsErrorExpected(isErrorExpected)
 }
 
-func (td *TestDriver) SavedUsers() []*idaccess_dom.User {
+func (td *TestDriver) SavedUsers() map[uuid.UUID]*idaccess_dom.User {
 	return td.users.SavedUsers()
 }
 

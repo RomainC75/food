@@ -103,7 +103,7 @@ func TestSignupUser(t *testing.T) {
 			assert.Equal(t, expectedUser, createdUser)
 
 			assert.Len(t, td.SavedUsers(), 1)
-			assert.Equal(t, td.SavedUsers()[0], createdUser)
+			assert.Equal(t, td.SavedUsers()[test.setup.uuidExpected], createdUser)
 		})
 
 	}
