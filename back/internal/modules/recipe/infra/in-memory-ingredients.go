@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
 type InMemoryIngredients struct {
+	m                   *sync.Mutex
 	savedIngredients    []*recipe_dom.Ingredient
 	expectedIngredient  *recipe_dom.Ingredient
 	expectedGetError    bool
@@ -18,12 +20,15 @@ type InMemoryIngredients struct {
 
 func NewInMemoryIngredients() *InMemoryIngredients {
 	return &InMemoryIngredients{
+		m:                &sync.Mutex{},
 		savedIngredients: make([]*recipe_dom.Ingredient, 0, 10),
 	}
 }
 
 func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
+	imi.m.Lock()
 	imi.savedIngredients = append(imi.savedIngredients, ingredient.Clone())
+	imi.m.Unlock()
 	return nil
 }
 
@@ -70,7 +75,9 @@ func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUI
 	}
 	for i, ing := range imi.savedIngredients {
 		if ing.Id() == ingredient.Id() {
+			imi.m.Lock()
 			imi.savedIngredients[i] = ingredient
+			imi.m.Unlock()
 			return nil
 		}
 	}
@@ -81,6 +88,7 @@ func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid
 
 	for i, ing := range imi.savedIngredients {
 		if workspaceId == ing.WorkspaceId() && id == ing.Id() {
+			imi.m.Lock()
 			imi.savedIngredients = append(imi.savedIngredients[0:i], imi.savedIngredients[i+1:]...)
 			imi.deletedIngredient = ing
 			return nil
