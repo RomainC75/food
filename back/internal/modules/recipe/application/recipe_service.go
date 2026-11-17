@@ -110,14 +110,13 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe
 		}
 		err = recipe.AddIngredient(i, qty)
 		if err != nil {
-			errINF.AddingIngredients = append(errINF.WrongUnit, bi)
+			errINF.OtherError = append(errINF.WrongUnit, bi)
 		}
 	}
 
 	if len(errINF.IngredientNotFound) != 0 || len(errINF.WrongUnit) != 0 {
 		return nil, &errINF
 	}
-
 	err := rSrv.recipes.Create(ctx, recipe)
 	return recipe, err
 }

@@ -1,6 +1,9 @@
 package recipe_dom
 
-import "errors"
+import (
+	"encoding/json"
+	"errors"
+)
 
 var (
 	ErrNegativeValue = "negative quatity value"
@@ -29,4 +32,14 @@ func MustNewQuantity(v float32, u BaseUnit) Quantity {
 		value: v,
 		unit:  u,
 	}
+}
+
+func (q *Quantity) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Value float32
+		Unit  BaseUnit
+	}{
+		Value: q.value,
+		Unit:  q.unit,
+	})
 }

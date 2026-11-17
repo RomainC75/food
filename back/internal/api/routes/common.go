@@ -20,11 +20,10 @@ func ConnectRoutes() *chi.Mux {
 	timeDate := shared_infra.NewDateTime()
 	uuidGen := shared_infra.NewUuidGenerator()
 
-	ingredientSrv := recipe_app.NewIngredientSrv(
-		uuidGen,
-		recipe_infra.NewInMemoryIngredients().SetIngredientsInMem(),
-	)
+	inMemIngredients := recipe_infra.NewInMemoryIngredients().SetIngredientsInMem()
+	inMemRepises := recipe_infra.NewInMemRecipes()
 
+	// ======= IdAccess services ======
 	userSrv := idaccess_app.NewUserSrv(
 		uuidGen,
 		idaccess_infra.NewBcrypt(),
@@ -39,9 +38,24 @@ func ConnectRoutes() *chi.Mux {
 		timeDate,
 	)
 
+	// ======= Recipe services ======
+	ingredientSrv := recipe_app.NewIngredientSrv(
+		uuidGen,
+		inMemIngredients,
+	)
+
+	recipeSrv := recipe_app.NewRecipeSrv(
+		uuidGen,
+		inMemIngredients,
+		inMemRepises,
+	)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
-	ConnectIngredientRoutes(r, ingredientSrv, userSrv, workspaceSrv)
+
 	ConnectIdAccessRoutes(r, userSrv, workspaceSrv)
+	ConnectIngredientRoutes(r, ingredientSrv, userSrv, workspaceSrv)
+	ConnectRecipeRoutes(r, recipeSrv, userSrv, workspaceSrv)
+
 	return r
 }

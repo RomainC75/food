@@ -3,7 +3,7 @@ package ctrl
 import (
 	"encoding/json"
 	"fmt"
-	dto_recipe_req "food/internal/api/dtos/recipe/req"
+	dto_recipe_req "food/internal/api/http/dtos/recipe/req"
 	api_validator "food/internal/api/validator"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"

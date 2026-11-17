@@ -3,6 +3,7 @@ package recipe_dom
 import (
 	"encoding/json"
 	"errors"
+	"food/utils/displayer"
 	"slices"
 
 	"github.com/google/uuid"
@@ -55,6 +56,7 @@ func (r *Recipe) AddIngredient(i *Ingredient, q Quantity) error {
 		Quantity:     q,
 	}
 	r.ingredients = append(r.ingredients, newRI)
+	displayer.PrettyDisplay("-after adding : ", r)
 	return nil
 }
 
@@ -85,9 +87,7 @@ func (r *Recipe) Clone() *Recipe {
 	if r == nil {
 		return nil
 	}
-
 	ingredients := slices.Clone(r.ingredients)
-
 	return &Recipe{
 		id:          r.id,
 		name:        r.name,

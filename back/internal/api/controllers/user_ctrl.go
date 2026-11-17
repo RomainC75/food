@@ -3,8 +3,8 @@ package ctrl
 import (
 	"encoding/json"
 	"errors"
-	dto_idaccess_req "food/internal/api/dtos/id-access/req"
-	dto_idaccess_res "food/internal/api/dtos/id-access/res"
+	dto_idaccess_req "food/internal/api/http/dtos/id-access/req"
+	dto_idaccess_res "food/internal/api/http/dtos/id-access/res"
 	api_validator "food/internal/api/validator"
 	idaccess_app "food/internal/modules/id-access/application"
 	idaccess_dom "food/internal/modules/id-access/domain"
