@@ -8,6 +8,6 @@ import (
 func PopulateUsers(userSrv *idaccess_app.UserSrv) {
 	userSrv.SigninUser(context.Background(), idaccess_app.SigninCmd{
 		Email:    "fake@email.com",
-		Password: "azert",
+		Password: "azertyazerty",
 	})
 }

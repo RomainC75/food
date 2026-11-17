@@ -8,7 +8,7 @@ import (
 
 type CreateIngredientDto struct {
 	Name     string              `json:"name" validate:"required"`
-	BaseUnit recipe_dom.BaseUnit `json:"base_unit" validate:"required,oneof=piece l mk kg g"`
+	BaseUnit recipe_dom.BaseUnit `json:"base_unit" validate:"required,oneof=piece l ml kg g"`
 }
 
 type UpdateIngredientDto struct {
