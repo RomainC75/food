@@ -27,8 +27,8 @@ func NewInMemoryIngredients() *InMemoryIngredients {
 
 func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
 	imi.m.Lock()
+	defer imi.m.Unlock()
 	imi.savedIngredients[ingredient.Id()] = ingredient.Clone()
-	imi.m.Unlock()
 	return nil
 }
 
@@ -80,45 +80,39 @@ func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUI
 		return fmt.Errorf("update ingredient %s : %w", ingredient.Id().String(), recipe_dom.ErrIngredientCouldNotBeUpdated)
 	}
 
+	imi.m.Lock()
+	defer imi.m.Unlock()
 	_, ok := imi.getIngredientInWorkspace(workspaceId, ingredient.Id())
 	if !ok {
 		return fmt.Errorf("update ingredient %s : %w", ingredient.Id().String(), recipe_dom.ErrIngredientNotFound)
 	}
 
-	imi.m.Lock()
 	imi.savedIngredients[ingredient.Id()] = ingredient.Clone()
-	imi.m.Unlock()
 
 	return nil
 }
 
 func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) error {
+	imi.m.Lock()
+	defer imi.m.Unlock()
 	found, ok := imi.getIngredientInWorkspace(workspaceId, id)
 	if !ok {
 		return fmt.Errorf("update ingredient %s : %w", id.String(), recipe_dom.ErrIngredientNotFound)
 	}
 
-	imi.m.Lock()
 	imi.deletedIngredient = found
 	delete(imi.savedIngredients, id)
-	imi.m.Unlock()
 
 	return nil
 }
 
 func (imi *InMemoryIngredients) getIngredientInWorkspace(workspaceId uuid.UUID, id uuid.UUID) (*recipe_dom.Ingredient, bool) {
-	fmt.Println("-----", workspaceId, id)
-	imi.m.RLock()
 	found, ok := imi.savedIngredients[id]
-	fmt.Println("--- FOUND : ", found)
-	imi.m.RUnlock()
 	if !ok {
 		return nil, false
 	}
 
-	imi.m.RLock()
 	isSameWorkspace := found.IsSameWorkspace(workspaceId)
-	imi.m.RUnlock()
 	if !isSameWorkspace {
 		return nil, false
 	}

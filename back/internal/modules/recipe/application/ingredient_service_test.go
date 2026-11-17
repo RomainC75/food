@@ -1,7 +1,6 @@
 package recipe_app
 
 import (
-	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
 	"testing"
 
@@ -104,7 +103,6 @@ func TestSearchIngredient(t *testing.T) {
 		Name: tomatoName,
 	}
 	found, err := td.Search(workspaceUuid, workspaceUuid, searchFilter)
-	fmt.Println("-----RETURNED : ", found)
 	assert.Nil(t, err)
 	assert.Equal(t, td.SavedIngredients()[tomatoUuid], found)
 }

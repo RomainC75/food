@@ -62,14 +62,14 @@ func updateReq(workspaceId uuid.UUID, lines ...IngredientBasicInfo) UpdateRecipe
 // -- expected domain models (explicit, no mutation of other fixtures) --
 
 func expectedSaltPasta() *recipe_dom.Recipe {
-	r := recipe_dom.NewRecipe(recipeID, recipeName)
+	r := recipe_dom.NewRecipe(workspaceID, recipeID, recipeName)
 	r.AddIngredient(saltIngredient(), recipe_dom.MustNewQuantity(5, recipe_dom.Gram))
 	r.AddIngredient(pastaIngredient(), recipe_dom.MustNewQuantity(500, recipe_dom.Gram))
 	return r
 }
 
 func expectedTomatoPasta() *recipe_dom.Recipe {
-	r := recipe_dom.NewRecipe(recipeID, recipeNewName)
+	r := recipe_dom.NewRecipe(workspaceID, recipeID, recipeNewName)
 	r.AddIngredient(pastaIngredient(), recipe_dom.MustNewQuantity(500, recipe_dom.Gram))
 	r.AddIngredient(tomatoSauceIngredient(), recipe_dom.MustNewQuantity(100, recipe_dom.Gram))
 	return r

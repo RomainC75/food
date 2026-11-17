@@ -5,6 +5,7 @@ import (
 	recipe_dom "food/internal/modules/recipe/domain"
 	recipe_infra "food/internal/modules/recipe/infra"
 	shared_infra "food/internal/shared/infra"
+	"food/utils/displayer"
 	"testing"
 
 	"github.com/google/uuid"
@@ -40,12 +41,14 @@ func NewTestDriver(t *testing.T) *TestDriver {
 	}
 }
 
-func (td *TestDriver) SetNextUuid(id uuid.UUID) {
+func (td *TestDriver) SetNextUuid(id uuid.UUID) *TestDriver {
 	td.inMemUuidGen.SetNext(id)
+	return td
 }
 
-func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) {
+func (td *TestDriver) SetNextUuids(ids ...uuid.UUID) *TestDriver {
 	td.inMemUuidGen.SetMultipleUuids(ids)
+	return td
 }
 
 func (td *TestDriver) CreateIngredient(workspaceid uuid.UUID, cmd CreateIngredientCmd) (*recipe_dom.Ingredient, error) {
@@ -85,25 +88,25 @@ func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, cmd UpdateIngredie
 }
 
 // -- RECEIPE --
-func (td *TestDriver) GivenRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, cmd CreateRecipeCmd) *recipe_dom.Recipe {
+func (td *TestDriver) GivenRecipe(expectedId uuid.UUID, cmd CreateRecipeCmd) *recipe_dom.Recipe {
 	td.t.Helper()
 	td.SetNextUuid(expectedId)
-	r, err := td.CreateRecipe(workspaceId, expectedId, cmd)
+	r, err := td.CreateRecipe(expectedId, cmd)
 	require.NoError(td.t, err)
 	return r
 }
 
-func (td *TestDriver) CreateRecipe(workspaceId uuid.UUID, expectedId uuid.UUID, cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
-	td.inMemUuidGen.SetNext(expectedId)
+func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
+	displayer.PrettyDisplay(" CREATE RECIPE CMD: ", cmd)
 	return td.recipeSrv.Create(td.ctx, cmd)
 }
 
-func (td *TestDriver) UpdateRecipe(workspaceId uuid.UUID, cmd UpdateRecipeCmd) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) UpdateRecipe(cmd UpdateRecipeCmd) (*recipe_dom.Recipe, error) {
 	return td.recipeSrv.Update(td.ctx, cmd)
 }
 
-func (td *TestDriver) DeleteRecipe(id uuid.UUID) error {
-	return td.recipeSrv.Delete(td.ctx, id)
+func (td *TestDriver) DeleteRecipe(workspaceId uuid.UUID, id uuid.UUID) error {
+	return td.recipeSrv.Delete(td.ctx, workspaceId, id)
 }
 
 func (td *TestDriver) GivenRepoErrors(ets recipe_infra.RecipeRepoErrorsToSet) {

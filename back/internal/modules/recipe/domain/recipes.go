@@ -13,8 +13,8 @@ var (
 )
 
 type Recipes interface {
-	GetById(ctx context.Context, id uuid.UUID) (*Recipe, error)
+	GetById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) (*Recipe, error)
 	Create(ctx context.Context, r *Recipe) error
 	Update(ctx context.Context, r *Recipe) error
-	Delete(ctx context.Context, id uuid.UUID) error
+	Delete(ctx context.Context, workdspaceId uuid.UUID, id uuid.UUID) error
 }

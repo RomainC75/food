@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	recipe_dom "food/internal/modules/recipe/domain"
+	"sync"
 
 	"github.com/google/uuid"
 )
@@ -15,28 +16,37 @@ type RecipeRepoErrorsToSet struct {
 }
 
 type InMemRecipes struct {
-	savedRecipes   []*recipe_dom.Recipe
+	m              sync.RWMutex
+	savedRecipes   map[uuid.UUID]*recipe_dom.Recipe
 	expectedErrors RecipeRepoErrorsToSet
 }
 
 func NewInMemRecipes() *InMemRecipes {
 	return &InMemRecipes{
-		savedRecipes: make([]*recipe_dom.Recipe, 0, 10),
+		m:            sync.RWMutex{},
+		savedRecipes: make(map[uuid.UUID]*recipe_dom.Recipe, 10),
 	}
 }
 
 func (imr *InMemRecipes) Create(ctx context.Context, r *recipe_dom.Recipe) error {
-	imr.savedRecipes = append(imr.savedRecipes, r)
+	imr.m.Lock()
+	defer imr.m.Unlock()
+
+	imr.savedRecipes[r.Id()] = r.Clone()
 	return nil
 }
 
-func (imr *InMemRecipes) GetById(ctx context.Context, id uuid.UUID) (*recipe_dom.Recipe, error) {
-	for _, r := range imr.savedRecipes {
-		if r.Id() == id {
-			return r.Clone(), nil
-		}
+func (imr *InMemRecipes) GetById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) (*recipe_dom.Recipe, error) {
+	imr.m.Lock()
+	defer imr.m.Unlock()
+
+	foundRecipe, ok := imr.getIngredientInWorkspace(workspaceId, id)
+
+	if !ok {
+		return nil, fmt.Errorf("get recipe by id %s : %w", id.String(), recipe_dom.ErrRecipeNotFound)
 	}
-	return nil, fmt.Errorf("get recipe by id %s : %w", id.String(), recipe_dom.ErrRecipeNotFound)
+
+	return foundRecipe.Clone(), nil
 }
 
 func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error {
@@ -44,33 +54,55 @@ func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error
 		return fmt.Errorf("update ingredient %s : %w", r.Id().String(), recipe_dom.ErrCouldNotUpdateRecipe)
 	}
 
-	for i, sr := range imr.savedRecipes {
-		if sr.Id() == r.Id() {
-			imr.savedRecipes[i] = r.Clone()
-			return nil
-		}
+	imr.m.Lock()
+	defer imr.m.Unlock()
+	_, ok := imr.getIngredientInWorkspace(r.WorkspaceId(), r.Id())
+	if !ok {
+		return fmt.Errorf("update ingredient %s : %w", r.Id().String(), recipe_dom.ErrRecipeNotFound)
 	}
-	return fmt.Errorf("update ingredient %s : %w", r.Id().String(), recipe_dom.ErrRecipeNotFound)
+
+	imr.savedRecipes[r.Id()] = r.Clone()
+
+	return nil
 	// !! for the real one
 	// 	Updates the recipe.
 	// Deletes its existing ingredient relationships.
 	// Inserts the current ingredient collection.
 }
 
-func (imr *InMemRecipes) Delete(ctx context.Context, id uuid.UUID) error {
-	for i, r := range imr.savedRecipes {
-		if r.Id() == id {
-			imr.savedRecipes = append(imr.savedRecipes[:i], imr.savedRecipes[i+1:]...)
-			return nil
-		}
+func (imr *InMemRecipes) Delete(ctx context.Context, workdspaceId uuid.UUID, id uuid.UUID) error {
+	imr.m.Lock()
+	defer imr.m.Unlock()
+	_, ok := imr.getIngredientInWorkspace(workdspaceId, id)
+	if !ok {
+		return fmt.Errorf("update ingredient %s : %w", id.String(), recipe_dom.ErrRecipeNotFound)
 	}
-	return fmt.Errorf("delete recipe %s : %w", id.String(), recipe_dom.ErrRecipeNotFound)
+	delete(imr.savedRecipes, id)
+
+	return nil
+}
+
+func (imr *InMemRecipes) getIngredientInWorkspace(workspaceId uuid.UUID, id uuid.UUID) (*recipe_dom.Recipe, bool) {
+	found, ok := imr.savedRecipes[id]
+	if !ok {
+		return nil, false
+	}
+
+	isSameWorkspace := found.IsSameWorkspace(workspaceId)
+	if !isSameWorkspace {
+		return nil, false
+	}
+	return found, true
 }
 
 // == TEST ==
 
 func (imr *InMemRecipes) GetSavedRecipes() []*recipe_dom.Recipe {
-	return imr.savedRecipes
+	r := make([]*recipe_dom.Recipe, 0, len(imr.savedRecipes))
+	for _, v := range imr.savedRecipes {
+		r = append(r, v)
+	}
+	return r
 }
 
 func (imr *InMemRecipes) SetExpectedErrors(ee RecipeRepoErrorsToSet) {

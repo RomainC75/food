@@ -91,7 +91,7 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe
 		WrongUnit:          make([]IngredientBasicInfo, 0, len(cmd.Ingredients)),
 	}
 
-	recipe := recipe_dom.NewRecipe(rSrv.uuidGen.Generate(), cmd.Name)
+	recipe := recipe_dom.NewRecipe(cmd.WorkspaceId, rSrv.uuidGen.Generate(), cmd.Name)
 
 	for _, bi := range cmd.Ingredients {
 		i, err := rSrv.ingredients.GetById(ctx, cmd.WorkspaceId, bi.Id)
@@ -121,7 +121,8 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, cmd UpdateRecipeCmd) (*recipe
 		WrongUnit:          make([]IngredientBasicInfo, 0, len(cmd.Ingredients)),
 	}
 	// get
-	foundRecipe, err := rSrv.recipes.GetById(ctx, cmd.Id)
+	foundRecipe, err := rSrv.recipes.GetById(ctx, cmd.WorkspaceId, cmd.Id)
+
 	if err != nil {
 		return nil, err
 	}
@@ -151,6 +152,6 @@ func (rSrv *RecipeSrv) Update(ctx context.Context, cmd UpdateRecipeCmd) (*recipe
 	return foundRecipe, err
 }
 
-func (rSrv *RecipeSrv) Delete(ctx context.Context, id uuid.UUID) error {
-	return rSrv.recipes.Delete(ctx, id)
+func (rSrv *RecipeSrv) Delete(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) error {
+	return rSrv.recipes.Delete(ctx, workspaceId, id)
 }

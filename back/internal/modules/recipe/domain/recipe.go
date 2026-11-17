@@ -21,18 +21,24 @@ type Recipe struct {
 	id          uuid.UUID
 	name        string
 	ingredients []RecipeIngredient
+	workspaceId uuid.UUID
 }
 
-func NewRecipe(id uuid.UUID, name string) *Recipe {
+func NewRecipe(workspaceId uuid.UUID, id uuid.UUID, name string) *Recipe {
 	return &Recipe{
 		id:          id,
 		name:        name,
 		ingredients: make([]RecipeIngredient, 0, 10),
+		workspaceId: workspaceId,
 	}
 }
 
 func (r *Recipe) Id() uuid.UUID {
 	return r.id
+}
+
+func (r *Recipe) WorkspaceId() uuid.UUID {
+	return r.workspaceId
 }
 
 func (r *Recipe) SetName(name string) {
@@ -69,6 +75,10 @@ func (r *Recipe) DeleteAllIngredients() {
 	r.ingredients = make([]RecipeIngredient, 0, 10)
 }
 
+func (r *Recipe) IsSameWorkspace(workspaceId uuid.UUID) bool {
+	return r.workspaceId == workspaceId
+}
+
 // -- EXPORT --
 
 func (r *Recipe) Clone() *Recipe {
@@ -82,6 +92,7 @@ func (r *Recipe) Clone() *Recipe {
 		id:          r.id,
 		name:        r.name,
 		ingredients: ingredients,
+		workspaceId: r.workspaceId,
 	}
 }
 
@@ -90,9 +101,11 @@ func (r *Recipe) MarshalJSON() ([]byte, error) {
 		ID          uuid.UUID          `json:"id"`
 		Name        string             `json:"name"`
 		Ingredients []RecipeIngredient `json:"ingredients"`
+		WorkspaceId uuid.UUID          `json:"workspace_id"`
 	}{
 		ID:          r.id,
 		Name:        r.name,
 		Ingredients: r.ingredients,
+		WorkspaceId: r.workspaceId,
 	})
 }

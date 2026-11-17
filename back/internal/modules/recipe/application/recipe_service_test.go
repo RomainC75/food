@@ -13,30 +13,33 @@ import (
 // ---------- Create ----------
 
 func TestCreateRecipe(t *testing.T) {
-	td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
+	td := NewTestDriver(t).SetNextUuids(recipeID).GivenIngredients(saltIngredient(), pastaIngredient())
 
-	created, err := td.CreateRecipe(workspaceID, recipeID, createSaltPastaReq())
+	created, err := td.CreateRecipe(recipeID, createSaltPastaReq())
 
 	require.NoError(t, err)
 	assert.Equal(t, expectedSaltPasta(), created)
-	assert.Equal(t, []*recipe_dom.Recipe{expectedSaltPasta()}, td.SavedRecipes())
+	assert.Len(t, td.SavedRecipes(), 1)
+	assert.Equal(t, expectedSaltPasta(), td.SavedRecipes()[0])
 }
 
 // ---------- Update ----------
 
 func TestUpdateRecipe_Success(t *testing.T) {
-	td := NewTestDriver(t).GivenIngredients(allIngredients()...)
-	td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
+	t.Run("should update", func(t *testing.T) {
+		td := NewTestDriver(t).GivenIngredients(allIngredients()...)
+		td.GivenRecipe(recipeID, createSaltPastaReq())
 
-	updated, err := td.UpdateRecipe(workspaceID, updateReq(
-		workspaceID,
-		IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
-		IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
-	))
+		updated, err := td.UpdateRecipe(updateReq(
+			workspaceID,
+			IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
+			IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
+		))
 
-	require.NoError(t, err)
-	assert.Equal(t, expectedTomatoPasta(), updated)
-	assert.Equal(t, []*recipe_dom.Recipe{expectedTomatoPasta()}, td.SavedRecipes())
+		require.NoError(t, err)
+		assert.Equal(t, expectedTomatoPasta(), updated)
+		assert.Equal(t, []*recipe_dom.Recipe{expectedTomatoPasta()}, td.SavedRecipes())
+	})
 }
 
 func TestUpdateRecipe_Errors(t *testing.T) {
@@ -105,11 +108,11 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			td := NewTestDriver(t).GivenIngredients(tc.ingredients...)
 			if tc.recipeExists {
-				td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
+				td.GivenRecipe(recipeID, createSaltPastaReq())
 			}
 			td.GivenRepoErrors(tc.repoErrors)
 
-			_, err := td.UpdateRecipe(workspaceID, tc.cmd)
+			_, err := td.UpdateRecipe(tc.cmd)
 
 			assertErrContainsAll(t, err, tc.wantErr...)
 		})
@@ -121,10 +124,10 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 func TestDeleteRecipe(t *testing.T) {
 	t.Run("should return an error if the recipe is not found", func(t *testing.T) {
 		td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
-		td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
+		td.GivenRecipe(recipeID, createSaltPastaReq())
 
 		recipeToDelete := uuid.New()
-		err := td.DeleteRecipe(recipeToDelete)
+		err := td.DeleteRecipe(workspaceID, recipeToDelete)
 
 		assert.Contains(t, err.Error(), recipe_dom.ErrRecipeNotFound.Error())
 		assert.Contains(t, err.Error(), recipeToDelete.String())
@@ -133,9 +136,9 @@ func TestDeleteRecipe(t *testing.T) {
 
 	t.Run("existing recipe is deleted", func(t *testing.T) {
 		td := NewTestDriver(t).GivenIngredients(saltIngredient(), pastaIngredient())
-		td.GivenRecipe(workspaceID, recipeID, createSaltPastaReq())
+		td.GivenRecipe(recipeID, createSaltPastaReq())
 
-		err := td.DeleteRecipe(recipeID)
+		err := td.DeleteRecipe(workspaceID, recipeID)
 
 		assert.NoError(t, err)
 		assert.Empty(t, td.SavedRecipes())
