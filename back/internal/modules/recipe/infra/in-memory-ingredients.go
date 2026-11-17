@@ -28,6 +28,7 @@ func NewInMemoryIngredients() *InMemoryIngredients {
 func (imi *InMemoryIngredients) Save(ctx context.Context, ingredient *recipe_dom.Ingredient) error {
 	imi.m.Lock()
 	defer imi.m.Unlock()
+
 	imi.savedIngredients[ingredient.Id()] = ingredient.Clone()
 	return nil
 }
@@ -38,6 +39,7 @@ func (imi *InMemoryIngredients) GetById(ctx context.Context, workspaceId uuid.UU
 	}
 	imi.m.RLock()
 	defer imi.m.RUnlock()
+
 	for _, i := range imi.savedIngredients {
 		if i.Id() == ingredientId && i.WorkspaceId() == workspaceId {
 			return i.Clone(), nil
@@ -49,6 +51,7 @@ func (imi *InMemoryIngredients) GetById(ctx context.Context, workspaceId uuid.UU
 func (imi *InMemoryIngredients) ExistsByName(ctx context.Context, workspaceId uuid.UUID, name string) (bool, error) {
 	imi.m.RLock()
 	defer imi.m.RUnlock()
+
 	for _, i := range imi.savedIngredients {
 		if i.IsSameWorkspace(workspaceId) && i.Name() == name {
 			return true, nil
@@ -60,7 +63,8 @@ func (imi *InMemoryIngredients) ExistsByName(ctx context.Context, workspaceId uu
 // TODO : check it
 func (imi *InMemoryIngredients) Search(ctx context.Context, workspaceId uuid.UUID, f recipe_dom.IngredientFilter) (*recipe_dom.Ingredient, error) {
 	imi.m.RLock()
-	defer imi.m.RLock()
+	defer imi.m.RUnlock()
+
 	for _, ing := range imi.savedIngredients {
 		if ing.WorkspaceId() == workspaceId {
 			if f.Name != "" && ing.Name() != f.Name {
@@ -82,6 +86,7 @@ func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUI
 
 	imi.m.Lock()
 	defer imi.m.Unlock()
+
 	_, ok := imi.getIngredientInWorkspace(workspaceId, ingredient.Id())
 	if !ok {
 		return fmt.Errorf("update ingredient %s : %w", ingredient.Id().String(), recipe_dom.ErrIngredientNotFound)
@@ -95,6 +100,7 @@ func (imi *InMemoryIngredients) Update(ctx context.Context, workspaceId uuid.UUI
 func (imi *InMemoryIngredients) DeleteById(ctx context.Context, workspaceId uuid.UUID, id uuid.UUID) error {
 	imi.m.Lock()
 	defer imi.m.Unlock()
+
 	found, ok := imi.getIngredientInWorkspace(workspaceId, id)
 	if !ok {
 		return fmt.Errorf("update ingredient %s : %w", id.String(), recipe_dom.ErrIngredientNotFound)

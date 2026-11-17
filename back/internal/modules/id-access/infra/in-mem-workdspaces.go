@@ -42,42 +42,40 @@ func (imw *InMemWorkspaces) CreateWithMembership(ctx context.Context, workspace 
 }
 
 func (imw *InMemWorkspaces) FindById(ctx context.Context, userId uuid.UUID, workspaceId uuid.UUID) (*idaccess_dom.Workspace, error) {
-	imw.m.Lock()
+	imw.m.RLock()
+	defer imw.m.RUnlock()
+
 	w, ok := imw.workspaces[workspaceId]
-	imw.m.Unlock()
 	if !ok {
 		return nil, errors.New(ErrWorkspaceNotFound)
 	}
-	imw.m.Lock()
 	for _, m := range imw.memberships {
 		if m.IsSameWorkspace(w.Id()) && m.IsSameUser(userId) {
 			return w.Clone(), nil
 		}
 	}
-	imw.m.Unlock()
 	return nil, errors.New(ErrWorkspaceNotFound)
 }
 
 func (imw *InMemWorkspaces) GetWorkspaces(ctx context.Context, userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
-	wpIds := make([]uuid.UUID, 0, 10)
 	imw.m.RLock()
+	defer imw.m.RLock()
+
+	wpIds := make([]uuid.UUID, 0, 10)
 	for _, m := range imw.memberships {
 		if m.IsSameUser(userId) {
 			wpIds = append(wpIds, m.WorkspaceId())
 		}
 	}
-	imw.m.RLock()
 	if len(wpIds) == 0 {
 		return []*idaccess_dom.Workspace{}, nil
 	}
 	wp := make([]*idaccess_dom.Workspace, 0, 10)
-	imw.m.RLock()
 	for _, w := range imw.workspaces {
 		if slices.Contains(wpIds, w.Id()) {
 			wp = append(wp, w)
 		}
 	}
-	imw.m.RUnlock()
 	return wp, nil
 
 }

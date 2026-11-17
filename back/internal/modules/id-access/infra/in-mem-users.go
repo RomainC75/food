@@ -48,12 +48,12 @@ func (imu *InMemoryUsers) FindById(ctx context.Context, id uuid.UUID) (*idaccess
 
 func (imu *InMemoryUsers) FindByEmail(ctx context.Context, email string) (*idaccess_dom.User, error) {
 	imu.m.RLock()
+	defer imu.m.RUnlock()
 	for _, u := range imu.savedUsers {
 		if u.Email() == email {
 			return u.Clone(), nil
 		}
 	}
-	imu.m.RUnlock()
 	return nil, idaccess_dom.ErrUserNotFound
 }
 
