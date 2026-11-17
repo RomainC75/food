@@ -16,6 +16,7 @@ var (
 	ErrIngredientsNotFound = "ingredients not found"
 	ErrWrongUnit           = "wrong unit"
 	ErrWrongQuantity       = "wrong quantity"
+	OtherError             = "other error"
 )
 
 type IngredientBasicInfo struct {
@@ -41,6 +42,7 @@ type ErrIngredientNotFound struct {
 	IngredientNotFound []IngredientBasicInfo
 	WrongUnit          []IngredientBasicInfo
 	WrongQuantity      []IngredientBasicInfo
+	OtherError         []IngredientBasicInfo
 }
 
 func (einf *ErrIngredientNotFound) Error() string {
@@ -48,12 +50,14 @@ func (einf *ErrIngredientNotFound) Error() string {
 	if len(einf.IngredientNotFound) > 0 {
 		compileErrorMessage(einf.IngredientNotFound, fullStr, ErrIngredientsNotFound)
 	}
-
 	if len(einf.WrongUnit) > 0 {
 		compileErrorMessage(einf.WrongUnit, fullStr, ErrWrongUnit)
 	}
 	if len(einf.WrongQuantity) > 0 {
 		compileErrorMessage(einf.WrongQuantity, fullStr, ErrWrongQuantity)
+	}
+	if len(einf.OtherError) > 0 {
+		compileErrorMessage(einf.OtherError, fullStr, OtherError)
 	}
 	return fmt.Sprintf("%s : %s", ErrAddingIngredients, fullStr.String())
 }
@@ -104,7 +108,10 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe
 			errINF.WrongUnit = append(errINF.WrongUnit, bi)
 			continue
 		}
-		recipe.AddIngredient(i, qty)
+		err = recipe.AddIngredient(i, qty)
+		if err != nil {
+			errINF.AddingIngredients = append(errINF.WrongUnit, bi)
+		}
 	}
 
 	if len(errINF.IngredientNotFound) != 0 || len(errINF.WrongUnit) != 0 {
