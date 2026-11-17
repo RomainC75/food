@@ -36,8 +36,8 @@ func MustNewQuantity(v float32, u BaseUnit) Quantity {
 
 func (q *Quantity) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
-		Value float32
-		Unit  BaseUnit
+		Value float32  `json:"value"`
+		Unit  BaseUnit `json:"unit"`
 	}{
 		Value: q.value,
 		Unit:  q.unit,

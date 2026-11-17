@@ -14,8 +14,8 @@ var (
 )
 
 type RecipeIngredient struct {
-	IngredientID uuid.UUID
-	Quantity     Quantity
+	IngredientID uuid.UUID `json:"ingredient_id"`
+	Quantity     Quantity  `json:"qty"`
 }
 
 type Recipe struct {
