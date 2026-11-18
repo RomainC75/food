@@ -3,6 +3,7 @@ package idaccess_infra
 import (
 	"context"
 	"errors"
+	"fmt"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	"slices"
 	"sync"
@@ -10,8 +11,8 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	ErrWorkspaceNotFound    = "workspace not found"
+var (
+	ErrWorkspaceNotFound    = errors.New("workspace not found")
 	ErrNoWorkspaceAvailable = "no workspace available"
 )
 
@@ -47,14 +48,31 @@ func (imw *InMemWorkspaces) FindById(ctx context.Context, userId uuid.UUID, work
 
 	w, ok := imw.workspaces[workspaceId]
 	if !ok {
-		return nil, errors.New(ErrWorkspaceNotFound)
+		return nil, fmt.Errorf("%w : %s", ErrWorkspaceNotFound, workspaceId)
 	}
 	for _, m := range imw.memberships {
 		if m.IsSameWorkspace(w.Id()) && m.IsSameUser(userId) {
 			return w.Clone(), nil
 		}
 	}
-	return nil, errors.New(ErrWorkspaceNotFound)
+	return nil, fmt.Errorf("%w : %s", ErrWorkspaceNotFound, workspaceId)
+}
+
+func (imw *InMemWorkspaces) FindByName(ctx context.Context, userId uuid.UUID, name string) (*idaccess_dom.Workspace, error) {
+	imw.m.RLock()
+	defer imw.m.RUnlock()
+
+	for _, w := range imw.workspaces {
+		if w.Name() == name {
+			for _, m := range imw.memberships {
+				if m.WorkspaceId() == w.Id() && m.IsSameUser(userId) {
+					return w.Clone(), nil
+				}
+			}
+		}
+	}
+
+	return nil, fmt.Errorf("%w : %s", ErrWorkspaceNotFound, name)
 }
 
 func (imw *InMemWorkspaces) GetWorkspaces(ctx context.Context, userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
