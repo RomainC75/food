@@ -53,6 +53,7 @@ func ConnectRoutes() *chi.Mux {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
+	ConnectHealthRoutes(r)
 	ConnectIdAccessRoutes(r, userSrv, workspaceSrv)
 	ConnectIngredientRoutes(r, ingredientSrv, userSrv, workspaceSrv)
 	ConnectRecipeRoutes(r, recipeSrv, userSrv, workspaceSrv)
