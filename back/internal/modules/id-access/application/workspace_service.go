@@ -20,6 +20,12 @@ type CreateWorkspaceCmd struct {
 	UserId uuid.UUID
 }
 
+type UpdateWorkspaceCmd struct {
+	WorkspaceId uuid.UUID
+	Name        string
+	UserId      uuid.UUID
+}
+
 type WorkspaceSrv struct {
 	uuidGen    shared_domain.Uuids
 	workspaces idaccess_dom.Workspaces
@@ -55,6 +61,22 @@ func (wSrv *WorkspaceSrv) Create(ctx context.Context, cmd CreateWorkspaceCmd) (*
 	}
 
 	return workspace, nil
+}
+
+func (wSrv *WorkspaceSrv) Update(ctx context.Context, cmd UpdateWorkspaceCmd) (*idaccess_dom.Workspace, error) {
+	found, err := wSrv.workspaces.FindById(ctx, cmd.UserId, cmd.WorkspaceId)
+	if err != nil {
+		return nil, fmt.Errorf("%w : %s", idaccess_dom.ErrWorkspaceNotFound, cmd.WorkspaceId)
+	}
+
+	found.SetNewName(cmd.Name)
+
+	err = wSrv.workspaces.Save(ctx, cmd.UserId, found)
+	if err != nil {
+		return nil, err
+	}
+
+	return found, nil
 }
 
 func (wSrv *WorkspaceSrv) Get(ctx context.Context, userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {

@@ -55,8 +55,24 @@ func (td *TestDriver) CreateWorkspace(createWCmd CreateWorkspaceCmd) (*idaccess_
 	return td.workspaceSrv.Create(td.ctx, createWCmd)
 }
 
+func (td *TestDriver) UpdateWorkspace(cmd UpdateWorkspaceCmd) (*idaccess_dom.Workspace, error) {
+	return td.workspaceSrv.Update(td.ctx, cmd)
+}
+
 func (td *TestDriver) GetWorkspaces(userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
 	return td.workspaceSrv.Get(td.ctx, userId)
+}
+
+func (td *TestDriver) createWorkspace(workspaceId uuid.UUID, membershipId uuid.UUID, userId uuid.UUID) *idaccess_dom.Workspace {
+	td.GivenUuids(workspaceId, membershipId)
+	workspaceName := "my-workspace"
+
+	req := CreateWorkspaceCmd{
+		Name:   workspaceName,
+		UserId: userId,
+	}
+	created, _ := td.CreateWorkspace(req)
+	return created
 }
 
 // ======== SETUP =========
@@ -116,6 +132,10 @@ func (td *TestDriver) SetupExpectedToken(expectedToken string) *TestDriver {
 
 func (td *TestDriver) SetupExpectedWorkspaceError(isErrorExpected bool) {
 	td.workspaces.SetIsErrorExpected(isErrorExpected)
+}
+
+func (td *TestDriver) SetupExpectedSaveWorkspaceError(isSaveErrorExpected bool) {
+	td.workspaces.SetIsSaveErrorExpected(isSaveErrorExpected)
 }
 
 func (td *TestDriver) SavedUsers() map[uuid.UUID]*idaccess_dom.User {

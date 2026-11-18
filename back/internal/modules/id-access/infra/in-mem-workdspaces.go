@@ -12,15 +12,17 @@ import (
 )
 
 var (
-	ErrWorkspaceNotFound    = errors.New("workspace not found")
-	ErrNoWorkspaceAvailable = "no workspace available"
+	ErrWorkspaceNotFound     = errors.New("workspace not found")
+	ErrNoWorkspaceAvailable  = "no workspace available"
+	ErrCouldNotSaveWorkspace = errors.New("could not save workspace")
 )
 
 type InMemWorkspaces struct {
-	m               sync.RWMutex
-	workspaces      map[uuid.UUID]*idaccess_dom.Workspace
-	memberships     map[uuid.UUID]*idaccess_dom.Membership
-	isErrorExpected bool
+	m                   sync.RWMutex
+	workspaces          map[uuid.UUID]*idaccess_dom.Workspace
+	memberships         map[uuid.UUID]*idaccess_dom.Membership
+	isErrorExpected     bool
+	isSaveErrorExpected bool
 }
 
 func NewInMemWorkspaces() *InMemWorkspaces {
@@ -95,7 +97,21 @@ func (imw *InMemWorkspaces) GetWorkspaces(ctx context.Context, userId uuid.UUID)
 		}
 	}
 	return wp, nil
+}
 
+func (imw *InMemWorkspaces) Save(ctx context.Context, userId uuid.UUID, workspace *idaccess_dom.Workspace) error {
+	if imw.isSaveErrorExpected {
+		return fmt.Errorf("%w : %s", ErrCouldNotSaveWorkspace, workspace.Id().String())
+	}
+	_, err := imw.FindById(ctx, userId, workspace.Id())
+	if err != nil {
+		return err
+	}
+
+	imw.m.RLock()
+	defer imw.m.RLock()
+	imw.workspaces[workspace.Id()] = workspace.Clone()
+	return nil
 }
 
 // ===== TEST ===
@@ -110,4 +126,8 @@ func (imw *InMemWorkspaces) SavedWorkspaces() map[uuid.UUID]*idaccess_dom.Worksp
 
 func (imw *InMemWorkspaces) SetIsErrorExpected(isErrorExpected bool) {
 	imw.isErrorExpected = isErrorExpected
+}
+
+func (imw *InMemWorkspaces) SetIsSaveErrorExpected(isSaveErrorExpected bool) {
+	imw.isSaveErrorExpected = isSaveErrorExpected
 }

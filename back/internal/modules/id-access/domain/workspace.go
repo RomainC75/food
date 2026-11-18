@@ -22,6 +22,10 @@ func (w *Workspace) Name() string {
 	return w.name
 }
 
+func (w *Workspace) SetNewName(newName string) {
+	w.name = newName
+}
+
 func (w *Workspace) Clone() *Workspace {
 	return &Workspace{
 		id:   w.id,
