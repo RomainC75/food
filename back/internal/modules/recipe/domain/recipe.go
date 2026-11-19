@@ -38,6 +38,10 @@ func (r *Recipe) Id() uuid.UUID {
 	return r.id
 }
 
+func (r *Recipe) Name() string {
+	return r.name
+}
+
 func (r *Recipe) WorkspaceId() uuid.UUID {
 	return r.workspaceId
 }

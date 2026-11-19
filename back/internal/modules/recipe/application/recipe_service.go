@@ -12,11 +12,12 @@ import (
 )
 
 var (
-	ErrAddingIngredients   = "error adding ingredients"
-	ErrIngredientsNotFound = "ingredients not found"
-	ErrWrongUnit           = "wrong unit"
-	ErrWrongQuantity       = "wrong quantity"
-	OtherError             = "other error"
+	ErrAddingIngredients       = "error adding ingredients"
+	ErrIngredientsNotFound     = "ingredients not found"
+	ErrWrongUnit               = "wrong unit"
+	ErrWrongQuantity           = "wrong quantity"
+	OtherError                 = "other error"
+	ErrCouldNotDuplicateRecipe = errors.New("error cannot duplicate recipe")
 )
 
 type IngredientBasicInfo struct {
@@ -90,6 +91,12 @@ func NewRecipeSrv(uuidGen shared_domain.Uuids, i recipe_dom.Ingredients, r recip
 }
 
 func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
+	_, err := rSrv.recipes.GetByName(ctx, cmd.WorkspaceId, cmd.Name)
+
+	if err == nil {
+		return nil, fmt.Errorf("%w : %s", ErrCouldNotDuplicateRecipe, cmd.Name)
+	}
+
 	errINF := ErrIngredientNotFound{
 		IngredientNotFound: make([]IngredientBasicInfo, 0, len(cmd.Ingredients)),
 		WrongUnit:          make([]IngredientBasicInfo, 0, len(cmd.Ingredients)),
@@ -117,7 +124,7 @@ func (rSrv *RecipeSrv) Create(ctx context.Context, cmd CreateRecipeCmd) (*recipe
 	if len(errINF.IngredientNotFound) != 0 || len(errINF.WrongUnit) != 0 {
 		return nil, &errINF
 	}
-	err := rSrv.recipes.Create(ctx, recipe)
+	err = rSrv.recipes.Create(ctx, recipe)
 	return recipe, err
 }
 

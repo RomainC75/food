@@ -49,6 +49,18 @@ func (imr *InMemRecipes) GetById(ctx context.Context, workspaceId uuid.UUID, id 
 	return foundRecipe.Clone(), nil
 }
 
+func (imr *InMemRecipes) GetByName(ctx context.Context, workspaceId uuid.UUID, name string) (*recipe_dom.Recipe, error) {
+	imr.m.Lock()
+	defer imr.m.Unlock()
+
+	for _, r := range imr.savedRecipes {
+		if r.Name() == name {
+			return r.Clone(), nil
+		}
+	}
+	return nil, fmt.Errorf("could not get recipe by name %s : %w", name, recipe_dom.ErrRecipeNotFound)
+}
+
 func (imr *InMemRecipes) Update(ctx context.Context, r *recipe_dom.Recipe) error {
 	if imr.expectedErrors.UpdateError {
 		return fmt.Errorf("update ingredient %s : %w", r.Id().String(), recipe_dom.ErrCouldNotUpdateRecipe)

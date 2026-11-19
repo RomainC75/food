@@ -88,15 +88,16 @@ func (td *TestDriver) UpdateIngredient(workspaceId uuid.UUID, cmd UpdateIngredie
 }
 
 // -- RECEIPE --
+// ?? expectedId ??
 func (td *TestDriver) GivenRecipe(expectedId uuid.UUID, cmd CreateRecipeCmd) *recipe_dom.Recipe {
 	td.t.Helper()
 	td.SetNextUuid(expectedId)
-	r, err := td.CreateRecipe(expectedId, cmd)
+	r, err := td.CreateRecipe(cmd)
 	require.NoError(td.t, err)
 	return r
 }
 
-func (td *TestDriver) CreateRecipe(expectedId uuid.UUID, cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
+func (td *TestDriver) CreateRecipe(cmd CreateRecipeCmd) (*recipe_dom.Recipe, error) {
 	displayer.PrettyDisplay(" CREATE RECIPE CMD: ", cmd)
 	return td.recipeSrv.Create(td.ctx, cmd)
 }

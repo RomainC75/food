@@ -13,14 +13,27 @@ import (
 // ---------- Create ----------
 
 func TestCreateRecipe(t *testing.T) {
-	td := NewTestDriver(t).SetNextUuids(recipeID).GivenIngredients(saltIngredient(), pastaIngredient())
+	t.Run("should create recipe", func(t *testing.T) {
+		td := NewTestDriver(t).SetNextUuids(recipeID).GivenIngredients(saltIngredient(), pastaIngredient())
 
-	created, err := td.CreateRecipe(recipeID, createSaltPastaReq())
+		created, err := td.CreateRecipe(createSaltPastaReq())
 
-	require.NoError(t, err)
-	assert.Equal(t, expectedSaltPasta(), created)
-	assert.Len(t, td.SavedRecipes(), 1)
-	assert.Equal(t, expectedSaltPasta(), td.SavedRecipes()[0])
+		require.NoError(t, err)
+		assert.Equal(t, expectedSaltPasta(), created)
+		assert.Len(t, td.SavedRecipes(), 1)
+		assert.Equal(t, expectedSaltPasta(), td.SavedRecipes()[0])
+	})
+	t.Run("should no create duplicated recipe", func(t *testing.T) {
+		td := NewTestDriver(t).SetNextUuids(uuid.New(), recipeID).GivenIngredients(saltIngredient(), pastaIngredient())
+		cmd := createSaltPastaReq()
+		td.CreateRecipe(cmd)
+
+		_, err := td.CreateRecipe(cmd)
+
+		assert.NotNil(t, err)
+		assert.Contains(t, err.Error(), ErrCouldNotDuplicateRecipe.Error())
+		assert.Contains(t, err.Error(), cmd.Name)
+	})
 }
 
 // ---------- Update ----------
