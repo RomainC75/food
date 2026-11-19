@@ -1,10 +1,9 @@
 package ctrl
 
 import (
-	"encoding/json"
 	"fmt"
 	dto_recipe_req "food/internal/api/http/dtos/recipe/req"
-	api_validator "food/internal/api/validator"
+	req_Extractor "food/internal/api/http/req-extractor"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
@@ -25,26 +24,13 @@ func NewIngredientCtrl(ingredientSrv *recipe_app.IngredientSrv) *IngredientCtrl 
 }
 
 func (ictrl *IngredientCtrl) Search(w http.ResponseWriter, r *http.Request) {
-	var req recipe_dom.IngredientFilter
-	err := json.NewDecoder(r.Body).Decode(&req)
+	req, status, err := req_Extractor.WorkspaceRequestExtractor[recipe_dom.IngredientFilter](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), status)
 		return
 	}
 
-	err = api_validator.Get().Struct(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(r.Context())
-	if !ok {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	found, err := ictrl.ingredientSrv.Search(r.Context(), workspaceId, req)
+	found, err := ictrl.ingredientSrv.Search(r.Context(), req.WorkspaceId, req.Dto)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -54,29 +40,16 @@ func (ictrl *IngredientCtrl) Search(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Request) {
-	var req dto_recipe_req.CreateIngredientDto
-	err := json.NewDecoder(r.Body).Decode(&req)
+	req, status, err := req_Extractor.WorkspaceRequestExtractor[dto_recipe_req.CreateIngredientDto](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = api_validator.Get().Struct(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(r.Context())
-	if !ok {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), status)
 		return
 	}
 
 	found, err := ictrl.ingredientSrv.Create(r.Context(), recipe_app.CreateIngredientCmd{
-		Name:        req.Name,
-		BaseUnit:    req.BaseUnit,
-		WorkspaceId: workspaceId,
+		Name:        req.Dto.Name,
+		BaseUnit:    req.Dto.BaseUnit,
+		WorkspaceId: req.WorkspaceId,
 	})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)

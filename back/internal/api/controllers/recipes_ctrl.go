@@ -1,12 +1,10 @@
 package ctrl
 
 import (
-	"encoding/json"
 	dto_recipe_req "food/internal/api/http/dtos/recipe/req"
 	"food/internal/api/http/mappers"
-	api_validator "food/internal/api/validator"
+	req_Extractor "food/internal/api/http/req-extractor"
 	recipe_app "food/internal/modules/recipe/application"
-	platform_http "food/internal/platform/http"
 	json_utils "food/utils/json"
 	"net/http"
 )
@@ -22,26 +20,13 @@ func NewRecipeCtrl(recipeSrv *recipe_app.RecipeSrv) *RecipeCtrl {
 }
 
 func (rctrl *RecipeCtrl) Create(w http.ResponseWriter, r *http.Request) {
-	var req dto_recipe_req.CreateRecipeDto
-	err := json.NewDecoder(r.Body).Decode(&req)
+	req, status, err := req_Extractor.WorkspaceRequestExtractor[dto_recipe_req.CreateRecipeDto](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), status)
 		return
 	}
 
-	err = api_validator.Get().Struct(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(r.Context())
-	if !ok {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	cmd := mappers.ToRecipeCreateCmd(workspaceId, req)
+	cmd := mappers.ToRecipeCreateCmd(req.WorkspaceId, req.Dto)
 	newRecipe, err := rctrl.recipeSrv.Create(r.Context(), cmd)
 
 	if err != nil {
@@ -53,26 +38,13 @@ func (rctrl *RecipeCtrl) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rctrl *RecipeCtrl) Update(w http.ResponseWriter, r *http.Request) {
-	var req dto_recipe_req.UpdateRecipeDto
-	err := json.NewDecoder(r.Body).Decode(&req)
+	req, status, err := req_Extractor.WorkspaceRequestExtractor[dto_recipe_req.UpdateRecipeDto](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), status)
 		return
 	}
 
-	err = api_validator.Get().Struct(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(r.Context())
-	if !ok {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	cmd := mappers.ToRecipeUpdateCmd(workspaceId, req)
+	cmd := mappers.ToRecipeUpdateCmd(req.WorkspaceId, req.Dto)
 	newRecipe, err := rctrl.recipeSrv.Update(r.Context(), cmd)
 
 	if err != nil {
