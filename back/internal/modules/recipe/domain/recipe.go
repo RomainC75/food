@@ -56,7 +56,7 @@ func (r *Recipe) AddIngredient(i *Ingredient, q Quantity) error {
 		Quantity:     q,
 	}
 	r.ingredients = append(r.ingredients, newRI)
-	displayer.PrettyDisplay("-after adding : ", r)
+	displayer.PrettyDisplay("-after adding : ", *r)
 	return nil
 }
 

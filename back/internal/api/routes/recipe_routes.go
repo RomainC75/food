@@ -17,7 +17,8 @@ func ConnectRecipeRoutes(r *chi.Mux, recipeSrv *recipe_app.RecipeSrv, userSrv *i
 		r.Use(userCtrl.Verify)
 		r.Use(middlewares.WorkspaceMiddleware(authorizer))
 
-		r.Post("/", recipeCtrl.CreateRecipe)
+		r.Post("/", recipeCtrl.Create)
+		r.Put("/", recipeCtrl.Update)
 		// r.Get("/", recipeCtrl.Search)
 		// r.Delete("/{ingredient-id}", recipeCtrl.Delete)
 

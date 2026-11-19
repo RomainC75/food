@@ -2,15 +2,12 @@ package ctrl
 
 import (
 	"encoding/json"
-	"fmt"
 	dto_recipe_req "food/internal/api/http/dtos/recipe/req"
 	"food/internal/api/http/mappers"
 	api_validator "food/internal/api/validator"
 	recipe_app "food/internal/modules/recipe/application"
 	platform_http "food/internal/platform/http"
-	"food/utils/displayer"
 	json_utils "food/utils/json"
-	utils_must "food/utils/must"
 	"net/http"
 )
 
@@ -24,7 +21,7 @@ func NewRecipeCtrl(recipeSrv *recipe_app.RecipeSrv) *RecipeCtrl {
 	}
 }
 
-func (rctrl *RecipeCtrl) CreateRecipe(w http.ResponseWriter, r *http.Request) {
+func (rctrl *RecipeCtrl) Create(w http.ResponseWriter, r *http.Request) {
 	var req dto_recipe_req.CreateRecipeDto
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
@@ -44,11 +41,39 @@ func (rctrl *RecipeCtrl) CreateRecipe(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := mappers.ToRecipeCmd(workspaceId, req)
-	displayer.PrettyDisplay("---- out mapper : ", cmd)
+	cmd := mappers.ToRecipeCreateCmd(workspaceId, req)
 	newRecipe, err := rctrl.recipeSrv.Create(r.Context(), cmd)
 
-	fmt.Println("----# ", string(utils_must.Must(newRecipe.MarshalJSON())))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	json_utils.JsonResponse(w, newRecipe, http.StatusCreated)
+}
+
+func (rctrl *RecipeCtrl) Update(w http.ResponseWriter, r *http.Request) {
+	var req dto_recipe_req.UpdateRecipeDto
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = api_validator.Get().Struct(req)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(r.Context())
+	if !ok {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	cmd := mappers.ToRecipeUpdateCmd(workspaceId, req)
+	newRecipe, err := rctrl.recipeSrv.Update(r.Context(), cmd)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -64,23 +89,3 @@ func (rctrl *RecipeCtrl) CreateRecipe(w http.ResponseWriter, r *http.Request) {
 // 		http.Error(w, err.Error(), http.StatusBadRequest)
 // 		return
 // 	}
-
-// 	workspaceId, ok := platform_http.GetWorkspaceIdFromContext(r.Context())
-// 	if !ok {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	deleteCmd := recipe_app.DeleteIngredientCmd{
-// 		WorkspaceId: workspaceId,
-// 		Id:          ingredientUuid,
-// 	}
-
-// 	err = rctrl.recipeSrv.DeleteById(r.Context(), deleteCmd)
-// 	if err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-
-// 	json_utils.JsonResponse(w, fmt.Sprintf("ingredient %s deleted", ingredientUuid.String()), http.StatusAccepted)
-// }

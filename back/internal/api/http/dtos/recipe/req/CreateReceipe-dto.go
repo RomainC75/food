@@ -11,12 +11,14 @@ type IngredientBasicInfoDto struct {
 	Qty  float32             `json:"qty" validate:"required,gt=0"`
 	Unit recipe_dom.BaseUnit `json:"base_unit" validate:"required,oneof=piece l ml kg g"`
 }
-type CreateRecipeDto struct {
+type RecipeBasicInfoDto struct {
 	Name        string                   `json:"name" validate:"required"`
 	Ingredients []IngredientBasicInfoDto `json:"ingredients" validate:"required"`
 }
 
+type CreateRecipeDto RecipeBasicInfoDto
+
 type UpdateRecipeDto struct {
-	Id uuid.UUID
-	CreateRecipeDto
+	Id                 uuid.UUID `json:"id" validate:"required"`
+	RecipeBasicInfoDto `json:"basic_info" validate:"required"`
 }
