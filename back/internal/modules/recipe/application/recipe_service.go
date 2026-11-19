@@ -12,11 +12,11 @@ import (
 )
 
 var (
-	ErrAddingIngredients       = "error adding ingredients"
-	ErrIngredientsNotFound     = "ingredients not found"
-	ErrWrongUnit               = "wrong unit"
-	ErrWrongQuantity           = "wrong quantity"
-	OtherError                 = "other error"
+	ErrAddingIngredients       = errors.New("error adding ingredients")
+	ErrIngredientsNotFound     = errors.New("ingredients not found")
+	ErrWrongUnit               = errors.New("wrong unit")
+	ErrWrongQuantity           = errors.New("wrong quantity")
+	OtherError                 = errors.New("other error")
 	ErrCouldNotDuplicateRecipe = errors.New("error cannot duplicate recipe")
 )
 
@@ -49,16 +49,16 @@ type ErrIngredientNotFound struct {
 func (einf *ErrIngredientNotFound) Error() string {
 	fullStr := &strings.Builder{}
 	if len(einf.IngredientNotFound) > 0 {
-		compileErrorMessage(einf.IngredientNotFound, fullStr, ErrIngredientsNotFound)
+		compileErrorMessage(einf.IngredientNotFound, fullStr, ErrIngredientsNotFound.Error())
 	}
 	if len(einf.WrongUnit) > 0 {
-		compileErrorMessage(einf.WrongUnit, fullStr, ErrWrongUnit)
+		compileErrorMessage(einf.WrongUnit, fullStr, ErrWrongUnit.Error())
 	}
 	if len(einf.WrongQuantity) > 0 {
-		compileErrorMessage(einf.WrongQuantity, fullStr, ErrWrongQuantity)
+		compileErrorMessage(einf.WrongQuantity, fullStr, ErrWrongQuantity.Error())
 	}
 	if len(einf.OtherError) > 0 {
-		compileErrorMessage(einf.OtherError, fullStr, OtherError)
+		compileErrorMessage(einf.OtherError, fullStr, OtherError.Error())
 	}
 	return fmt.Sprintf("%s : %s", ErrAddingIngredients, fullStr.String())
 }

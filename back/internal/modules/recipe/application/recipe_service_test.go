@@ -23,7 +23,7 @@ func TestCreateRecipe(t *testing.T) {
 		assert.Len(t, td.SavedRecipes(), 1)
 		assert.Equal(t, expectedSaltPasta(), td.SavedRecipes()[0])
 	})
-	t.Run("should no create duplicated recipe", func(t *testing.T) {
+	t.Run("should not create duplicated recipe", func(t *testing.T) {
 		td := NewTestDriver(t).SetNextUuids(uuid.New(), recipeID).GivenIngredients(saltIngredient(), pastaIngredient())
 		cmd := createSaltPastaReq()
 		td.CreateRecipe(cmd)
@@ -79,7 +79,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 				IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
 				IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 			),
-			wantErr: []string{ErrAddingIngredients, ErrIngredientsNotFound, tomatoSauceID.String()},
+			wantErr: []string{ErrAddingIngredients.Error(), ErrIngredientsNotFound.Error(), tomatoSauceID.String()},
 		},
 		{
 			name:         "wrong unit",
@@ -90,7 +90,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 				IngredientBasicInfo{pastaID, 500, recipe_dom.Liter},
 				IngredientBasicInfo{tomatoSauceID, 100, recipe_dom.Gram},
 			),
-			wantErr: []string{ErrAddingIngredients, ErrWrongUnit, pastaID.String()},
+			wantErr: []string{ErrAddingIngredients.Error(), ErrWrongUnit.Error(), pastaID.String()},
 		},
 		{
 			name:         "negative quantity",
@@ -101,7 +101,7 @@ func TestUpdateRecipe_Errors(t *testing.T) {
 				IngredientBasicInfo{pastaID, 500, recipe_dom.Gram},
 				IngredientBasicInfo{tomatoSauceID, -10, recipe_dom.Gram},
 			),
-			wantErr: []string{ErrAddingIngredients, ErrWrongQuantity, tomatoSauceID.String()},
+			wantErr: []string{ErrAddingIngredients.Error(), ErrWrongQuantity.Error(), tomatoSauceID.String()},
 		},
 		{
 			name:         "repository fails to save",
