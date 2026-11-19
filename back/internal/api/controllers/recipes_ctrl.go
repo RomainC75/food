@@ -3,7 +3,7 @@ package ctrl
 import (
 	dto_recipe_req "food/internal/api/http/dtos/recipe/req"
 	"food/internal/api/http/mappers"
-	req_Extractor "food/internal/api/http/req-extractor"
+	req_extractor "food/internal/api/http/req-extractor"
 	recipe_app "food/internal/modules/recipe/application"
 	json_utils "food/utils/json"
 	"net/http"
@@ -20,7 +20,7 @@ func NewRecipeCtrl(recipeSrv *recipe_app.RecipeSrv) *RecipeCtrl {
 }
 
 func (rctrl *RecipeCtrl) Create(w http.ResponseWriter, r *http.Request) {
-	req, status, err := req_Extractor.WorkspaceRequestExtractor[dto_recipe_req.CreateRecipeDto](r)
+	req, status, err := req_extractor.WorkspaceRequestExtractor[dto_recipe_req.CreateRecipeDto](r)
 	if err != nil {
 		http.Error(w, err.Error(), status)
 		return
@@ -38,7 +38,7 @@ func (rctrl *RecipeCtrl) Create(w http.ResponseWriter, r *http.Request) {
 }
 
 func (rctrl *RecipeCtrl) Update(w http.ResponseWriter, r *http.Request) {
-	req, status, err := req_Extractor.WorkspaceRequestExtractor[dto_recipe_req.UpdateRecipeDto](r)
+	req, status, err := req_extractor.WorkspaceRequestExtractor[dto_recipe_req.UpdateRecipeDto](r)
 	if err != nil {
 		http.Error(w, err.Error(), status)
 		return

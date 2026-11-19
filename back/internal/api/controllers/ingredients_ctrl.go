@@ -3,7 +3,7 @@ package ctrl
 import (
 	"fmt"
 	dto_recipe_req "food/internal/api/http/dtos/recipe/req"
-	req_Extractor "food/internal/api/http/req-extractor"
+	req_extractor "food/internal/api/http/req-extractor"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
 	platform_http "food/internal/platform/http"
@@ -24,7 +24,7 @@ func NewIngredientCtrl(ingredientSrv *recipe_app.IngredientSrv) *IngredientCtrl 
 }
 
 func (ictrl *IngredientCtrl) Search(w http.ResponseWriter, r *http.Request) {
-	req, status, err := req_Extractor.WorkspaceRequestExtractor[recipe_dom.IngredientFilter](r)
+	req, status, err := req_extractor.WorkspaceRequestExtractor[recipe_dom.IngredientFilter](r)
 	if err != nil {
 		http.Error(w, err.Error(), status)
 		return
@@ -40,7 +40,7 @@ func (ictrl *IngredientCtrl) Search(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ictrl *IngredientCtrl) CreateIncredient(w http.ResponseWriter, r *http.Request) {
-	req, status, err := req_Extractor.WorkspaceRequestExtractor[dto_recipe_req.CreateIngredientDto](r)
+	req, status, err := req_extractor.WorkspaceRequestExtractor[dto_recipe_req.CreateIngredientDto](r)
 	if err != nil {
 		http.Error(w, err.Error(), status)
 		return

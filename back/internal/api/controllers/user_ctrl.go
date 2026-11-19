@@ -1,11 +1,10 @@
 package ctrl
 
 import (
-	"encoding/json"
 	"errors"
 	dto_idaccess_req "food/internal/api/http/dtos/id-access/req"
 	dto_idaccess_res "food/internal/api/http/dtos/id-access/res"
-	api_validator "food/internal/api/validator"
+	req_extractor "food/internal/api/http/req-extractor"
 	idaccess_app "food/internal/modules/id-access/application"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	platform_http "food/internal/platform/http"
@@ -25,16 +24,9 @@ func NewIdAccessCtrl(userSrv *idaccess_app.UserSrv) *IdAccessCtrl {
 }
 
 func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
-	var req dto_idaccess_req.SignupUser
-	err := json.NewDecoder(r.Body).Decode(&req)
+	req, status, err := req_extractor.OpenRequestExtractor[dto_idaccess_req.SignupUser](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = api_validator.Get().Struct(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), status)
 		return
 	}
 
@@ -55,16 +47,9 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
-	var req dto_idaccess_req.SigninUser
-	err := json.NewDecoder(r.Body).Decode(&req)
+	req, status, err := req_extractor.OpenRequestExtractor[dto_idaccess_req.SigninUser](r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = api_validator.Get().Struct(req)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), status)
 		return
 	}
 
