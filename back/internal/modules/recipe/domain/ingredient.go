@@ -8,9 +8,9 @@ import (
 
 type Ingredient struct {
 	id          uuid.UUID
-	name        string
-	baseUnit    BaseUnit
 	workspaceId uuid.UUID
+	baseUnit    BaseUnit
+	name        string
 }
 
 func NewIngredient(id uuid.UUID, name string, baseUnit BaseUnit, workspaceId uuid.UUID) *Ingredient {

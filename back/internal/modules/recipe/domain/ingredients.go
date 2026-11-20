@@ -13,8 +13,8 @@ var (
 )
 
 type IngredientFilter struct {
-	Name     string
 	BaseUnit BaseUnit
+	Name     string
 }
 
 type Ingredients interface {

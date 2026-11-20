@@ -20,9 +20,9 @@ type RecipeIngredient struct {
 
 type Recipe struct {
 	id          uuid.UUID
-	name        string
-	ingredients []RecipeIngredient
 	workspaceId uuid.UUID
+	ingredients []RecipeIngredient
+	name        string
 }
 
 func NewRecipe(workspaceId uuid.UUID, id uuid.UUID, name string) *Recipe {
