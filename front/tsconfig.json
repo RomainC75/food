@@ -1,0 +1,27 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/constants/*": [
+        "./src/adapters/primary/react/constants/*"
+      ],
+      "@/components/*": [
+        "./src/adapters/primary/react/components/*"
+      ],
+      "@/assets/*": [
+        "./assets/*"
+      ],
+      "@/*": [
+        "./*"
+      ],
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts",
+    "node_modules/vitest/globals.d.ts"
+  ]
+}
