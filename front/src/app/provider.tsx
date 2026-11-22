@@ -3,7 +3,6 @@
 import {
   createContext,
   useContext,
-  useRef,
   ReactNode,
   useState,
 } from "react";
@@ -12,32 +11,22 @@ import { useStore } from "zustand";
 import { IngredientStoreApi, setIngredientStore } from "@/presentation/stores/ingredient.store";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { InMemIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
-import { UuidGen } from "@/modules/shared/infra/uuidGen";
+import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
 
-const IngredientStoreContext =
-  createContext<IngredientStoreApi | null>(null);
+const IngredientStoreContext = createContext<IngredientStoreApi | null>(null);
 
 export function Providers({
-  children,
+  children, 
 }: {
   children: ReactNode;
 }) {
-  // const storeRef = useRef<IngredientStoreApi | null>(null);
-  // if (!storeRef.current) {
-  //   // ! don't forger to setup the server url
-  //   const uuidGen = new UuidGen()
-  //   const repository = new InMemIngredients(uuidGen);
-  //   const ingredientSrv = new IngredientSrv(repository);
-
-  //   storeRef.current = setIngredientStore(ingredientSrv);
-  // }
   const [store] = useState(() => {
-  const uuidGen = new UuidGen();
+  const uuidGen = new InMemUuidGen();
   const repository = new InMemIngredients(uuidGen);
+
   const ingredientSrv = new IngredientSrv(repository);
   return setIngredientStore(ingredientSrv);
 });
-
   return (
     <IngredientStoreContext.Provider value={store}>
       {children}

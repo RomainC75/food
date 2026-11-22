@@ -1,16 +1,15 @@
 import { Uuids } from "../domain/uuid";
 
 export class InMemUuidGen implements Uuids{
-    nextuuid: string;
+    nextuuids: string[];
+    index=0;
     constructor(){
-        this.nextuuid = ""
-    }
-
-    setNextUuid(next: string){
-        this.nextuuid = next
+        this.nextuuids = ["a","b","c","d","e","f","g","h","i"]
     }
 
     now(): string{
-        return this.nextuuid
+        const nowId = this.nextuuids[this.index];
+        this.index++;
+        return nowId;
     }
 }

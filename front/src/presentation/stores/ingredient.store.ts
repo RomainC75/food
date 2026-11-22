@@ -1,22 +1,26 @@
 import { createStore } from "zustand/vanilla";
 import { Ingredient, NewIngredient } from "@/modules/recipe/domain/Ingredient";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
+import { CreateIngredientForm } from "../components/inputs/createIngredient/create-ingredient";
 
 export interface IngredientState {
   ingredients: Ingredient[];
   loading: boolean;
   error: string | null;
+  workspace: string;
 
   fetchIngredients: () => Promise<void>;
+  saveIngredient: (newIngredient: CreateIngredientForm) => Promise<void>
 }
 
 export const setIngredientStore = (
-  ingredientSrv: IngredientSrv
+  ingredientSrv: IngredientSrv,
 ) => {
-  return createStore<IngredientState>()((set) => ({
+  return createStore<IngredientState>()((set, get) => ({
     ingredients: [],
     loading: false,
     error: null,
+    workspace: "my-workspace",
 
     fetchIngredients: async () => {
       set({
@@ -25,9 +29,7 @@ export const setIngredientStore = (
       });
 
       try {
-        console.log("---- fetch : ")
         const ingredients = await ingredientSrv.getList();
-
         set({
           ingredients,
           loading: false,
@@ -42,18 +44,21 @@ export const setIngredientStore = (
       }
     },
 
-    saveIngredient: async (newIngredient: NewIngredient) => {
+    saveIngredient: async ({name, baseUnit}: CreateIngredientForm) => {
+      const { workspace } = get();
+      const newIngredient = new NewIngredient(name, baseUnit, workspace)
       set({
         loading: true,
         error: null,
       });
-
+      
       try {
         const createdIngredient = await ingredientSrv.create(newIngredient);
         set((state)=>({
-            ingredients: [...state.ingredients, createdIngredient],
-            loading: false
-        }))
+              ingredients: [...state.ingredients, createdIngredient],
+              loading: false
+            })
+        )
       } catch (error) {
         set({
           loading: false,

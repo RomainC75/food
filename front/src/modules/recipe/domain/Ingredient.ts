@@ -11,7 +11,9 @@ export class NewIngredient {
     return this.name;
   }
 
-
+  get BaseUnit(): string{
+    return this.baseUnit;
+  }
   setName(name: string): void {
     this.name = name;
   }
