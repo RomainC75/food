@@ -9,7 +9,12 @@ export class InMemUuidGen implements Uuids{
 
     now(): string{
         const nowId = this.nextuuids[this.index];
-        this.index++;
+        if (this.index < this.nextuuids.length-1){
+            this.index++;
+        } else {
+            this.index = 0;
+        }
+        
         return nowId;
     }
 }

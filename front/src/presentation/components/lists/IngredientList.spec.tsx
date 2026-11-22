@@ -4,7 +4,7 @@ import IngredientList, { NoIngredientFound } from "./IngredientList";
 import { Providers } from "@/app/provider";
 import userEvent from "@testing-library/user-event";
 import { assert, describe, it } from "vitest";
-import { initIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
+import { initPlainIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
 import { Ingredient } from "@/modules/recipe/domain/Ingredient";
 
 describe("ingredientList component", ()=>{
@@ -14,7 +14,7 @@ describe("ingredientList component", ()=>{
     })
 
     it("should render 2 ingredients", async ()=>{
-        Render(initIngredients);
+        Render(initPlainIngredients);
         const res = await screen.findAllByText(/name/)
         assert.equal(res.length, 2)
         // await userEvent.click();
@@ -30,9 +30,9 @@ describe("ingredientList component", ()=>{
 })
 
 
-const Render = (initIngredients: Ingredient[]) => {
+const Render = (initPlainIngredients: Ingredient[]) => {
     render(
-        <Providers initIngredients={initIngredients}>
+        <Providers initPlainIngredients={initPlainIngredients}>
             <IngredientList />
         </Providers>,
     );
