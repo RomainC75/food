@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "./provider";
+import { RecipeProvider } from "../presentation/state-manager/providers/recipeProvider";
 import { cn } from "@/lib/utils";
 import { initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
 
@@ -29,9 +29,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-mono", jetbrainsMono.variable)}
     >
       <body className="min-h-full flex flex-col">
-        <Providers initPlainIngredients={initPlainIngredients}>
+        <RecipeProvider initPlainIngredients={initPlainIngredients}>
           {children}
-        </Providers>
+        </RecipeProvider>
       </body>
     </html>
   );

@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../shadcn/input";
 import { Button } from "../../shadcn/button";
 import { CreateIngredientForm, createIngredientSchema } from "./create-ingredient";
-import { useRecipeStore } from "@/app/provider";
+import { useRecipeStore } from "@/presentation/state-manager/providers/recipeProvider";
 import { BaseUnit } from "@/modules/recipe/domain/baseUnit";
 
 

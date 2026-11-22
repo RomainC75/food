@@ -8,7 +8,7 @@ import {
 } from "react";
 
 import { useStore } from "zustand";
-import { IngredientStoreApi, setIngredientStore } from "@/presentation/stores/ingredient.store";
+import { IngredientStoreApi, setIngredientStore } from "@/presentation/state-manager/stores/ingredient.store";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { InMemIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
 import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
@@ -17,7 +17,7 @@ import { IngredientPlain } from "@/modules/recipe/init/ingredient.init";
 
 export const IngredientStoreContext = createContext<IngredientStoreApi | null>(null);
 
-export function Providers({
+export function RecipeProvider({
   children, 
   initPlainIngredients = [],
 }: {

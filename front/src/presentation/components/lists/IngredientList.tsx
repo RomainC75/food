@@ -1,5 +1,5 @@
 "use client"
-import { useRecipeStore } from '@/app/provider';
+import { useRecipeStore } from '@/presentation/state-manager/providers/recipeProvider';
 import React, { useEffect } from 'react'
 import { useShallow } from "zustand/react/shallow";
 
