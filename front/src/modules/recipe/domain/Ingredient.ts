@@ -25,7 +25,7 @@ export class NewIngredient {
   }
 
   isQtyValid(qty: { unit: BaseUnit }): boolean {
-    const family = Object.values(BaseUnit).find((units) => units.includes(this.baseUnit));
+    const family = Object.values(BaseUnit).find((units) => units === this.baseUnit);
     return family ? family.includes(qty.unit) : true;
   }
 

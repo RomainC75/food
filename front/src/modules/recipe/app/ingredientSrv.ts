@@ -6,7 +6,11 @@ export class IngredientSrv {
 
     }
 
-    createIngredient(ingredient: NewIngredient): Promise<Ingredient>{
+    create(ingredient: NewIngredient): Promise<Ingredient>{
         return this.ingredients.create(ingredient)
+    }
+
+    getList(): Promise<Ingredient[]>{
+        return this.ingredients.getList()
     }
 }
