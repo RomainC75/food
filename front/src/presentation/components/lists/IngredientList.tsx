@@ -1,22 +1,24 @@
 "use client"
 import { useRecipeStore } from '@/app/provider';
 import React, { useEffect } from 'react'
+import { useShallow } from "zustand/react/shallow";
 
 export const NoIngredientFound = "no ingredient found, create a new one"
 
 const IngredientList = () => {
-
-    const ingredients = useRecipeStore((state) => state.ingredients);
-    const loading = useRecipeStore((state) => state.loading);
-    const error = useRecipeStore((state) => state.error);
+    const { ingredients, loading, error } = useRecipeStore(
+      useShallow((state) => ({
+        ingredients: state.ingredients,
+        loading: state.loading,
+        error: state.error,
+      }))
+    );
     const fetchRecipes = useRecipeStore(
       (state) => state.fetchIngredients
     );
   
     useEffect(() => {
-      console.log('-- useEffect')
       fetchRecipes();
-  
     }, [fetchRecipes]);
   
     if (loading) return <p>Loading recipes...</p>;
