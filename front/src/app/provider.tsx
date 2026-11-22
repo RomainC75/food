@@ -12,17 +12,20 @@ import { IngredientStoreApi, setIngredientStore } from "@/presentation/stores/in
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { InMemIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
 import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
+import { Ingredient } from "@/modules/recipe/domain/Ingredient";
 
 export const IngredientStoreContext = createContext<IngredientStoreApi | null>(null);
 
 export function Providers({
   children, 
+  initIngredients = [],
 }: {
   children: ReactNode;
+  initIngredients: Ingredient[];
 }) {
   const [store] = useState(() => {
     const uuidGen = new InMemUuidGen();
-    const repository = new InMemIngredients(uuidGen);
+    const repository = new InMemIngredients(uuidGen, initIngredients);
     const ingredientSrv = new IngredientSrv(repository);
 
     return setIngredientStore(ingredientSrv);

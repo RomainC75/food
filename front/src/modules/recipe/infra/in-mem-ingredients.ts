@@ -3,15 +3,16 @@ import { Ingredient, NewIngredient } from "../domain/Ingredient";
 import { Ingredients } from "../domain/ingredients";
 import { BaseUnit } from "../domain/baseUnit";
 
-const initIngredients: Ingredient[] = [
+export const initIngredients: Ingredient[] = [
     new Ingredient("1", "salt", BaseUnit.Gram, "my-workspace"),
     new Ingredient("2", "pasta", BaseUnit.Gram, "my-workspace"),
 ];
 
 export class InMemIngredients implements Ingredients{
     savedIngredients: Ingredient[];
-    constructor(private uuidGen: Uuids){
+    constructor(private uuidGen: Uuids, initIngredients: Ingredient[]){
         this.savedIngredients= initIngredients;
+        this.savedIngredients = initIngredients;
     }
 
     setIngredients(ingredients: Ingredient[]){

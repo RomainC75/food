@@ -2,6 +2,8 @@
 import { useRecipeStore } from '@/app/provider';
 import React, { useEffect } from 'react'
 
+export const NoIngredientFound = "no ingredient found, create a new one"
+
 const IngredientList = () => {
 
     const ingredients = useRecipeStore((state) => state.ingredients);
@@ -20,6 +22,14 @@ const IngredientList = () => {
     if (loading) return <p>Loading recipes...</p>;
   
     if (error) return <p>Error: {error}</p>;
+
+    if (ingredients.length == 0) {
+      return (
+        <div>
+          {NoIngredientFound}   
+        </div>
+      )
+    }
   
   return (
     <div>
