@@ -13,7 +13,7 @@ import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { InMemIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
 import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
 
-const IngredientStoreContext = createContext<IngredientStoreApi | null>(null);
+export const IngredientStoreContext = createContext<IngredientStoreApi | null>(null);
 
 export function Providers({
   children, 
@@ -21,12 +21,12 @@ export function Providers({
   children: ReactNode;
 }) {
   const [store] = useState(() => {
-  const uuidGen = new InMemUuidGen();
-  const repository = new InMemIngredients(uuidGen);
+    const uuidGen = new InMemUuidGen();
+    const repository = new InMemIngredients(uuidGen);
+    const ingredientSrv = new IngredientSrv(repository);
 
-  const ingredientSrv = new IngredientSrv(repository);
-  return setIngredientStore(ingredientSrv);
-});
+    return setIngredientStore(ingredientSrv);
+  });
   return (
     <IngredientStoreContext.Provider value={store}>
       {children}
