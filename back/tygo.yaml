@@ -1,0 +1,7 @@
+# Generates TypeScript types from Go packages.
+# Run from back/:  make tygo
+packages:
+  - path: "food/internal/modules/recipe/domain"
+    output_path: "../front/src/modules/recipe/domain/recipe.gen.ts"
+    type_mappings:
+      uuid.UUID: "string /* uuid */"

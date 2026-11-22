@@ -10,4 +10,7 @@ migratedown:
 sqlc:
 	sqlc generate
 
-.PHONY: testsum migrateup migratedown sqlc 
+tygo:
+	go run github.com/gzuidhof/tygo@latest generate
+
+.PHONY: testsum migrateup migratedown sqlc tygo 
