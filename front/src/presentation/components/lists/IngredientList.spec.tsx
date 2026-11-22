@@ -1,11 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach} from "node:test";
 import IngredientList, { NoIngredientFound } from "./IngredientList";
-import { Providers } from "@/app/provider";
 import userEvent from "@testing-library/user-event";
 import { assert, describe, it } from "vitest";
-import { initPlainIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
 import { Ingredient } from "@/modules/recipe/domain/Ingredient";
+import { Providers } from "@/presentation/state-manager/providers";
+import { IngredientPlain, initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
 
 describe("ingredientList component", ()=>{
     
@@ -30,7 +30,7 @@ describe("ingredientList component", ()=>{
 })
 
 
-const Render = (initPlainIngredients: Ingredient[]) => {
+const Render = (initPlainIngredients: IngredientPlain[]) => {
     render(
         <Providers initPlainIngredients={initPlainIngredients}>
             <IngredientList />
