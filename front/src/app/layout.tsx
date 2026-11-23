@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono, Roboto} from "next/font/google";
+import { Geist, Geist_Mono, JetBrains_Mono, Roboto } from "next/font/google";
 import "./globals.css";
 import { RecipeProvider } from "../presentation/state-manager/providers/recipeProvider";
 import { cn } from "@/lib/utils";
@@ -20,9 +20,9 @@ import TestProviders from "@/presentation/state-manager/testProviders";
 
 const robotoMono = Roboto({
   variable: "--font-roboto-mono",
-  subsets: ['latin'],
-  display: 'swap',
-})
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -37,7 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", robotoMono.variable, "font-mono")}
     >
       <body className="min-h-full flex flex-col">
-        <TestProviders options={{initPlainIngredients}}>
+        <TestProviders
+          options={{ initPlainIngredients, isUserUnverified: false, isResponseError: false }}
+        >
           {children}
         </TestProviders>
       </body>

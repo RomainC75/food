@@ -1,33 +1,35 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  ReactNode,
-  useState,
-} from "react";
+import { createContext, useContext, ReactNode, useState } from "react";
 
 import { useStore } from "zustand";
 import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
 import { AuthSrv } from "@/modules/auth/app/authSrv";
 import { InMemUser } from "@/modules/auth/infra/in-mem-users";
-import { AuthStoreApi, setAuthStore } from "@/presentation/state-manager/stores/auth.store";
+import {
+  AuthStoreApi,
+  setAuthStore,
+} from "@/presentation/state-manager/stores/auth.store";
 
 export const AuthStoreContext = createContext<AuthStoreApi | null>(null);
 
 export function AuthProvider({
-  children, 
+  children,
   isUsersSlow,
-  isResponseError
+  isResponseError,
+  isUserUnverified,
 }: {
   children: ReactNode;
-  isUsersSlow?: boolean,
-  isResponseError?: boolean,
+  isUsersSlow?: boolean;
+  isResponseError?: boolean;
+  isUserUnverified?: boolean;
 }) {
   const [store] = useState(() => {
-    const uuids = new InMemUuidGen()
-    const users = new InMemUser(uuids, !!isUsersSlow).setIsResponseError(!!isResponseError)
-    const authSrv = new AuthSrv(users)
+    const uuids = new InMemUuidGen();
+    const users = new InMemUser(uuids, !!isUsersSlow)
+      .setIsResponseError(!!isResponseError)
+      .setIsUserUnverified(!!isUserUnverified);
+    const authSrv = new AuthSrv(users);
     return setAuthStore(authSrv);
   });
   return (
@@ -38,7 +40,7 @@ export function AuthProvider({
 }
 
 export function useAuthStore<T>(
-  selector: (state: ReturnType<AuthStoreApi["getState"]>) => T
+  selector: (state: ReturnType<AuthStoreApi["getState"]>) => T,
 ): T {
   const store = useContext(AuthStoreContext);
 

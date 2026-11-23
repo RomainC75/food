@@ -7,11 +7,14 @@ import {
 } from "../domain/user";
 import { Users } from "../domain/users";
 
+export const ErrorUserUnverified = "Account not verified, please check your emails";
+
 export class InMemUser implements Users {
   signedUpUser: SignupUser | null;
   fakeToken = "FAKE_TOKEN";
   workdspaceId = ["WORKSPACE_1", "WORKSPACE_2"];
   isResponseError = false;
+  isUserUnverified = false;
   constructor(
     private uuidGen: Uuids,
     private isUsersSlow: boolean,
@@ -37,6 +40,9 @@ export class InMemUser implements Users {
   }
 
   login(newUser: SigninUser): Promise<ConnectedUserInfo> {
+    if (this.isUserUnverified){
+      throw new Error(ErrorUserUnverified)
+    }
     if (this.isResponseError) {
       throw new Error("login error");
     }
@@ -50,6 +56,10 @@ export class InMemUser implements Users {
 
   setIsResponseError(isResponseError: boolean): InMemUser {
     this.isResponseError = isResponseError;
+    return this;
+  }
+  setIsUserUnverified(isUserUnverified: boolean): InMemUser {
+    this.isUserUnverified = isUserUnverified;
     return this;
   }
 }

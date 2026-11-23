@@ -10,7 +10,7 @@ export interface AuthState {
   error: string | null;
 
   signup: (userConnection: SignupUser) => Promise<boolean>;
-  login: (userConnection: SigninUser) => Promise<void>
+  login: (userConnection: SigninUser) => Promise<boolean>;
 }
 
 export const setAuthStore = (
@@ -46,7 +46,7 @@ export const setAuthStore = (
       }
     },
 
-    login: async (userConnection: SigninUser) => {
+    login: async (userConnection: SigninUser): Promise<boolean>  => {
       set({
         loading: true,
         error: null,
@@ -59,6 +59,7 @@ export const setAuthStore = (
               loading: false
             })
         )
+        return true
       } catch (error) {
         set({
           connectedUser: null,
@@ -67,6 +68,7 @@ export const setAuthStore = (
             ? error.message
             : "Unknown error",
         });
+        return false
       }
     },
   }));
