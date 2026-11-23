@@ -16,5 +16,14 @@
       "Read(~/.ssh/**)",
       "Read(~/.aws/credentials)"
     ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [{
+      "hooks": [{
+        "type": "command",
+        "shell": "bash",
+        "command": "echo 'Remember to run tests before committing.'"
+      }]
+    }]
   }
 }
