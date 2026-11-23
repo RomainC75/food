@@ -19,6 +19,7 @@ export class InMemIngredients implements Ingredients{
     create(newIngredient: NewIngredient): Promise<Ingredient>{
         const ingredient = Ingredient.fromNewIngredient(this.uuidGen.now(), newIngredient)
         this.savedIngredients.push(ingredient)
+        
         return Promise.resolve(ingredient)
     }
 

@@ -1,16 +1,13 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach} from "node:test";
+import { cleanup, render, screen } from "@testing-library/react";
 import IngredientList, { NoIngredientFound } from "./IngredientList";
-import userEvent from "@testing-library/user-event";
-import { assert, describe, it } from "vitest";
-import { Ingredient } from "@/modules/recipe/domain/Ingredient";
-import { Providers } from "@/presentation/state-manager/providers";
+import { afterEach, assert, describe, it } from "vitest";
 import { IngredientPlain, initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
+import TestProviders from "@/presentation/state-manager/testProviders";
 
 describe("ingredientList component", ()=>{
     
-    beforeEach(()=>{
-
+    afterEach(()=>{
+        cleanup();
     })
 
     it("should render 2 ingredients", async ()=>{
@@ -32,8 +29,8 @@ describe("ingredientList component", ()=>{
 
 const Render = (initPlainIngredients: IngredientPlain[]) => {
     render(
-        <Providers initPlainIngredients={initPlainIngredients}>
+        <TestProviders options={{initPlainIngredients}}>
             <IngredientList />
-        </Providers>,
+        </TestProviders>,
     );
 };

@@ -17,12 +17,16 @@ export const AuthStoreContext = createContext<AuthStoreApi | null>(null);
 
 export function AuthProvider({
   children, 
+  isUsersSlow,
+  isResponseError
 }: {
   children: ReactNode;
+  isUsersSlow?: boolean,
+  isResponseError?: boolean,
 }) {
   const [store] = useState(() => {
     const uuids = new InMemUuidGen()
-    const users = new InMemUser(uuids)
+    const users = new InMemUser(uuids, !!isUsersSlow).setIsResponseError(!!isResponseError)
     const authSrv = new AuthSrv(users)
     return setAuthStore(authSrv);
   });

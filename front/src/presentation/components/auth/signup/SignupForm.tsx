@@ -5,8 +5,10 @@ import { SignupFormData, signupSchema } from "./signup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuthStore } from "@/presentation/state-manager/providers/authProvider";
 import { Box, Button, TextField, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
 
 const SignupComponent = () => {
+  const router = useRouter();
   const { loading, error, signup } = useAuthStore(
     useShallow((state) => ({
       loading: state.loading,
@@ -32,8 +34,10 @@ const SignupComponent = () => {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    console.log("-> data : ", data);
-    signup(data)
+    const success = await signup(data);
+    if (success){
+      router.push("/")
+    }
   };
 
   return (
@@ -101,6 +105,7 @@ const SignupComponent = () => {
           {loading ? "Creating account..." : "Sign up"}
         </Button>
       </Box>
+      {error && <div>Error trying to signup, try again</div>}
     </div>
   );
 };

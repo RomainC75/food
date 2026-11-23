@@ -2,13 +2,14 @@ import { createStore } from "zustand/vanilla";
 import { ConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "@/modules/auth/domain/user";
 import { AuthSrv } from "@/modules/auth/app/authSrv";
 
+
 export interface AuthState {
   signedUpUser: SignedUpUser | null;
   connectedUser: ConnectedUserInfo | null;
   loading: boolean;
   error: string | null;
 
-  signup: (userConnection: SignupUser) => Promise<void>;
+  signup: (userConnection: SignupUser) => Promise<boolean>;
   login: (userConnection: SigninUser) => Promise<void>
 }
 
@@ -21,7 +22,7 @@ export const setAuthStore = (
     loading: false,
     error: null,
 
-    signup: async (userConnection: SignupUser) => {
+    signup: async (userConnection: SignupUser): Promise<boolean> => {
       set({
         loading: true,
         error: null,
@@ -33,6 +34,7 @@ export const setAuthStore = (
           signedUpUser: signedUpUser,
           loading: false,
         });
+        return true;
       } catch (error) {
         set({
           loading: false,
@@ -40,6 +42,7 @@ export const setAuthStore = (
             ? error.message
             : "Unknown error",
         });
+        return false;
       }
     },
 

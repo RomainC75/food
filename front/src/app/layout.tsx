@@ -4,7 +4,7 @@ import "./globals.css";
 import { RecipeProvider } from "../presentation/state-manager/providers/recipeProvider";
 import { cn } from "@/lib/utils";
 import { initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
-import { Providers } from "@/presentation/state-manager/providers";
+import TestProviders from "@/presentation/state-manager/testProviders";
 
 // const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
@@ -37,9 +37,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", robotoMono.variable, "font-mono")}
     >
       <body className="min-h-full flex flex-col">
-        <Providers initPlainIngredients={initPlainIngredients}>
+        <TestProviders options={{initPlainIngredients}}>
           {children}
-        </Providers>
+        </TestProviders>
       </body>
     </html>
   );

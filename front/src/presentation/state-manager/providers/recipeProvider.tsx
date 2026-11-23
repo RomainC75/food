@@ -22,7 +22,7 @@ export function RecipeProvider({
   initPlainIngredients = [],
 }: {
   children: ReactNode;
-  initPlainIngredients: IngredientPlain[];
+  initPlainIngredients?: IngredientPlain[];
 }) {
   const [store] = useState(() => {
     const uuidGen = new InMemUuidGen();
