@@ -1,8 +1,8 @@
-import { ConnectedUserInfo, SignedUpUser, UserConnection } from "./user";
+import { ConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "./user";
 
 
 
 export interface Users{
-    signup(userConnection: UserConnection): Promise<SignedUpUser>
-    login(newUser: UserConnection): Promise<ConnectedUserInfo>
+    signup(userConnection: SignupUser): Promise<SignedUpUser>
+    login(newUser: SigninUser): Promise<ConnectedUserInfo>
 }

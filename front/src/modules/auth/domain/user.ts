@@ -1,5 +1,12 @@
 
-export type UserConnection =  {
+export type SignupUser = {
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+}
+
+export type SigninUser =  {
     email: string,
     password: string,
 }

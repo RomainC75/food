@@ -1,14 +1,15 @@
-import { ConnectedUserInfo, SignedUpUser, UserConnection } from "../domain/user";
+import { SignupFormData } from "@/presentation/components/auth/signup/signup";
+import { ConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "../domain/user";
 import { Users } from "../domain/users";
 
 export class AuthSrv {
     constructor(private users: Users){ }
 
-    signup(userConnection: UserConnection): Promise<SignedUpUser>{
+    signup(userConnection: SignupUser): Promise<SignedUpUser>{
         return this.users.signup(userConnection)
     }
 
-    login(userConnection: UserConnection): Promise<ConnectedUserInfo>{
+    login(userConnection: SigninUser): Promise<ConnectedUserInfo>{
         return this.users.login(userConnection)
     }
 }
