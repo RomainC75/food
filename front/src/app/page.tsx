@@ -1,7 +1,7 @@
 "use client"
 
-import { CreateIngredientFormComponent } from "@/presentation/components/inputs/createIngredient/CreateIngredient";
-import IngredientLists from "@/presentation/components/lists/IngredientList";
+import { CreateIngredientFormComponent } from "@/presentation/components/recipe/createIngredient/CreateIngredient";
+import IngredientList from "@/presentation/components/recipe/lists/IngredientList";
 
 export default function Home() {
 
@@ -10,7 +10,7 @@ export default function Home() {
       <h1>Ingredients</h1>
       <CreateIngredientFormComponent/>
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <IngredientLists/>
+        <IngredientList/>
       </main>
     </div>
   );

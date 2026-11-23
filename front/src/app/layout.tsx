@@ -1,21 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono } from "next/font/google";
+import { Geist, Geist_Mono, JetBrains_Mono, Roboto} from "next/font/google";
 import "./globals.css";
 import { RecipeProvider } from "../presentation/state-manager/providers/recipeProvider";
 import { cn } from "@/lib/utils";
 import { initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
+import { Providers } from "@/presentation/state-manager/providers";
 
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
+// const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+// const geistSans = Geist({
+//   variable: "--font-geist-sans",
+//   subsets: ["latin"],
+// });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// const geistMono = Geist_Mono({
+//   variable: "--font-geist-mono",
+//   subsets: ["latin"],
+// });
+
+const robotoMono = Roboto({
+  variable: "--font-roboto-mono",
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -26,12 +33,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-mono", jetbrainsMono.variable)}
+      // className={cn("h-full", "antialiased", geistSans.variable, geistMono.variable, "font-mono", jetbrainsMono.variable)}
+      className={cn("h-full", "antialiased", robotoMono.variable, "font-mono")}
     >
       <body className="min-h-full flex flex-col">
-        <RecipeProvider initPlainIngredients={initPlainIngredients}>
+        <Providers initPlainIngredients={initPlainIngredients}>
           {children}
-        </RecipeProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 import { createStore } from "zustand/vanilla";
 import { Ingredient, NewIngredient } from "@/modules/recipe/domain/Ingredient";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
-import { CreateIngredientForm } from "../../components/inputs/createIngredient/create-ingredient";
+import { CreateIngredientForm } from "../../components/recipe/createIngredient/create-ingredient";
 
 export interface IngredientState {
   ingredients: Ingredient[];

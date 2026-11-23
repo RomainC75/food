@@ -1,33 +1,36 @@
 import { createStore } from "zustand/vanilla";
-import { ConnectedUserInfo, UserConnection } from "@/modules/auth/domain/user";
+import { ConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "@/modules/auth/domain/user";
 import { AuthSrv } from "@/modules/auth/app/authSrv";
 
 export interface AuthState {
-  connectedUser: ConnectedUserInfo | null
+  signedUpUser: SignedUpUser | null;
+  connectedUser: ConnectedUserInfo | null;
   loading: boolean;
   error: string | null;
 
-  signup: (userConnection: UserConnection) => Promise<void>;
-  login: (userConnection: UserConnection) => Promise<void>
+  signup: (userConnection: SignupUser) => Promise<void>;
+  login: (userConnection: SigninUser) => Promise<void>
 }
 
 export const setAuthStore = (
   authSrv: AuthSrv,
 ) => {
   return createStore<AuthState>()((set, _) => ({
+    signedUpUser: null,
     connectedUser: null,
     loading: false,
     error: null,
 
-    signup: async (userConnection: UserConnection) => {
+    signup: async (userConnection: SignupUser) => {
       set({
         loading: true,
         error: null,
       });
 
       try {
-        await authSrv.signup(userConnection);
+        const signedUpUser = await authSrv.signup(userConnection);
         set({
+          signedUpUser: signedUpUser,
           loading: false,
         });
       } catch (error) {
@@ -40,7 +43,7 @@ export const setAuthStore = (
       }
     },
 
-    login: async (userConnection: UserConnection) => {
+    login: async (userConnection: SigninUser) => {
       set({
         loading: true,
         error: null,
