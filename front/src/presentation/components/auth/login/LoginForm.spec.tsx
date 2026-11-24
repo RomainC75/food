@@ -1,8 +1,8 @@
-import TestProviders from "@/presentation/state-manager/testProviders";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import LoginComponent from "./LoginForm";
+import Providers from "@/presentation/state-manager/providers";
 
 
 const pushMock = vi.fn();
@@ -36,6 +36,26 @@ describe("SignupForm tests", () => {
 
     expect(await screen.findByText(/check your emails/i)).toBeVisible();
   });
+
+    it("should go to / if login returns the token", async () => {
+    Render(false, false, false);
+    const user = userEvent.setup();
+
+    const emailInput = screen.getByRole("textbox", {
+      name: /email/i,
+    });
+    await user.type(emailInput, "fake@email.com");
+
+    const passwordInput = screen.getByLabelText("Password");
+    await user.type(passwordInput, "my-password");
+                 
+    await user.click(screen.getByRole("button", { name: /login/i }));
+    
+    expect(pushMock).toHaveBeenCalledWith("/");
+
+    // TODO test the token has been saved 
+
+  });
 });
 
 const Render = (
@@ -44,7 +64,7 @@ const Render = (
   isUserUnverified: boolean,
 ) => {
   render(
-    <TestProviders
+    <Providers
       options={{
         initPlainIngredients: [],
         isUsersSlow,
@@ -53,6 +73,6 @@ const Render = (
       }}
     >
       <LoginComponent />
-    </TestProviders>,
+    </Providers>,
   );
 };

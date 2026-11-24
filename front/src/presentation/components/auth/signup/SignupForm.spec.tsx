@@ -2,8 +2,8 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, assert, describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
 import SignupComponent from "./SignupForm";
-import TestProviders from "@/presentation/state-manager/testProviders";
 import { vi } from "vitest";
+import Providers from "@/presentation/state-manager/providers";
 
 const pushMock = vi.fn();
 
@@ -157,8 +157,8 @@ describe("SignupForm tests", () => {
 
 const Render = (isUsersSlow: boolean, isResponseError: boolean) => {
   render(
-    <TestProviders options={{initPlainIngredients: [], isUsersSlow, isResponseError}}>
+    <Providers options={{initPlainIngredients: [], isUsersSlow, isResponseError}}>
       <SignupComponent />
-    </TestProviders>,
+    </Providers>,
   );
 };

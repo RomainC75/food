@@ -2,7 +2,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import IngredientList, { NoIngredientFound } from "./IngredientList";
 import { afterEach, assert, describe, it } from "vitest";
 import { IngredientPlain, initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
-import TestProviders from "@/presentation/state-manager/testProviders";
+import Providers from "@/presentation/state-manager/providers";
 
 describe("ingredientList component", ()=>{
     
@@ -29,8 +29,8 @@ describe("ingredientList component", ()=>{
 
 const Render = (initPlainIngredients: IngredientPlain[]) => {
     render(
-        <TestProviders options={{initPlainIngredients}}>
+        <Providers options={{initPlainIngredients}}>
             <IngredientList />
-        </TestProviders>,
+        </Providers>,
     );
 };

@@ -20,5 +20,6 @@ export type ConnectedUserInfo = {
     id: string, 
     workspaceIds: string[], 
     email: string, 
-    token: string
+    token: string,
+    refreshToken: string,
 }

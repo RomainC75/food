@@ -51,6 +51,7 @@ export class InMemUser implements Users {
       email: newUser.email,
       workspaceIds: this.workdspaceId,
       token: this.fakeToken,
+      refreshToken: this.fakeToken
     });
   }
 

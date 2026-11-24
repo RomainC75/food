@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/shallow";
 import { SignupFormData, signupSchema } from "./signup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useAuthStore } from "@/presentation/state-manager/providers/authProvider";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/presentation/state-manager/providers/authProvider";
 
 const SignupComponent = () => {
   const router = useRouter();

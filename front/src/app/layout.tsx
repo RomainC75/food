@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, JetBrains_Mono, Roboto } from "next/font/google";
+import { Roboto } from "next/font/google";
 import "./globals.css";
-import { RecipeProvider } from "../presentation/state-manager/providers/recipeProvider";
 import { cn } from "@/lib/utils";
-import { initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
-import TestProviders from "@/presentation/state-manager/testProviders";
+import Providers from "@/presentation/state-manager/providers";
 
 // const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
@@ -37,11 +35,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", robotoMono.variable, "font-mono")}
     >
       <body className="min-h-full flex flex-col">
-        <TestProviders
+        {/* <TestProviders
           options={{ initPlainIngredients, isUserUnverified: false, isResponseError: false }}
         >
           {children}
-        </TestProviders>
+        </TestProviders> */}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );

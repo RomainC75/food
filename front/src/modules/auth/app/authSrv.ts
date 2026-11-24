@@ -1,4 +1,3 @@
-import { SignupFormData } from "@/presentation/components/auth/signup/signup";
 import { ConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "../domain/user";
 import { Users } from "../domain/users";
 
@@ -10,6 +9,7 @@ export class AuthSrv {
     }
 
     login(userConnection: SigninUser): Promise<ConnectedUserInfo>{
+        // TODO connect
         return this.users.login(userConnection)
     }
 }
