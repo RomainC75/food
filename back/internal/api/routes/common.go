@@ -54,9 +54,11 @@ func ConnectRoutes() *chi.Mux {
 	r.Use(middleware.Logger)
 
 	ConnectHealthRoutes(r)
-	ConnectIdAccessRoutes(r, userSrv, workspaceSrv)
-	ConnectIngredientRoutes(r, ingredientSrv, userSrv, workspaceSrv)
-	ConnectRecipeRoutes(r, recipeSrv, userSrv, workspaceSrv)
+	r.Route("/api", func(r chi.Router) {
+		ConnectIdAccessRoutes(r, userSrv, workspaceSrv)
+		ConnectIngredientRoutes(r, ingredientSrv, userSrv, workspaceSrv)
+		ConnectRecipeRoutes(r, recipeSrv, userSrv, workspaceSrv)
+	})
 
 	return r
 }

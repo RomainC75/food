@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func ConnectRecipeRoutes(r *chi.Mux, recipeSrv *recipe_app.RecipeSrv, userSrv *idaccess_app.UserSrv, authorizer recipe_dom.WorkspaceAuthorizer) {
+func ConnectRecipeRoutes(r chi.Router, recipeSrv *recipe_app.RecipeSrv, userSrv *idaccess_app.UserSrv, authorizer recipe_dom.WorkspaceAuthorizer) {
 	recipeCtrl := ctrl.NewRecipeCtrl(recipeSrv)
 	userCtrl := ctrl.NewIdAccessCtrl(userSrv)
 	r.Route("/workspace/{workspaceId}/recipes", func(r chi.Router) {

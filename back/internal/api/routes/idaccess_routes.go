@@ -7,7 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func ConnectIdAccessRoutes(r *chi.Mux, userSrv *idaccess_app.UserSrv, workspaceSrv *idaccess_app.WorkspaceSrv) {
+func ConnectIdAccessRoutes(r chi.Router, userSrv *idaccess_app.UserSrv, workspaceSrv *idaccess_app.WorkspaceSrv) {
 	idAccessCtrl := ctrl.NewIdAccessCtrl(userSrv)
 	workspaceCtrl := ctrl.NewWorkspaceCtrl(workspaceSrv)
 
