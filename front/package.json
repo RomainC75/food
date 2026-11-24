@@ -19,6 +19,7 @@
     "@mui/material": "^9.5.0",
     "@phosphor-icons/react": "^2.1.10",
     "@testing-library/jest-dom": "^8.0.0",
+    "axios": "^1.21.1",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "jest": "^30.5.2",

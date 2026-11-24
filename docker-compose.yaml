@@ -1,15 +1,19 @@
-version: '3.8'
 services:
-  # front:
-  #   build: ./front
-  #   ports:
-  #     - "5173:5173"
-  #   environment:
-  #     - VITE_API_URL=http://localhost:${BACK_PORT}/api
-  #     - VITE_SOCKET_URL=ws://localhost:${BACK_PORT}
-  #   volumes:
-  #     - ./front:/app
-  #     - /app/node_modules
+  front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile.dev
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      WATCHPACK_POLLING: "true"
+      NEXT_PUBLIC_API_URL: http://localhost:${BACK_PORT}/api
+    volumes:
+      - ./front:/app
+      - /app/node_modules
+      - /app/.next
+
 
   back:
     build:
