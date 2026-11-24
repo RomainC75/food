@@ -2,6 +2,7 @@ package routes
 
 import (
 	"food/config"
+	middw "food/internal/api/middlewares"
 	idaccess_app "food/internal/modules/id-access/application"
 	idaccess_infra "food/internal/modules/id-access/infra"
 	idaccess_infra_persist "food/internal/modules/id-access/infra/persistence"
@@ -51,7 +52,9 @@ func ConnectRoutes() *chi.Mux {
 	)
 
 	r := chi.NewRouter()
+
 	r.Use(middleware.Logger)
+	r.Use(middw.Cors)
 
 	ConnectHealthRoutes(r)
 	r.Route("/api", func(r chi.Router) {

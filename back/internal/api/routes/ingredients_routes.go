@@ -2,7 +2,7 @@ package routes
 
 import (
 	ctrl "food/internal/api/controllers"
-	"food/internal/api/middlewares"
+	middw "food/internal/api/middlewares"
 	idaccess_app "food/internal/modules/id-access/application"
 	recipe_app "food/internal/modules/recipe/application"
 	recipe_dom "food/internal/modules/recipe/domain"
@@ -15,7 +15,7 @@ func ConnectIngredientRoutes(r chi.Router, ingredientSrv *recipe_app.IngredientS
 	userCtrl := ctrl.NewIdAccessCtrl(userSrv)
 	r.Route("/workspace/{workspaceId}/ingredients", func(r chi.Router) {
 		r.Use(userCtrl.Verify)
-		r.Use(middlewares.WorkspaceMiddleware(authorizer))
+		r.Use(middw.WorkspaceMiddleware(authorizer))
 
 		r.Post("/", ingredientCtrl.CreateIncredient)
 		r.Get("/", ingredientCtrl.Search)
