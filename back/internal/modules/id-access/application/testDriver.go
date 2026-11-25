@@ -47,8 +47,8 @@ func (td *TestDriver) SignupUser(cmd SignupCmd) (*idaccess_dom.User, error) {
 	return td.userSrv.SignupUser(td.ctx, cmd)
 }
 
-func (td *TestDriver) SigninUser(cmd SigninCmd) (SigninResult, error) {
-	return td.userSrv.SigninUser(td.ctx, cmd)
+func (td *TestDriver) LoginUser(cmd LoginCmd) (LoginResult, error) {
+	return td.userSrv.LoginUser(td.ctx, cmd)
 }
 
 func (td *TestDriver) CreateWorkspace(createWCmd CreateWorkspaceCmd) (*idaccess_dom.Workspace, error) {
@@ -125,8 +125,8 @@ func (td *TestDriver) SetupExpectedTokenError(expectGenTokenError bool) *TestDri
 	return td
 }
 
-func (td *TestDriver) SetupExpectedToken(expectedToken string) *TestDriver {
-	td.jwtGen.SetupExpectedToken(expectedToken)
+func (td *TestDriver) SetupExpectedToken(expectedRefreshToken string, expectedAccessToken string) *TestDriver {
+	td.jwtGen.SetupExpectedTokens(expectedRefreshToken, expectedAccessToken)
 	return td
 }
 
