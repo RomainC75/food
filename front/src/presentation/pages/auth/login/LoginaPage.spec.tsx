@@ -1,7 +1,7 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
-import LoginComponent from "./LoginForm";
+import LoginComponent from "./LoginPage";
 import Providers from "@/presentation/state-manager/providers";
 import { createTestDependencies, Dependencies, TestDependencies } from "@/dependencies";
 import { FAKE_TOKEN } from "@/modules/auth/infra/in-mem-users";

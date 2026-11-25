@@ -64,12 +64,12 @@ export const createTestDependencies = (opts: TestDependenciesOptions = {}): Test
   );
 
   return {
-    tokenStorage: tokenStorage,
+    tokenStorage,
     uuidGen,
     users,
     ingredients,
     authSrv: new AuthSrv(users, tokenStorage),
     ingredientSrv: new IngredientSrv(ingredients),
-  } satisfies Dependencies;
+  };
 };
 

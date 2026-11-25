@@ -1,5 +1,5 @@
 "use client"
-import LoginComponent from "@/presentation/components/auth/login/LoginForm";
+import LoginComponent from "@/presentation/pages/auth/login/LoginPage";
 
 export default function LoginPage() {
   return (
