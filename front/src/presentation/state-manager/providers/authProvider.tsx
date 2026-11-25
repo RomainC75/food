@@ -10,18 +10,21 @@ import {
 import { useStore } from "zustand";
 import { AuthSrv } from "@/modules/auth/app/authSrv";
 import { AuthStoreApi, setAuthStore } from "@/presentation/state-manager/stores/auth.store";
+import { ConnectedUserInfo } from "@/modules/auth/domain/user";
 
 export const AuthStoreContext = createContext<AuthStoreApi | null>(null);
 
 export function AuthProvider({
   children, 
-  authSrv
+  authSrv,
+  connectedUser,
 }: {
   children: ReactNode;
   authSrv: AuthSrv;
+  connectedUser?: ConnectedUserInfo;
 }) {
   const [store] = useState(() => {
-    return setAuthStore(authSrv);
+    return setAuthStore(authSrv, connectedUser);
   });
   return (
     <AuthStoreContext.Provider value={store}>

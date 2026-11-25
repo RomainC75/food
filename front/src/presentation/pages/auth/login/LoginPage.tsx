@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useShallow } from "zustand/shallow";
 import { loginSchema } from "./login";

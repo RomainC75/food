@@ -1,5 +1,4 @@
 import axios, { AxiosInstance } from "axios";
-import { InMemTokenStorage } from "./in-mem-tokenStorage";
 import { TokenStorage } from "../domain/tokenStorage";
 
 export const axiosHttpHander = (tokenStorage: TokenStorage): AxiosInstance => {

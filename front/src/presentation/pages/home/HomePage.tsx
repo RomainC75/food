@@ -1,0 +1,17 @@
+"use client"
+import { CreateIngredientFormComponent } from "@/presentation/components/recipe/createIngredient/CreateIngredient";
+import IngredientList from "@/presentation/components/recipe/lists/IngredientList";
+
+const HomePage = () => {
+  return (
+    <div>
+      <h1>Ingredients</h1>
+      <CreateIngredientFormComponent />
+      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
+        <IngredientList />
+      </main>
+    </div>
+  );
+};
+
+export default HomePage;

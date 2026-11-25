@@ -15,10 +15,11 @@ export interface AuthState {
 
 export const setAuthStore = (
   authSrv: AuthSrv,
+  connectedUser?: ConnectedUserInfo
 ) => {
   return createStore<AuthState>()((set, _) => ({
     signedUpUser: null,
-    connectedUser: null,
+    connectedUser: connectedUser ?? null,
     loading: false,
     error: null,
 
