@@ -1,26 +1,17 @@
-import { IngredientPlain } from "@/modules/recipe/init/ingredient.init";
 import { RecipeProvider } from "./providers/recipeProvider";
 import { AuthProvider } from "./providers/authProvider";
-import { AuthSrv } from "@/modules/auth/app/authSrv";
+import { Dependencies } from "@/dependencies";
 
 export default function Providers({
   children,
-  authSrv,
-  options
+  deps,
 }: {
   children: React.ReactNode;
-  authSrv: AuthSrv
-  options?: {
-    initPlainIngredients?: IngredientPlain[];
-  };
+  deps: Dependencies;
 }) {
   return (
-    <AuthProvider
-      authSrv={authSrv}
-    >
-      <RecipeProvider
-        initPlainIngredients={options?.initPlainIngredients ?? []}
-      >
+    <AuthProvider authSrv={deps.authSrv}>
+      <RecipeProvider ingredientSrv={deps.ingredientSrv}>
         {children}
       </RecipeProvider>
     </AuthProvider>

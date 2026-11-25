@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Providers from "@/presentation/state-manager/providers";
-import { HttpUsers } from "@/modules/auth/infra/http-users";
-import { AuthSrv } from "@/modules/auth/app/authSrv";
+import AppProviders from "@/presentation/state-manager/appProviders";
 
 // const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
 
@@ -30,9 +28,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
-  const users = new HttpUsers()
-  const authSrv = new AuthSrv(users)
-  
   return (
     <html
       lang="en"
@@ -40,14 +35,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={cn("h-full", "antialiased", robotoMono.variable, "font-mono")}
     >
       <body className="min-h-full flex flex-col">
-        {/* <TestProviders
-          options={{ initPlainIngredients, isUserUnverified: false, isResponseError: false }}
-        >
+        <AppProviders>
           {children}
-        </TestProviders> */}
-        <Providers authSrv={authSrv}>
-          {children}
-        </Providers>
+        </AppProviders>
       </body>
     </html>
   );

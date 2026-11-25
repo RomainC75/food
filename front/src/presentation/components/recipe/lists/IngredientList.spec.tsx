@@ -3,9 +3,7 @@ import IngredientList, { NoIngredientFound } from "./IngredientList";
 import { afterEach, assert, describe, it } from "vitest";
 import { IngredientPlain, initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
 import Providers from "@/presentation/state-manager/providers";
-import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
-import { InMemUser } from "@/modules/auth/infra/in-mem-users";
-import { AuthSrv } from "@/modules/auth/app/authSrv";
+import { createTestDependencies, TestDependencies } from "@/dependencies";
 
 describe("ingredientList component", ()=>{
     
@@ -30,13 +28,13 @@ describe("ingredientList component", ()=>{
 })
 
 
+let deps: TestDependencies;
+
 const Render = (initPlainIngredients: IngredientPlain[]) => {
-    const uuids = new InMemUuidGen()
-      const users = new InMemUser(uuids, false)
-      const authSrv = new AuthSrv(users)
+    deps = createTestDependencies({ initPlainIngredients });
 
     render(
-        <Providers authSrv= {authSrv} options={{initPlainIngredients}}>
+        <Providers deps={deps}>
             <IngredientList />
         </Providers>,
     );

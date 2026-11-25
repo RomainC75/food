@@ -10,28 +10,17 @@ import {
 import { useStore } from "zustand";
 import { IngredientStoreApi, setIngredientStore } from "@/presentation/state-manager/stores/ingredient.store";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
-import { InMemIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
-import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
-import { Ingredient } from "@/modules/recipe/domain/Ingredient";
-import { IngredientPlain } from "@/modules/recipe/init/ingredient.init";
 
 export const IngredientStoreContext = createContext<IngredientStoreApi | null>(null);
 
 export function RecipeProvider({
-  children, 
-  initPlainIngredients = [],
+  children,
+  ingredientSrv,
 }: {
   children: ReactNode;
-  initPlainIngredients?: IngredientPlain[];
+  ingredientSrv: IngredientSrv;
 }) {
-  const [store] = useState(() => {
-    const uuidGen = new InMemUuidGen();
-    const repository = new InMemIngredients(uuidGen, initPlainIngredients.map(ip => 
-      new Ingredient(ip.id, ip.name, ip.baseUnit, ip.workspaceId)));
-    const ingredientSrv = new IngredientSrv(repository);
-
-    return setIngredientStore(ingredientSrv);
-  });
+  const [store] = useState(() => setIngredientStore(ingredientSrv));
   return (
     <IngredientStoreContext.Provider value={store}>
       {children}

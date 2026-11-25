@@ -4,9 +4,7 @@ import userEvent from "@testing-library/user-event";
 import SignupComponent from "./SignupForm";
 import { vi } from "vitest";
 import Providers from "@/presentation/state-manager/providers";
-import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
-import { InMemUser } from "@/modules/auth/infra/in-mem-users";
-import { AuthSrv } from "@/modules/auth/app/authSrv";
+import { createTestDependencies, TestDependencies } from "@/dependencies";
 
 const pushMock = vi.fn();
 
@@ -158,14 +156,13 @@ describe("SignupForm tests", () => {
 
 
 
+let deps: TestDependencies;
+
 const Render = (isUsersSlow: boolean, isResponseError: boolean) => {
-  const uuids = new InMemUuidGen()
-  const users = new InMemUser(uuids, !!isUsersSlow)
-  .setIsResponseError(!!isResponseError)
-  const authSrv = new AuthSrv(users)
+  deps = createTestDependencies({ isUsersSlow, isResponseError });
 
   render(
-    <Providers authSrv={authSrv} options={{initPlainIngredients: []}}>
+    <Providers deps={deps}>
       <SignupComponent />
     </Providers>,
   );
