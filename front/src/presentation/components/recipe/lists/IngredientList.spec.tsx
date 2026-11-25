@@ -3,6 +3,9 @@ import IngredientList, { NoIngredientFound } from "./IngredientList";
 import { afterEach, assert, describe, it } from "vitest";
 import { IngredientPlain, initPlainIngredients } from "@/modules/recipe/init/ingredient.init";
 import Providers from "@/presentation/state-manager/providers";
+import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
+import { InMemUser } from "@/modules/auth/infra/in-mem-users";
+import { AuthSrv } from "@/modules/auth/app/authSrv";
 
 describe("ingredientList component", ()=>{
     
@@ -28,8 +31,12 @@ describe("ingredientList component", ()=>{
 
 
 const Render = (initPlainIngredients: IngredientPlain[]) => {
+    const uuids = new InMemUuidGen()
+      const users = new InMemUser(uuids, false)
+      const authSrv = new AuthSrv(users)
+
     render(
-        <Providers options={{initPlainIngredients}}>
+        <Providers authSrv= {authSrv} options={{initPlainIngredients}}>
             <IngredientList />
         </Providers>,
     );

@@ -19,29 +19,12 @@ export const AuthStoreContext = createContext<AuthStoreApi | null>(null);
 
 export function AuthProvider({
   children, 
-  isForTest,
-  isUsersSlow,
-  isResponseError,
-  isUserUnverified,
+  authSrv
 }: {
   children: ReactNode;
-  isForTest?: boolean,
-  isUsersSlow?: boolean,
-  isResponseError?: boolean,
-  isUserUnverified?: boolean,
+  authSrv: AuthSrv;
 }) {
   const [store] = useState(() => {
-    let users: Users;
-    if(isForTest){
-      const uuids = new InMemUuidGen()
-      users = new InMemUser(uuids, !!isUsersSlow)
-      .setIsResponseError(!!isResponseError)
-      .setIsUserUnverified(!!isUserUnverified)
-    }else {
-      users = new HttpUsers()
-    }
-
-    const authSrv = new AuthSrv(users)
     return setAuthStore(authSrv);
   });
   return (

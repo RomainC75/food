@@ -3,6 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import LoginComponent from "./LoginForm";
 import Providers from "@/presentation/state-manager/providers";
+import { InMemUuidGen } from "@/modules/shared/infra/in-mem-uuidGen";
+import { InMemUser } from "@/modules/auth/infra/in-mem-users";
+import { AuthSrv } from "@/modules/auth/app/authSrv";
 
 
 const pushMock = vi.fn();
@@ -63,13 +66,17 @@ const Render = (
   isResponseError: boolean,
   isUserUnverified: boolean,
 ) => {
+  const uuids = new InMemUuidGen()
+  const users = new InMemUser(uuids, !!isUsersSlow)
+  .setIsResponseError(!!isResponseError)
+  .setIsUserUnverified(!!isUserUnverified)
+  const authSrv = new AuthSrv(users)
+
   render(
     <Providers
+      authSrv={authSrv}
       options={{
         initPlainIngredients: [],
-        isUsersSlow,
-        isResponseError,
-        isUserUnverified,
       }}
     >
       <LoginComponent />

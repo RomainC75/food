@@ -1,25 +1,22 @@
 import { IngredientPlain } from "@/modules/recipe/init/ingredient.init";
 import { RecipeProvider } from "./providers/recipeProvider";
 import { AuthProvider } from "./providers/authProvider";
+import { AuthSrv } from "@/modules/auth/app/authSrv";
 
 export default function Providers({
   children,
-  options,
+  authSrv,
+  options
 }: {
   children: React.ReactNode;
+  authSrv: AuthSrv
   options?: {
     initPlainIngredients?: IngredientPlain[];
-    isUsersSlow?: boolean;
-    isResponseError?: boolean;
-    isUserUnverified?: boolean;
   };
 }) {
   return (
     <AuthProvider
-      isForTest={true}
-      isUsersSlow={!!options?.isUsersSlow}
-      isResponseError={!!options?.isResponseError}
-      isUserUnverified={!!options?.isUserUnverified}
+      authSrv={authSrv}
     >
       <RecipeProvider
         initPlainIngredients={options?.initPlainIngredients ?? []}
