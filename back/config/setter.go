@@ -1,6 +1,7 @@
 package config
 
 import (
+	"food/utils/displayer"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -19,10 +20,12 @@ func Set() {
 			Port: v.GetString("BACK_PORT"),
 		},
 		Jwt: Jwt{
-			Secret:       v.GetString("JWT_SECRET"),
-			ExpiresInMin: v.GetInt("JWT_EXPIRES_IN_MIN"),
+			RefreshSecret:        v.GetString("JWT_REFRESH_SECRET"),
+			AccessSecret:         v.GetString("JWT_ACCESS_SECRET"),
+			RefreshExpiresInDays: v.GetInt("JWT_REFRESH_EXPIRES_IN_DAYS"),
+			AccessExpiresInMin:   v.GetInt("JWT_ACCESS_EXPIRES_IN_MIN"),
 		},
 	}
 
-	// displayer.PrettyDisplay("config", configurations)
+	displayer.PrettyDisplay("config", configurations)
 }

@@ -6,7 +6,7 @@ import (
 )
 
 func PopulateUsers(userSrv *idaccess_app.UserSrv) {
-	userSrv.SigninUser(context.Background(), idaccess_app.SigninCmd{
+	userSrv.LoginUser(context.Background(), idaccess_app.LoginCmd{
 		Email:    "fake@email.com",
 		Password: "azertyazerty",
 	})

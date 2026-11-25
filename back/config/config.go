@@ -15,6 +15,8 @@ type Server struct {
 }
 
 type Jwt struct {
-	Secret       string
-	ExpiresInMin int
+	RefreshSecret        string
+	AccessSecret         string
+	RefreshExpiresInDays int
+	AccessExpiresInMin   int
 }

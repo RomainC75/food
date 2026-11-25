@@ -5,7 +5,9 @@ import (
 )
 
 type InMemJWT struct {
-	expectedToken           string
+	expectedAccessToken     string
+	expectedRefreshToken    string
+	expectedNewAccessToken  string
 	isGenerateErrorExpected bool
 	isVerifyError           bool
 	verifyInfo              idaccess_dom.VerifyInfo
@@ -15,24 +17,37 @@ func NewInMemJWT() *InMemJWT {
 	return &InMemJWT{}
 }
 
-func (imj *InMemJWT) Generate(user *idaccess_dom.User) (string, error) {
+func (imj *InMemJWT) Generate(user *idaccess_dom.User) (idaccess_dom.GeneratedTokens, error) {
 	if imj.isGenerateErrorExpected {
-		return "", idaccess_dom.ErrCouldNotGenerateJwt
+		return idaccess_dom.GeneratedTokens{}, idaccess_dom.ErrCouldNotGenerateJwt
 	}
-	return imj.expectedToken, nil
+	return idaccess_dom.GeneratedTokens{
+		AccessToken:  imj.expectedAccessToken,
+		RefreshToken: imj.expectedRefreshToken,
+	}, nil
 }
 
-func (imj *InMemJWT) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
+func (imj *InMemJWT) VerifyAccess(accessToken string) (idaccess_dom.VerifyInfo, error) {
 	if imj.isVerifyError {
 		return idaccess_dom.VerifyInfo{}, idaccess_dom.ErrCouldNotVerifyToken
 	}
 	return imj.verifyInfo, nil
 }
 
+func (imj *InMemJWT) Refresh(refreshToken string) (string, error) {
+	return imj.expectedNewAccessToken, nil
+}
+
 func (imj *InMemJWT) SetupExpectedTokenError(expectedGenError bool) {
 	imj.isGenerateErrorExpected = expectedGenError
 }
 
-func (imj *InMemJWT) SetupExpectedToken(expectedToken string) {
-	imj.expectedToken = expectedToken
+func (imj *InMemJWT) SetupExpectedTokens(expectedRefreshToken string, expectedAccessToken string) {
+	imj.expectedRefreshToken = expectedRefreshToken
+	imj.expectedAccessToken = expectedAccessToken
+}
+
+func (imj *InMemJWT) SetupNewAccessToken(expectedNewAccessToken string) {
+	imj.expectedNewAccessToken = expectedNewAccessToken
+
 }

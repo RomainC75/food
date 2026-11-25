@@ -16,8 +16,10 @@ import (
 )
 
 func ConnectRoutes() *chi.Mux {
-	jwtSecret := config.Get().Jwt.Secret
-	expiresIn := time.Duration(config.Get().Jwt.ExpiresInMin * int(time.Minute))
+	jwtRefreshSecret := config.Get().Jwt.RefreshSecret
+	jwtAccessSecret := config.Get().Jwt.AccessSecret
+	refreshExpiresIn := time.Duration(config.Get().Jwt.RefreshExpiresInDays * int(time.Hour) * 24)
+	accessExpiresIn := time.Duration(config.Get().Jwt.AccessExpiresInMin * int(time.Minute))
 	timeDate := shared_infra.NewDateTime()
 	uuidGen := shared_infra.NewUuidGenerator()
 
@@ -28,7 +30,7 @@ func ConnectRoutes() *chi.Mux {
 	userSrv := idaccess_app.NewUserSrv(
 		uuidGen,
 		idaccess_infra.NewBcrypt(),
-		idaccess_infra.NewJWT(timeDate, jwtSecret, expiresIn),
+		idaccess_infra.NewJWT(timeDate, jwtRefreshSecret, jwtAccessSecret, refreshExpiresIn, accessExpiresIn),
 		idaccess_infra.NewInMemoryUsers(),
 	)
 	idaccess_infra_persist.PopulateUsers(userSrv)

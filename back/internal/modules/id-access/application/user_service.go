@@ -5,6 +5,7 @@ import (
 	"errors"
 	idaccess_dom "food/internal/modules/id-access/domain"
 	shared_domain "food/internal/shared/domain"
+	"food/utils/displayer"
 
 	"github.com/google/uuid"
 )
@@ -21,12 +22,13 @@ type Credentials struct {
 }
 
 type SignupCmd = Credentials
-type SigninCmd = Credentials
+type LoginCmd = Credentials
 
-type SigninResult struct {
-	UserID uuid.UUID
-	Email  string
-	Token  string
+type LoginResult struct {
+	UserID       uuid.UUID
+	Email        string
+	AccessToken  string
+	RefreshToken string
 }
 
 type UserSrv struct {
@@ -67,31 +69,41 @@ func (uSrv *UserSrv) SignupUser(ctx context.Context, cmd SignupCmd) (*idaccess_d
 	return newUser, err
 }
 
-func (uSrv *UserSrv) SigninUser(ctx context.Context, cmd SigninCmd) (SigninResult, error) {
+func (uSrv *UserSrv) LoginUser(ctx context.Context, cmd LoginCmd) (LoginResult, error) {
 	foundUser, err := uSrv.users.FindByEmail(ctx, cmd.Email)
 
 	if err != nil {
-		return SigninResult{}, errors.New(ErrWrongEmailOrPassword)
+		return LoginResult{}, errors.New(ErrWrongEmailOrPassword)
 	}
 
 	isPassValid := uSrv.bcrypt.IsValid(foundUser.Password(), cmd.Password)
 	if !isPassValid {
-		return SigninResult{}, errors.New(ErrWrongEmailOrPassword)
+		return LoginResult{}, errors.New(ErrWrongEmailOrPassword)
 	}
 
-	tokenStr, err := uSrv.jwtGen.Generate(foundUser)
-	return SigninResult{
-		UserID: foundUser.Id(),
-		Email:  foundUser.Email(),
-		Token:  tokenStr,
+	generatedTokens, err := uSrv.jwtGen.Generate(foundUser)
+	displayer.PrettyDisplay("tokens : ", generatedTokens)
+	return LoginResult{
+		UserID:       foundUser.Id(),
+		Email:        foundUser.Email(),
+		AccessToken:  generatedTokens.AccessToken,
+		RefreshToken: generatedTokens.RefreshToken,
 	}, err
 }
 
-func (uSrv *UserSrv) Verify(tokenStr string) (idaccess_dom.VerifyInfo, error) {
-
-	data, err := uSrv.jwtGen.Verify(tokenStr)
+func (uSrv *UserSrv) Verify(accessToken string) (idaccess_dom.VerifyInfo, error) {
+	data, err := uSrv.jwtGen.VerifyAccess(accessToken)
 	if err != nil {
 		return data, errors.New(ErrDecodingToken)
 	}
 	return data, nil
+}
+
+func (uSrv *UserSrv) Refresh(refreshToken string) (string, error) {
+
+	accessToken, err := uSrv.jwtGen.Refresh(refreshToken)
+	if err != nil {
+		return accessToken, errors.New(ErrDecodingToken)
+	}
+	return accessToken, nil
 }

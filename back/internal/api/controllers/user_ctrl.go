@@ -46,14 +46,14 @@ func (ictrl *IdAccessCtrl) Signup(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
-	req, status, err := req_extractor.OpenRequestExtractor[dto_idaccess_req.SigninUser](r)
+func (ictrl *IdAccessCtrl) Login(w http.ResponseWriter, r *http.Request) {
+	req, status, err := req_extractor.OpenRequestExtractor[dto_idaccess_req.LoginUser](r)
 	if err != nil {
 		http.Error(w, err.Error(), status)
 		return
 	}
 
-	found, err := ictrl.userSrv.SigninUser(r.Context(), idaccess_app.SigninCmd{
+	found, err := ictrl.userSrv.LoginUser(r.Context(), idaccess_app.LoginCmd{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -61,10 +61,11 @@ func (ictrl *IdAccessCtrl) Signin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	res := dto_idaccess_res.SigninResDto{
-		UserId: found.UserID,
-		Email:  found.Email,
-		Token:  found.Token,
+	res := dto_idaccess_res.LoginResDto{
+		UserId:       found.UserID,
+		Email:        found.Email,
+		AccessToken:  found.AccessToken,
+		RefreshToken: found.RefreshToken,
 	}
 	json_utils.JsonResponse(w, res, http.StatusOK)
 }
@@ -86,6 +87,24 @@ func (ictrl *IdAccessCtrl) Verify(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (ictrl *IdAccessCtrl) Refresh(w http.ResponseWriter, r *http.Request) {
+	req, status, err := req_extractor.OpenRequestExtractor[dto_idaccess_req.RefreshToken](r)
+	if err != nil {
+		http.Error(w, err.Error(), status)
+		return
+	}
+
+	accessToken, err := ictrl.userSrv.Refresh(req.RefreshToken)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	res := dto_idaccess_res.RefreshTokenResDto{
+		AccessToken: accessToken,
+	}
+	json_utils.JsonResponse(w, res, http.StatusOK)
 }
 
 func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request) {

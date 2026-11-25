@@ -114,26 +114,28 @@ func TestSignupUser(t *testing.T) {
 // err generating token
 // ok
 
-func TestSignin(t *testing.T) {
+func TestLogin(t *testing.T) {
 	type SignupUserSetup struct {
 		isBcryptPassValid  bool
 		isGenTokenExpected bool
 	}
 	tests := []struct {
-		name          string
-		SignupUserReq SigninCmd
-		expectedToken string
-		expectedError string
-		setup         SignupUserSetup
+		name                 string
+		SignupUserReq        LoginCmd
+		expectedRefreshToken string
+		expectedAccessToken  string
+		expectedError        string
+		setup                SignupUserSetup
 	}{
 		{
 			name: "should not signup due to bad email",
-			SignupUserReq: SigninCmd{
+			SignupUserReq: LoginCmd{
 				Email:    "badmail@email.com",
 				Password: userClearPassword,
 			},
-			expectedToken: "",
-			expectedError: ErrWrongEmailOrPassword,
+			expectedRefreshToken: "",
+			expectedAccessToken:  "",
+			expectedError:        ErrWrongEmailOrPassword,
 			setup: SignupUserSetup{
 				isBcryptPassValid:  true,
 				isGenTokenExpected: false,
@@ -141,12 +143,13 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			name: "should not signup due to bad pass",
-			SignupUserReq: SigninCmd{
+			SignupUserReq: LoginCmd{
 				Email:    userEmail,
 				Password: userClearPassword,
 			},
-			expectedToken: "",
-			expectedError: ErrWrongEmailOrPassword,
+			expectedRefreshToken: "",
+			expectedAccessToken:  "",
+			expectedError:        ErrWrongEmailOrPassword,
 			setup: SignupUserSetup{
 				isBcryptPassValid:  false,
 				isGenTokenExpected: false,
@@ -154,12 +157,13 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			name: "should raise an error trying to generate a jwt",
-			SignupUserReq: SigninCmd{
+			SignupUserReq: LoginCmd{
 				Email:    userEmail,
 				Password: userClearPassword,
 			},
-			expectedToken: "",
-			expectedError: idaccess_dom.ErrCouldNotGenerateJwt.Error(),
+			expectedRefreshToken: "",
+			expectedAccessToken:  "",
+			expectedError:        idaccess_dom.ErrCouldNotGenerateJwt.Error(),
 			setup: SignupUserSetup{
 				isBcryptPassValid:  true,
 				isGenTokenExpected: true,
@@ -167,12 +171,13 @@ func TestSignin(t *testing.T) {
 		},
 		{
 			name: "should sign the user in",
-			SignupUserReq: SigninCmd{
+			SignupUserReq: LoginCmd{
 				Email:    userEmail,
 				Password: userClearPassword,
 			},
-			expectedToken: "encoded-token",
-			expectedError: "",
+			expectedRefreshToken: "encoded-token",
+			expectedAccessToken:  "access-token",
+			expectedError:        "",
 			setup: SignupUserSetup{
 				isBcryptPassValid:  true,
 				isGenTokenExpected: false,
@@ -186,9 +191,9 @@ func TestSignin(t *testing.T) {
 				GivenUser(user).
 				SetupExpectedTokenError(test.setup.isGenTokenExpected).
 				SetBcryptIsValid(test.setup.isBcryptPassValid).
-				SetupExpectedToken(test.expectedToken)
+				SetupExpectedToken(test.expectedRefreshToken, test.expectedAccessToken)
 
-			tokenRes, err := td.SigninUser(test.SignupUserReq)
+			tokenRes, err := td.LoginUser(test.SignupUserReq)
 
 			if test.expectedError != "" {
 				assert.EqualError(t, err, test.expectedError)
@@ -196,7 +201,7 @@ func TestSignin(t *testing.T) {
 			}
 
 			assert.Nil(t, err)
-			assert.Equal(t, test.expectedToken, tokenRes.Token)
+			assert.Equal(t, test.expectedRefreshToken, tokenRes.RefreshToken)
 			assert.Equal(t, test.SignupUserReq.Email, tokenRes.Email)
 			assert.Equal(t, user.Id(), tokenRes.UserID)
 		})

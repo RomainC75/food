@@ -6,8 +6,12 @@ type Credentials struct {
 }
 
 type SignupUser = Credentials
-type SigninUser = Credentials
+type LoginUser = Credentials
 
 type VerifyUser struct {
 	Token string `json:"token" validate:"required"`
+}
+
+type RefreshToken struct {
+	RefreshToken string `json:"refresh_token" validate:"required"`
 }
