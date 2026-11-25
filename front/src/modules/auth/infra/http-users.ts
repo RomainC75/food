@@ -2,7 +2,7 @@ import { AxiosInstance } from "axios";
 import { Users } from "../domain/users";
 import { axiosHttpHander } from "./http_handler";
 import { FullConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "../domain/user";
-import { TokenStorage } from "../domain/tokenStorage";
+import { TokenStorage, TokenStorageWriter } from "../domain/tokenStorage";
 
 export const ErrorUserUnverified = "Account not verified, please check your emails";
 
@@ -28,6 +28,7 @@ export class HttpUsers implements Users {
         `${signupUrl}/signup`,
         newUser
     )
+
     return response.data
   }
 

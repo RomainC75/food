@@ -23,6 +23,6 @@ export type ConnectedUserInfo = {
 }
 
 export type FullConnectedUserInfo = ConnectedUserInfo & {
-    token: string,
+    accessToken: string,
     refreshToken: string,
 }

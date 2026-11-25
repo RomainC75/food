@@ -1,7 +1,7 @@
 import axios, { AxiosInstance } from "axios";
-import { TokenStorage } from "../domain/tokenStorage";
+import { TokenStorageHandler } from "../domain/tokenStorage";
 
-export const axiosHttpHander = (tokenStorage: TokenStorage): AxiosInstance => {
+export const axiosHttpHander = (tokenStorage: TokenStorageHandler): AxiosInstance => {
 
     const api = axios.create({
       baseURL: process.env.NEXT_PUBLIC_API_URL,
