@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { InMemTokenStorage } from "./in-mem-tokenStorage";
 import { TokenStorage } from "../domain/tokenStorage";
 
-const axiosHttpHander = (tokenStorage: TokenStorage): AxiosInstance => {
+export const axiosHttpHander = (tokenStorage: TokenStorage): AxiosInstance => {
 
     const api = axios.create({
       baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -41,5 +41,5 @@ const axiosHttpHander = (tokenStorage: TokenStorage): AxiosInstance => {
     return api
 } 
 
-export const axiosInstance = axiosHttpHander(new InMemTokenStorage());
+
 

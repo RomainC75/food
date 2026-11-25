@@ -1,5 +1,6 @@
 import {
   ConnectedUserInfo,
+  FullConnectedUserInfo,
   SignedUpUser,
   SigninUser,
   SignupUser,
@@ -7,7 +8,7 @@ import {
 
 export interface Users {
   signup(userConnection: SignupUser): Promise<SignedUpUser>;
-  login(newUser: SigninUser): Promise<ConnectedUserInfo>;
+  login(newUser: SigninUser): Promise<FullConnectedUserInfo>;
 
   //   logout(): Promise<void>;
   //   getCurrentUser(): Promise<User | null>;

@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import LoginComponent from "./LoginForm";
 import Providers from "@/presentation/state-manager/providers";
 import { createTestDependencies, Dependencies, TestDependencies } from "@/dependencies";
+import { FAKE_TOKEN } from "@/modules/auth/infra/in-mem-users";
 
 
 const pushMock = vi.fn();
@@ -39,7 +40,7 @@ describe("SignupForm tests", () => {
   });
 
     it("should go to / if login returns the token", async () => {
-    const dependencies = Render(false, false, false);
+    const deps = Render(false, false, false);
     const user = userEvent.setup();
 
     const emailInput = screen.getByRole("textbox", {
@@ -55,7 +56,7 @@ describe("SignupForm tests", () => {
     expect(pushMock).toHaveBeenCalledWith("/");
 
     // TODO test the token has been saved 
-
+    expect(deps.tokenStorage.getAccessToken()).toEqual(FAKE_TOKEN)
   });
 });
 
@@ -65,7 +66,7 @@ const Render = (
   isUsersSlow: boolean,
   isResponseError: boolean,
   isUserUnverified: boolean,
-): Dependencies => {
+): TestDependencies => {
   deps = createTestDependencies({ isUsersSlow, isResponseError, isUserUnverified });
 
   render(

@@ -1,6 +1,6 @@
 import { Uuids } from "@/modules/shared/domain/uuid";
 import {
-  ConnectedUserInfo,
+  FullConnectedUserInfo,
   SignedUpUser,
   SigninUser,
   SignupUser,
@@ -8,10 +8,11 @@ import {
 import { Users } from "../domain/users";
 
 export const ErrorUserUnverified = "Account not verified, please check your emails";
+export const FAKE_TOKEN = "FAKE_TOKEN"
 
 export class InMemUser implements Users {
   signedUpUser: SignupUser | null;
-  fakeToken = "FAKE_TOKEN";
+  fakeToken = FAKE_TOKEN;
   workdspaceId = ["WORKSPACE_1", "WORKSPACE_2"];
   isResponseError = false;
   isUserUnverified = false;
@@ -39,7 +40,7 @@ export class InMemUser implements Users {
     });
   }
 
-  login(newUser: SigninUser): Promise<ConnectedUserInfo> {
+  login(newUser: SigninUser): Promise<FullConnectedUserInfo> {
     if (this.isUserUnverified){
       throw new Error(ErrorUserUnverified)
     }

@@ -9,6 +9,7 @@ import { InMemIngredients } from "@/modules/recipe/infra/in-mem-ingredients";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { Ingredient } from "@/modules/recipe/domain/Ingredient";
 import { IngredientPlain } from "@/modules/recipe/init/ingredient.init";
+import { InMemTokenStorage } from "./modules/auth/infra/in-mem-tokenStorage";
 
 export type Dependencies = {
   uuidGen: Uuids;
@@ -19,15 +20,16 @@ export type Dependencies = {
 };
 
 export const createAppDependencies = (): Dependencies => {
+  const tokenStorage = new InMemTokenStorage();
   const uuidGen = new InMemUuidGen();
-  const users = new HttpUsers();
+  const users = new HttpUsers(tokenStorage);
   const ingredients = new InMemIngredients(uuidGen, []);
 
   return {
     uuidGen,
     users,
     ingredients,
-    authSrv: new AuthSrv(users),
+    authSrv: new AuthSrv(users, tokenStorage),
     ingredientSrv: new IngredientSrv(ingredients),
   };
 };
@@ -39,7 +41,17 @@ export type TestDependenciesOptions = {
   initPlainIngredients?: IngredientPlain[];
 };
 
-export const createTestDependencies = (opts: TestDependenciesOptions = {}): Dependencies => {
+export type TestDependencies = {
+  tokenStorage: InMemTokenStorage
+  uuidGen: InMemUuidGen;
+  users: InMemUser;
+  authSrv: AuthSrv;
+  ingredients: InMemIngredients;
+  ingredientSrv: IngredientSrv;
+};
+
+export const createTestDependencies = (opts: TestDependenciesOptions = {}): TestDependencies => {
+  const tokenStorage = new InMemTokenStorage();
   const uuidGen = new InMemUuidGen();
   const users = new InMemUser(uuidGen, !!opts.isUsersSlow)
     .setIsResponseError(!!opts.isResponseError)
@@ -52,12 +64,12 @@ export const createTestDependencies = (opts: TestDependenciesOptions = {}): Depe
   );
 
   return {
+    tokenStorage: tokenStorage,
     uuidGen,
     users,
     ingredients,
-    authSrv: new AuthSrv(users),
+    authSrv: new AuthSrv(users, tokenStorage),
     ingredientSrv: new IngredientSrv(ingredients),
   } satisfies Dependencies;
 };
 
-export type TestDependencies = ReturnType<typeof createTestDependencies>;
