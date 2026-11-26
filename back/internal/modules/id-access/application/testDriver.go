@@ -38,7 +38,7 @@ func NewTestDriver(t *testing.T) *TestDriver {
 		uuidGen:      uuidGen,
 		bcrypt:       bcrypt,
 		jwtGen:       jwtGen,
-		userSrv:      NewUserSrv(uuidGen, bcrypt, jwtGen, users),
+		userSrv:      NewUserSrv(uuidGen, bcrypt, jwtGen, users, workspaces),
 		workspaceSrv: NewWorkspaceSrv(uuidGen, workspaces, dateTime),
 	}
 }

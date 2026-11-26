@@ -14,6 +14,7 @@ var (
 	ErrExistingUser         = "error : user exists"
 	ErrWrongEmailOrPassword = "wrong email or password"
 	ErrDecodingToken        = "error trying to decode the token"
+	ErrGettingWorkspaces    = "erro trying to get workspaces"
 )
 
 type Credentials struct {
@@ -29,13 +30,15 @@ type LoginResult struct {
 	Email        string
 	AccessToken  string
 	RefreshToken string
+	Workspaces   []*idaccess_dom.Workspace
 }
 
 type UserSrv struct {
-	uuidGen shared_domain.Uuids
-	bcrypt  idaccess_dom.Bcrypt
-	jwtGen  idaccess_dom.JWT
-	users   idaccess_dom.Users
+	uuidGen    shared_domain.Uuids
+	bcrypt     idaccess_dom.Bcrypt
+	jwtGen     idaccess_dom.JWT
+	users      idaccess_dom.Users
+	workspaces idaccess_dom.Workspaces
 }
 
 func NewUserSrv(
@@ -43,12 +46,14 @@ func NewUserSrv(
 	bcryptHandler idaccess_dom.Bcrypt,
 	jwtGen idaccess_dom.JWT,
 	users idaccess_dom.Users,
+	workspaces idaccess_dom.Workspaces,
 ) *UserSrv {
 	return &UserSrv{
-		uuidGen: uuidGen,
-		bcrypt:  bcryptHandler,
-		jwtGen:  jwtGen,
-		users:   users,
+		uuidGen:    uuidGen,
+		bcrypt:     bcryptHandler,
+		jwtGen:     jwtGen,
+		users:      users,
+		workspaces: workspaces,
 	}
 }
 
@@ -82,12 +87,23 @@ func (uSrv *UserSrv) LoginUser(ctx context.Context, cmd LoginCmd) (LoginResult, 
 	}
 
 	generatedTokens, err := uSrv.jwtGen.Generate(foundUser)
+	if err != nil {
+		return LoginResult{}, err
+	}
+
+	// TODO : to test
+	workspaces, err := uSrv.workspaces.GetWorkspaces(ctx, foundUser.Id())
+	if err != nil {
+		return LoginResult{}, errors.New(ErrGettingWorkspaces)
+	}
+
 	displayer.PrettyDisplay("tokens : ", generatedTokens)
 	return LoginResult{
 		UserID:       foundUser.Id(),
 		Email:        foundUser.Email(),
 		AccessToken:  generatedTokens.AccessToken,
 		RefreshToken: generatedTokens.RefreshToken,
+		Workspaces:   workspaces,
 	}, err
 }
 

@@ -147,13 +147,13 @@ func TestRefresh(t *testing.T) {
 	jwt := NewJWT(dateTime, refreshSecret, accessSecret, refreshExpiresIn, accessExpiresIn)
 	user := idaccess_dom.NewUser(userId, userEmail, password)
 	generatedTokens, _ := jwt.Generate(user)
-	t.Run("cannot refresh an access token", func(t *testing.T) {
+	t.Run("should NOT refresh with a access token", func(t *testing.T) {
 		_, err := jwt.Refresh(generatedTokens.AccessToken)
 		assert.NotNil(t, err)
 		assert.Contains(t, "invalid token", err.Error())
 	})
 
-	t.Run("cannot refresh an access token", func(t *testing.T) {
+	t.Run("should refresh with a refresh token", func(t *testing.T) {
 		newRefreshToken, err := jwt.Refresh(generatedTokens.RefreshToken)
 		assert.Nil(t, err)
 		assert.NotEqual(t, generatedTokens.RefreshToken, newRefreshToken)

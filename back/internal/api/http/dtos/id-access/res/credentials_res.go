@@ -8,10 +8,11 @@ type SignupResDto struct {
 }
 
 type LoginResDto struct {
-	UserId       uuid.UUID `json:"id"`
-	Email        string    `json:"email"`
-	AccessToken  string    `json:"access_token"`
-	RefreshToken string    `json:"refresh_token"`
+	UserId       uuid.UUID      `json:"id"`
+	Email        string         `json:"email"`
+	AccessToken  string         `json:"access_token"`
+	RefreshToken string         `json:"refresh_token"`
+	Workspaces   []WorkspaceDTO `json:"workspaces"`
 }
 
 type RefreshTokenResDto struct {

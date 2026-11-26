@@ -61,11 +61,13 @@ func (ictrl *IdAccessCtrl) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	res := dto_idaccess_res.LoginResDto{
 		UserId:       found.UserID,
 		Email:        found.Email,
 		AccessToken:  found.AccessToken,
 		RefreshToken: found.RefreshToken,
+		Workspaces:   dto_idaccess_res.ToWorkspaceDto(found.Workspaces),
 	}
 	json_utils.JsonResponse(w, res, http.StatusOK)
 }

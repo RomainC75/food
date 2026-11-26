@@ -79,7 +79,7 @@ func (imw *InMemWorkspaces) FindByName(ctx context.Context, userId uuid.UUID, na
 
 func (imw *InMemWorkspaces) GetWorkspaces(ctx context.Context, userId uuid.UUID) ([]*idaccess_dom.Workspace, error) {
 	imw.m.RLock()
-	defer imw.m.RLock()
+	defer imw.m.RUnlock()
 
 	wpIds := make([]uuid.UUID, 0, 10)
 	for _, m := range imw.memberships {
