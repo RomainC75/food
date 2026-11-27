@@ -6,7 +6,6 @@ import (
 	dto_idaccess_res "food/internal/api/http/dtos/id-access/res"
 	req_extractor "food/internal/api/http/req-extractor"
 	idaccess_app "food/internal/modules/id-access/application"
-	idaccess_dom "food/internal/modules/id-access/domain"
 	platform_http "food/internal/platform/http"
 	json_utils "food/utils/json"
 	"net/http"
@@ -109,7 +108,7 @@ func (ictrl *IdAccessCtrl) Refresh(w http.ResponseWriter, r *http.Request) {
 	json_utils.JsonResponse(w, res, http.StatusOK)
 }
 
-func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request) {
+func (ictrl *IdAccessCtrl) WhoAmI(w http.ResponseWriter, r *http.Request) {
 	email := platform_http.GetEmailFromContext(r)
 
 	id, ok := platform_http.GetUserIdFromContext(r.Context())
@@ -117,12 +116,13 @@ func (ictrl *IdAccessCtrl) ReturnAuthData(w http.ResponseWriter, r *http.Request
 		http.Error(w, "could not parse token ()", http.StatusUnauthorized)
 		return
 	}
-	data := idaccess_dom.VerifyInfo{
-		UserId:    id,
-		UserEmail: email,
+
+	res := dto_idaccess_res.WhoAmIDto{
+		Id:    id,
+		Email: email,
 	}
 
-	json_utils.JsonResponse(w, data, http.StatusOK)
+	json_utils.JsonResponse(w, res, http.StatusOK)
 }
 
 func (ictrl *IdAccessCtrl) extractBearer(r *http.Request) (string, error) {

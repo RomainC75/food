@@ -23,7 +23,6 @@ func GetUserIdFromContext(ctx context.Context) (uuid.UUID, bool) {
 	userIdStr := ctx.Value(userIdKey)
 	userId, ok := userIdStr.(uuid.UUID)
 	return userId, ok
-
 }
 
 // ==== Email ===

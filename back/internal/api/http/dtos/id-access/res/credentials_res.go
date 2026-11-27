@@ -18,3 +18,8 @@ type LoginResDto struct {
 type RefreshTokenResDto struct {
 	AccessToken string `json:"access_token"`
 }
+
+type WhoAmIDto struct {
+	Id    uuid.UUID `json:"id"`
+	Email string    `json:"email"`
+}

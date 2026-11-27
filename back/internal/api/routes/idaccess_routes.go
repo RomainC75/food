@@ -14,11 +14,11 @@ func ConnectIdAccessRoutes(r chi.Router, userSrv *idaccess_app.UserSrv, workspac
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/signup", idAccessCtrl.Signup)
 		r.Post("/login", idAccessCtrl.Login)
-		r.Get("/refresh", idAccessCtrl.Refresh)
+		r.Post("/refresh", idAccessCtrl.Refresh)
 
 		r.Group(func(r chi.Router) {
 			r.Use(idAccessCtrl.Verify)
-			r.Get("/verify", idAccessCtrl.ReturnAuthData)
+			r.Get("/whoami", idAccessCtrl.WhoAmI)
 			r.Post("/workspace", workspaceCtrl.Create)
 		})
 	})
