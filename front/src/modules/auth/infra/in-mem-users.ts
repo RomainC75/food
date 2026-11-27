@@ -4,16 +4,21 @@ import {
   SignedUpUser,
   SigninUser,
   SignupUser,
+  Workspace,
 } from "../domain/user";
 import { Users } from "../domain/users";
+import { WhoAmIResDto } from "@/modules/dtos/res/auth-res";
 
-export const ErrorUserUnverified = "Account not verified, please check your emails";
-export const FAKE_TOKEN = "FAKE_TOKEN"
+export const ErrorUserUnverified =
+  "Account not verified, please check your emails";
+export const FAKE_TOKEN = "FAKE_TOKEN";
 
 export class InMemUser implements Users {
+  refreshEmail = "";
+  refreshId = "";
   signedUpUser: SignupUser | null;
   fakeToken = FAKE_TOKEN;
-  workdspaceId = ["WORKSPACE_1", "WORKSPACE_2"];
+  workdspaces: Workspace[] = [{id: "1", name: "WORKSPACE_1"}, {id: "2", name: "WORKSPACE_2"}];
   isResponseError = false;
   isUserUnverified = false;
   constructor(
@@ -41,8 +46,8 @@ export class InMemUser implements Users {
   }
 
   login(newUser: SigninUser): Promise<FullConnectedUserInfo> {
-    if (this.isUserUnverified){
-      throw new Error(ErrorUserUnverified)
+    if (this.isUserUnverified) {
+      throw new Error(ErrorUserUnverified);
     }
     if (this.isResponseError) {
       throw new Error("login error");
@@ -50,9 +55,9 @@ export class InMemUser implements Users {
     return Promise.resolve({
       id: this.uuidGen.now(),
       email: newUser.email,
-      workspaceIds: this.workdspaceId,
+      workspaces: this.workdspaces,
       accessToken: this.fakeToken,
-      refreshToken: this.fakeToken
+      refreshToken: this.fakeToken,
     });
   }
 
@@ -60,8 +65,21 @@ export class InMemUser implements Users {
     this.isResponseError = isResponseError;
     return this;
   }
+
   setIsUserUnverified(isUserUnverified: boolean): InMemUser {
     this.isUserUnverified = isUserUnverified;
     return this;
+  }
+
+  refresh(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  whoami(): Promise<WhoAmIResDto> {
+    return Promise.resolve({
+      id: this.refreshId,
+      email: this.refreshEmail,
+      workspaces: this.workdspaces,
+    });
   }
 }

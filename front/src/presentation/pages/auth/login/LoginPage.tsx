@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { LoginFormData } from "./login";
 import { ErrorUserUnverified } from "@/modules/auth/infra/in-mem-users";
 import { useAuthStore } from "@/presentation/state-manager/providers/authProvider";
+import Link from "next/link";
 
 
 const LoginComponent = () => {
@@ -80,7 +81,7 @@ const LoginComponent = () => {
           {loading ? "Login in..." : "Login"}
         </Button>
       </Box>
-      <div>{error}</div>
+      <Link className="simple-link" href={"/auth/signup"}>No account yet ? Signup !</Link>
       {error && error !== ErrorUserUnverified &&  <div>Error trying to login, try again</div>}
       {error === ErrorUserUnverified && <div>check you emails</div>}
     </div>

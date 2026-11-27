@@ -10,6 +10,7 @@ import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { Ingredient } from "@/modules/recipe/domain/Ingredient";
 import { IngredientPlain } from "@/modules/recipe/init/ingredient.init";
 import { InMemTokenStorage } from "./modules/auth/infra/in-mem-tokenStorage";
+import { LocalStorageTokenStorage } from "./modules/auth/infra/localStorage-tokenStorage";
 
 export type Dependencies = {
   uuidGen: Uuids;
@@ -20,7 +21,7 @@ export type Dependencies = {
 };
 
 export const createAppDependencies = (): Dependencies => {
-  const tokenStorage = new InMemTokenStorage();
+  const tokenStorage = new LocalStorageTokenStorage();
   const uuidGen = new InMemUuidGen();
   const users = new HttpUsers(tokenStorage);
   const ingredients = new InMemIngredients(uuidGen, []);
@@ -34,6 +35,9 @@ export const createAppDependencies = (): Dependencies => {
   };
 };
 
+// ======== TEST =========================================
+// =======================================================
+
 export type TestDependenciesOptions = {
   isUsersSlow?: boolean;
   isResponseError?: boolean;
@@ -42,7 +46,7 @@ export type TestDependenciesOptions = {
 };
 
 export type TestDependencies = {
-  tokenStorage: InMemTokenStorage
+  tokenStorage: InMemTokenStorage;
   uuidGen: InMemUuidGen;
   users: InMemUser;
   authSrv: AuthSrv;
@@ -50,7 +54,9 @@ export type TestDependencies = {
   ingredientSrv: IngredientSrv;
 };
 
-export const createTestDependencies = (opts: TestDependenciesOptions = {}): TestDependencies => {
+export const createTestDependencies = (
+  opts: TestDependenciesOptions = {},
+): TestDependencies => {
   const tokenStorage = new InMemTokenStorage();
   const uuidGen = new InMemUuidGen();
   const users = new InMemUser(uuidGen, !!opts.isUsersSlow)
@@ -72,4 +78,3 @@ export const createTestDependencies = (opts: TestDependenciesOptions = {}): Test
     ingredientSrv: new IngredientSrv(ingredients),
   };
 };
-

@@ -18,8 +18,13 @@ export type SignedUpUser = {
 
 export type ConnectedUserInfo = {
     id: string, 
-    workspaceIds: string[], 
     email: string, 
+    workspaces: Workspace[], 
+}
+
+export type Workspace = {
+    id: string;
+    name: string;
 }
 
 export type FullConnectedUserInfo = ConnectedUserInfo & {

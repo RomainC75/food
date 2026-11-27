@@ -1,10 +1,13 @@
 export interface TokenStorage extends TokenStorageWriter, TokenStorageHandler {};
 export interface TokenStorageHandler {
     getAccessToken(): string | null;
-    removeAccessToken(): void;
+    getRefreshToken(): string | null;
+    removeTokens(): void;
+    setAccessToken(accessToken: string):void; 
 }
 
 export interface TokenStorageWriter{
-    saveAccessToken(token: string): void;
+    saveTokens(refreshToken: string, accessToken: string): void;
+    isTokenInMemory(): boolean
 }
 

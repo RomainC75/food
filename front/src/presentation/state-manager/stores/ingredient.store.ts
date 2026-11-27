@@ -2,12 +2,14 @@ import { createStore } from "zustand/vanilla";
 import { Ingredient, NewIngredient } from "@/modules/recipe/domain/Ingredient";
 import { IngredientSrv } from "@/modules/recipe/app/ingredientSrv";
 import { CreateIngredientForm } from "../../components/recipe/createIngredient/create-ingredient";
+import { Recipe } from "@/modules/recipe/domain/recipe";
 
-export interface IngredientState {
+export interface RecipeState {
   ingredients: Ingredient[];
+  recipes: Recipe[];
   loading: boolean;
   error: string | null;
-  workspace: string;
+  workspace: string | null;
 
   fetchIngredients: () => Promise<void>;
   saveIngredient: (newIngredient: CreateIngredientForm) => Promise<void>
@@ -16,11 +18,12 @@ export interface IngredientState {
 export const setIngredientStore = (
   ingredientSrv: IngredientSrv,
 ) => {
-  return createStore<IngredientState>()((set, get) => ({
+  return createStore<RecipeState>()((set, get) => ({
     ingredients: [],
+    recipes: [],
     loading: false,
     error: null,
-    workspace: "my-workspace",
+    workspace: null,
 
     fetchIngredients: async () => {
       set({
@@ -46,6 +49,9 @@ export const setIngredientStore = (
 
     saveIngredient: async ({name, baseUnit}: CreateIngredientForm) => {
       const { workspace } = get();
+      if(!workspace){
+        return
+      }
       const newIngredient = new NewIngredient(name, baseUnit, workspace)
       set({
         loading: true,

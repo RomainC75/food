@@ -1,5 +1,5 @@
+import { WhoAmIResDto } from "@/modules/dtos/res/auth-res";
 import {
-  ConnectedUserInfo,
   FullConnectedUserInfo,
   SignedUpUser,
   SigninUser,
@@ -9,8 +9,8 @@ import {
 export interface Users {
   signup(userConnection: SignupUser): Promise<SignedUpUser>;
   login(newUser: SigninUser): Promise<FullConnectedUserInfo>;
-
+  refresh():Promise<void>
+  whoami(): Promise<WhoAmIResDto>
   //   logout(): Promise<void>;
   //   getCurrentUser(): Promise<User | null>;
-  //   refresh(): Promise<void>;
 }
