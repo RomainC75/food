@@ -1,42 +1,57 @@
-import { WhoAmIResDto } from "@/modules/dtos/res/auth-res";
+import { AuthGateway } from "../domain/authGateway";
+import { SessionExpiredError } from "../domain/errors";
+import { SessionEvents } from "../domain/sessionEvents";
 import { TokenStorageWriter } from "../domain/tokenStorage";
-import { ConnectedUserInfo, SignedUpUser, SigninUser, SignupUser } from "../domain/user";
-import { Users } from "../domain/users";
+import {
+  ConnectedUserInfo,
+  SignedUpUser,
+  SigninUser,
+  SignupUser,
+} from "../domain/user";
 
 export class AuthSrv {
-    constructor(
-        private users: Users,
-        private tokenStorage: TokenStorageWriter
-    ){ }
+  constructor(
+    private gateway: AuthGateway,
+    private tokenStorage: TokenStorageWriter,
+    private sessionEvents: SessionEvents,
+  ) {}
 
-    signup(userConnection: SignupUser): Promise<SignedUpUser>{
-        return this.users.signup(userConnection)
+  signup(user: SignupUser): Promise<SignedUpUser> {
+    return this.gateway.signup(user);
+  }
+
+  async login(credentials: SigninUser): Promise<ConnectedUserInfo> {
+    const { user, tokens } = await this.gateway.login(credentials);
+    this.tokenStorage.saveTokens(tokens.refreshToken, tokens.accessToken);
+    return user;
+  }
+
+  /**
+   * Restores the session from stored tokens.
+   * Returns null when there is no usable session (no tokens, or refresh rejected).
+   * Other errors (network, 5xx) are rethrown and the tokens are kept.
+   */
+  async restoreSession(): Promise<ConnectedUserInfo | null> {
+    if (!this.tokenStorage.hasSession()) return null;
+
+    try {
+      // An expired access token is refreshed transparently by the HTTP client
+      return await this.gateway.whoami();
+    } catch (error) {
+      if (error instanceof SessionExpiredError) {
+        this.tokenStorage.removeTokens();
+        return null;
+      }
+      throw error;
     }
+  }
 
-    async login(userConnection: SigninUser): Promise<ConnectedUserInfo>{
-        const fullUserInfo = await this.users.login(userConnection)
-        console.log("--> userSrv : login()", fullUserInfo)
-        this.tokenStorage.saveTokens(fullUserInfo.refreshToken, fullUserInfo.accessToken)
-        return {
-            id: fullUserInfo.id,
-            email: fullUserInfo.email,
-            workspaces: fullUserInfo.workspaces,
-        }
-    }
+  logout(): void {
+    this.tokenStorage.removeTokens();
+  }
 
-    isTokenInMemory(): boolean {
-        return this.tokenStorage.isTokenInMemory()
-    }
-
-    async refresh(): Promise<void>{
-        console.log("--> refresh")
-        await this.users.refresh()
-    }
-
-    async whoami(): Promise<WhoAmIResDto>{
-        console.log("-> whoami")
-        return this.users.whoami()
-    }
-
-
+  /** Session lost outside of a user action (refresh rejected, logout in another tab). */
+  onSessionExpired(listener: () => void): () => void {
+    return this.sessionEvents.onSessionExpired(listener);
+  }
 }

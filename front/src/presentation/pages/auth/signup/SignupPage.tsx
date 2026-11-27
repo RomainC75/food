@@ -11,8 +11,8 @@ const SignupComponent = () => {
   const router = useRouter();
   const { loading, error, signup } = useAuthStore(
     useShallow((state) => ({
-      loading: state.loading,
-      error: state.error,
+      loading: state.signupPending,
+      error: state.signupError,
       signup: state.signup,
     })),
   );

@@ -1,13 +1,16 @@
-export interface TokenStorage extends TokenStorageWriter, TokenStorageHandler {};
+export interface TokenStorage extends TokenStorageWriter, TokenStorageHandler {}
+
+// Used by the HTTP client
 export interface TokenStorageHandler {
-    getAccessToken(): string | null;
-    getRefreshToken(): string | null;
-    removeTokens(): void;
-    setAccessToken(accessToken: string):void; 
+  getAccessToken(): string | null;
+  getRefreshToken(): string | null;
+  setAccessToken(accessToken: string): void;
+  removeTokens(): void;
 }
 
-export interface TokenStorageWriter{
-    saveTokens(refreshToken: string, accessToken: string): void;
-    isTokenInMemory(): boolean
+// Used by AuthSrv
+export interface TokenStorageWriter {
+  saveTokens(refreshToken: string, accessToken: string): void;
+  hasSession(): boolean;
+  removeTokens(): void;
 }
-

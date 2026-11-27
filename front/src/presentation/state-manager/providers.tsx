@@ -13,7 +13,11 @@ export default function Providers({
   connectedUser?: ConnectedUserInfo;
 }) {
   return (
-    <AuthProvider authSrv={deps.authSrv} connectedUser={connectedUser}>
+    <AuthProvider
+      authSrv={deps.authSrv}
+      workspaceSrv={deps.workspaceSrv}
+      connectedUser={connectedUser}
+    >
       <RecipeProvider ingredientSrv={deps.ingredientSrv}>
         {children}
       </RecipeProvider>

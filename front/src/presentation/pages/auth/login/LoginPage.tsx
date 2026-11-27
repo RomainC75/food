@@ -5,17 +5,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useRouter } from "next/navigation";
 import { LoginFormData } from "./login";
-import { ErrorUserUnverified } from "@/modules/auth/infra/in-mem-users";
+import { LoginError } from "@/presentation/state-manager/stores/auth.store";
+import { nextPathFromLocation } from "@/presentation/components/auth/redirect";
 import { useAuthStore } from "@/presentation/state-manager/providers/authProvider";
 import Link from "next/link";
 
+
+const LOGIN_ERROR_MESSAGES: Record<LoginError, string> = {
+  invalid_credentials: "Wrong email or password",
+  unverified: "Account not verified, please check your emails",
+  unknown: "Error trying to login, try again",
+};
 
 const LoginComponent = () => {
   const router = useRouter();
   const { loading, error, login } = useAuthStore(
     useShallow((state) => ({
-      loading: state.loading,
-      error: state.error,
+      loading: state.loginPending,
+      error: state.loginError,
       login: state.login,
     })),
   );
@@ -35,8 +42,8 @@ const LoginComponent = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     const success = await login(data);
-    if (success){
-      router.push("/")
+    if (success) {
+      router.push(nextPathFromLocation());
     }
   };
 
@@ -82,8 +89,7 @@ const LoginComponent = () => {
         </Button>
       </Box>
       <Link className="simple-link" href={"/auth/signup"}>No account yet ? Signup !</Link>
-      {error && error !== ErrorUserUnverified &&  <div>Error trying to login, try again</div>}
-      {error === ErrorUserUnverified && <div>check you emails</div>}
+      {error && <div role="alert">{LOGIN_ERROR_MESSAGES[error]}</div>}
     </div>
   );
 };
